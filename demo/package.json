@@ -1,0 +1,24 @@
+{
+  "name": "@agentic-wallet/demo",
+  "version": "1.0.0",
+  "description": "Demo scripts showcasing autonomous agent wallets on Solana devnet",
+  "type": "module",
+  "scripts": {
+    "start": "tsx run-demo.ts",
+    "demo:create": "tsx 01-create-agents.ts",
+    "demo:fund": "tsx 02-fund-agents.ts",
+    "demo:run": "tsx 03-run-agents.ts",
+    "demo:observe": "tsx 04-observe.ts"
+  },
+  "dependencies": {
+    "@agentic-wallet/agent-engine": "workspace:*",
+    "@agentic-wallet/core": "workspace:*",
+    "@solana/web3.js": "^1.98.4",
+    "dotenv": "^16.4.5",
+    "tsx": "^4.11.0"
+  },
+  "devDependencies": {
+    "@types/node": "^20.14.0",
+    "typescript": "^5.4.0"
+  }
+}

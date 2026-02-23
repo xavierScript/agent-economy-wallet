@@ -1,0 +1,7 @@
+{
+  "name": "@agentic-wallet/skills",
+  "version": "0.1.0",
+  "private": true,
+  "description": "OpenClaw-compatible agent skills for Solana agentic wallet",
+  "type": "module"
+}
