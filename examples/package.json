@@ -1,0 +1,19 @@
+{
+  "name": "@agentic-wallet/examples",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Runnable examples demonstrating the autonomous agent wallet on Solana devnet",
+  "scripts": {
+    "start": "tsx direct-sdk.ts"
+  },
+  "dependencies": {
+    "@agentic-wallet/core": "workspace:*",
+    "@solana/web3.js": "^1.98.4",
+    "dotenv": "^16.4.5",
+    "tsx": "^4.11.0"
+  },
+  "devDependencies": {
+    "@types/node": "^20.0.0"
+  }
+}

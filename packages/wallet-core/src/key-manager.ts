@@ -11,6 +11,7 @@ import {
   readFileSync,
   existsSync,
   readdirSync,
+  chmodSync,
 } from "node:fs";
 import { join } from "node:path";
 import { v4 as uuidv4 } from "uuid";
@@ -121,6 +122,7 @@ export class KeyManager {
     // Write to disk
     const filePath = join(this.keystoreDir, `${id}.json`);
     writeFileSync(filePath, JSON.stringify(entry, null, 2), "utf-8");
+    this.restrictPermissions(filePath);
 
     return entry;
   }
@@ -163,6 +165,7 @@ export class KeyManager {
 
     const filePath = join(this.keystoreDir, `${id}.json`);
     writeFileSync(filePath, JSON.stringify(entry, null, 2), "utf-8");
+    this.restrictPermissions(filePath);
 
     return entry;
   }
@@ -221,6 +224,20 @@ export class KeyManager {
   }
 
   // --- Encryption / Decryption ---
+
+  /**
+   * Restrict file permissions to owner-only (0600) on POSIX systems.
+   * On Windows this is a no-op since Windows uses ACLs, not POSIX permissions.
+   */
+  private restrictPermissions(filePath: string): void {
+    try {
+      if (process.platform !== "win32") {
+        chmodSync(filePath, 0o600);
+      }
+    } catch {
+      // Non-critical — best-effort permission restriction
+    }
+  }
 
   private deriveKey(
     passphrase: string,

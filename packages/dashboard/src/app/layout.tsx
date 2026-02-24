@@ -32,7 +32,7 @@ export default function RootLayout({
             <nav className="space-y-1 flex-1">
               <NavItem label="Overview" href="/" active />
               <NavItem label="Wallets" href="/wallets" />
-              <NavItem label="Agents" href="/agents" />
+              <NavItem label="Capabilities" href="/agents" />
               <NavItem label="Transactions" href="/transactions" />
               <NavItem label="Audit Logs" href="/logs" />
             </nav>

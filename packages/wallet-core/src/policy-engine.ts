@@ -1,4 +1,6 @@
 import { Transaction, SystemProgram, LAMPORTS_PER_SOL } from "@solana/web3.js";
+import { existsSync, readFileSync, writeFileSync, mkdirSync } from "node:fs";
+import { join, dirname } from "node:path";
 
 /**
  * A policy rule defines constraints on transactions.
@@ -54,12 +56,27 @@ interface TxRecord {
 export class PolicyEngine {
   private policies: Map<string, Policy> = new Map();
   private txHistory: Map<string, TxRecord[]> = new Map();
+  private stateFile: string | null = null;
+
+  /**
+   * Create a PolicyEngine optionally backed by persistent state file.
+   * @param stateDir Directory where policy state is persisted. If provided,
+   *                 rate-limit counters and policies survive process restarts.
+   */
+  constructor(stateDir?: string) {
+    if (stateDir) {
+      mkdirSync(stateDir, { recursive: true });
+      this.stateFile = join(stateDir, "policy-state.json");
+      this.loadState();
+    }
+  }
 
   /**
    * Attach a policy to a wallet.
    */
   attachPolicy(walletId: string, policy: Policy): void {
     this.policies.set(walletId, policy);
+    this.saveState();
   }
 
   /**
@@ -74,6 +91,7 @@ export class PolicyEngine {
    */
   removePolicy(walletId: string): void {
     this.policies.delete(walletId);
+    this.saveState();
   }
 
   /**
@@ -179,6 +197,7 @@ export class PolicyEngine {
     const history = this.txHistory.get(walletId)!;
     const pruned = history.filter((h) => h.timestamp > dayAgo);
     this.txHistory.set(walletId, pruned);
+    this.saveState();
   }
 
   /**
@@ -225,13 +244,54 @@ export class PolicyEngine {
             "11111111111111111111111111111111", // System Program
             "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA", // Token Program
             "ATokenGPvbdGVxr1b2hvZbsiqW5xWH25efTNsLJA8knL", // Associated Token Account
-            "JUP6LkbZbjS1jKKwapdHNy74zcZ3tLUZoi5QNyVTaV4", // Jupiter v6
+            "MemoSq4gqABAXKb96qnH8TysNcWxMyWCqXgDLGmfcHr", // Memo Program v2
             "ComputeBudget111111111111111111111111111111", // Compute Budget
           ],
         },
       ],
       createdAt: new Date().toISOString(),
     };
+  }
+
+  // --- Persistence ---
+
+  /**
+   * Save current policy state to disk (if stateDir was provided).
+   */
+  private saveState(): void {
+    if (!this.stateFile) return;
+    try {
+      const state = {
+        policies: Object.fromEntries(this.policies),
+        txHistory: Object.fromEntries(this.txHistory),
+        savedAt: new Date().toISOString(),
+      };
+      writeFileSync(this.stateFile, JSON.stringify(state, null, 2), "utf-8");
+    } catch {
+      // Non-critical — policy enforcement still works in-memory
+    }
+  }
+
+  /**
+   * Load policy state from disk (if stateDir was provided).
+   */
+  private loadState(): void {
+    if (!this.stateFile || !existsSync(this.stateFile)) return;
+    try {
+      const raw = JSON.parse(readFileSync(this.stateFile, "utf-8"));
+      if (raw.policies) {
+        for (const [k, v] of Object.entries(raw.policies)) {
+          this.policies.set(k, v as Policy);
+        }
+      }
+      if (raw.txHistory) {
+        for (const [k, v] of Object.entries(raw.txHistory)) {
+          this.txHistory.set(k, v as TxRecord[]);
+        }
+      }
+    } catch {
+      // Corrupted state file — start fresh
+    }
   }
 
   // --- Helpers ---

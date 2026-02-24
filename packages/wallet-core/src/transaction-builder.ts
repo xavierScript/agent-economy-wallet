@@ -115,4 +115,58 @@ export class TransactionBuilder {
 
     return [unitsIx, priceIx];
   }
-}
+
+  /**
+   * Memo Program ID (SPL Memo v2).
+   */
+  static readonly MEMO_PROGRAM_ID = new PublicKey(
+    "MemoSq4gqABAXKb96qnH8TysNcWxMyWCqXgDLGmfcHr",
+  );
+
+  /**
+   * Build a transaction that writes an on-chain memo.
+   * Memos are stored permanently in the transaction log and
+   * are a simple way to interact with a Solana program.
+   *
+   * @param signerPubkey - The signer (who pays the tx fee)
+   * @param message      - The memo text (max ~566 bytes after UTF-8 encoding)
+   */
+  buildMemo(signerPubkey: PublicKey, message: string): Transaction {
+    const memoIx: TransactionInstruction = {
+      keys: [{ pubkey: signerPubkey, isSigner: true, isWritable: false }],
+      programId: TransactionBuilder.MEMO_PROGRAM_ID,
+      data: Buffer.from(message, "utf-8"),
+    };
+    return new Transaction().add(memoIx);
+  }
+
+  /**
+   * Build a SOL transfer with an attached memo.
+   * Combines a System Program transfer + a Memo Program instruction
+   * into a single atomic transaction.
+   */
+  buildSolTransferWithMemo(
+    fromPubkey: PublicKey,
+    toPubkey: PublicKey,
+    amountSol: number,
+    memo: string,
+  ): Transaction {
+    const lamports = Math.floor(amountSol * LAMPORTS_PER_SOL);
+    const tx = new Transaction();
+
+    tx.add(
+      SystemProgram.transfer({
+        fromPubkey,
+        toPubkey,
+        lamports,
+      }),
+    );
+
+    tx.add({
+      keys: [{ pubkey: fromPubkey, isSigner: true, isWritable: false }],
+      programId: TransactionBuilder.MEMO_PROGRAM_ID,
+      data: Buffer.from(memo, "utf-8"),
+    });
+
+    return tx;
+  }

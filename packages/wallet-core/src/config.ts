@@ -1,7 +1,12 @@
+import { resolve } from "node:path";
 import type { Cluster } from "@solana/web3.js";
 import { config as loadEnv } from "dotenv";
 
+// Load .env from project root (walks up from any sub-package)
 loadEnv();
+loadEnv({ path: resolve(process.cwd(), ".env") });
+loadEnv({ path: resolve(process.cwd(), "..", ".env") });
+loadEnv({ path: resolve(process.cwd(), "..", "..", ".env") });
 
 export interface AgentWalletConfig {
   /** Solana cluster: devnet | testnet | mainnet-beta */
@@ -14,10 +19,25 @@ export interface AgentWalletConfig {
   logDir: string;
   /** Passphrase for encrypting/decrypting private keys */
   passphrase: string;
-  /** Jupiter API base URL */
-  jupiterApiUrl: string;
   /** Logging level */
   logLevel: "debug" | "info" | "warn" | "error";
+}
+
+function getPassphrase(): string {
+  const passphrase = process.env.WALLET_PASSPHRASE;
+  if (!passphrase) {
+    if (process.env.NODE_ENV === "test") return "test-passphrase";
+    console.warn(
+      "\x1b[33m⚠  WALLET_PASSPHRASE not set. Using dev-only default. Set it in .env for production.\x1b[0m",
+    );
+    return "default-dev-passphrase";
+  }
+  if (passphrase.length < 12) {
+    console.warn(
+      "\x1b[33m⚠  WALLET_PASSPHRASE is weak (< 12 chars). Use a stronger passphrase.\x1b[0m",
+    );
+  }
+  return passphrase;
 }
 
 export function getDefaultConfig(): AgentWalletConfig {
@@ -27,8 +47,7 @@ export function getDefaultConfig(): AgentWalletConfig {
     rpcUrl: process.env.SOLANA_RPC_URL || "https://api.devnet.solana.com",
     keystoreDir: `${home}/.agentic-wallet/keys`,
     logDir: `${home}/.agentic-wallet/logs`,
-    passphrase: process.env.WALLET_PASSPHRASE || "default-dev-passphrase",
-    jupiterApiUrl: process.env.JUPITER_API_URL || "https://api.jup.ag/swap/v1",
+    passphrase: getPassphrase(),
     logLevel:
       (process.env.LOG_LEVEL as AgentWalletConfig["logLevel"]) || "info",
   };

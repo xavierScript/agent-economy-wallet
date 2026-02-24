@@ -8,7 +8,7 @@ importers:
 
   .: {}
 
-  demo:
+  examples:
     dependencies:
       '@agentic-wallet/agent-engine':
         specifier: workspace:*
@@ -27,11 +27,8 @@ importers:
         version: 4.21.0
     devDependencies:
       '@types/node':
-        specifier: ^20.14.0
+        specifier: ^20.0.0
         version: 20.19.33
-      typescript:
-        specifier: ^5.4.0
-        version: 5.9.3
 
   packages/agent-engine:
     dependencies:

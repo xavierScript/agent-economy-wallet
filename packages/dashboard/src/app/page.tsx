@@ -1,110 +1,132 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 
-// Mock data for demo (will be replaced with real API/WebSocket)
-const MOCK_WALLETS = [
-  {
-    id: "wallet-1",
-    label: "DCA Agent",
-    publicKey: "7xKXtg2CnuEqutD...",
-    balanceSol: 2.45,
-    tokens: 3,
-  },
-  {
-    id: "wallet-2",
-    label: "Rebalance Agent",
-    publicKey: "9aTpV2wsdWHk7m2...",
-    balanceSol: 5.12,
-    tokens: 5,
-  },
-  {
-    id: "wallet-3",
-    label: "Arb Scanner",
-    publicKey: "3nFqWbZi67yuKh...",
-    balanceSol: 1.08,
-    tokens: 1,
-  },
-];
+interface WalletData {
+  id: string;
+  label: string;
+  publicKey: string;
+  createdAt: string;
+}
 
-const MOCK_AGENTS = [
-  {
-    id: "agent-1",
-    name: "SOL→USDC DCA",
-    strategy: "dca",
-    status: "running",
-    ticks: 142,
-    walletId: "wallet-1",
-  },
-  {
-    id: "agent-2",
-    name: "Portfolio 60/40",
-    strategy: "rebalance",
-    status: "running",
-    ticks: 87,
-    walletId: "wallet-2",
-  },
-  {
-    id: "agent-3",
-    name: "SOL/USDC Arb",
-    strategy: "arbitrage",
-    status: "paused",
-    ticks: 56,
-    walletId: "wallet-3",
-  },
-];
+interface LogEntry {
+  timestamp: string;
+  action: string;
+  walletId?: string;
+  publicKey?: string;
+  txSignature?: string;
+  success: boolean;
+  error?: string;
+  details?: Record<string, unknown>;
+}
 
-const MOCK_LOGS = [
-  {
-    time: "2m ago",
-    action: "dca:swapped",
-    success: true,
-    wallet: "DCA Agent",
-    detail: "0.1 SOL → 4.23 USDC",
-  },
-  {
-    time: "5m ago",
-    action: "rebalance:balanced",
-    success: true,
-    wallet: "Rebalance Agent",
-    detail: "Portfolio within threshold",
-  },
-  {
-    time: "8m ago",
-    action: "arbitrage:no-opportunity",
-    success: true,
-    wallet: "Arb Scanner",
-    detail: "+0.02% (below 0.3% min)",
-  },
-  {
-    time: "12m ago",
-    action: "dca:swapped",
-    success: true,
-    wallet: "DCA Agent",
-    detail: "0.1 SOL → 4.25 USDC",
-  },
-  {
-    time: "15m ago",
-    action: "airdrop:received",
-    success: true,
-    wallet: "DCA Agent",
-    detail: "2 SOL airdrop",
-  },
-];
+interface DashboardData {
+  cluster: string;
+  rpcUrl: string;
+  timestamp: string;
+  wallets: WalletData[];
+  recentLogs: LogEntry[];
+  stats: {
+    totalWallets: number;
+    totalLogs: number;
+    successfulTxns: number;
+    failedTxns: number;
+  };
+}
+
+function timeAgo(timestamp: string): string {
+  const diff = Date.now() - new Date(timestamp).getTime();
+  const seconds = Math.floor(diff / 1000);
+  if (seconds < 60) return `${seconds}s ago`;
+  const minutes = Math.floor(seconds / 60);
+  if (minutes < 60) return `${minutes}m ago`;
+  const hours = Math.floor(minutes / 60);
+  if (hours < 24) return `${hours}h ago`;
+  return `${Math.floor(hours / 24)}d ago`;
+}
+
+function truncate(str: string, len: number = 20): string {
+  if (str.length <= len) return str;
+  return str.substring(0, len) + "...";
+}
 
 export default function DashboardPage() {
   const [time, setTime] = useState(new Date());
+  const [data, setData] = useState<DashboardData | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  const fetchData = useCallback(async () => {
+    try {
+      const res = await fetch("/api/status");
+      if (!res.ok) throw new Error(`API error: ${res.status}`);
+      const json = await res.json();
+      setData(json);
+      setError(null);
+    } catch (err: any) {
+      setError(err.message);
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    fetchData();
+    // Poll every 5 seconds for live updates
+    const interval = setInterval(fetchData, 5000);
+    return () => clearInterval(interval);
+  }, [fetchData]);
 
   useEffect(() => {
     const timer = setInterval(() => setTime(new Date()), 1000);
     return () => clearInterval(timer);
   }, []);
 
-  const totalBalance = MOCK_WALLETS.reduce((s, w) => s + w.balanceSol, 0);
-  const runningAgents = MOCK_AGENTS.filter(
-    (a) => a.status === "running",
-  ).length;
-  const totalTicks = MOCK_AGENTS.reduce((s, a) => s + a.ticks, 0);
+  if (loading && !data) {
+    return (
+      <div className="flex items-center justify-center min-h-[50vh]">
+        <div className="text-center">
+          <div className="w-8 h-8 border-2 border-solana-purple border-t-transparent rounded-full animate-spin mx-auto mb-4" />
+          <p className="text-[var(--muted)]">Loading dashboard data...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (error && !data) {
+    return (
+      <div className="flex items-center justify-center min-h-[50vh]">
+        <div className="card text-center max-w-md">
+          <div className="text-red-400 text-lg mb-2">Connection Error</div>
+          <p className="text-[var(--muted)] text-sm mb-4">{error}</p>
+          <button
+            onClick={fetchData}
+            className="px-4 py-2 bg-solana-purple text-white rounded-lg text-sm hover:opacity-80"
+          >
+            Retry
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  const wallets = data?.wallets ?? [];
+  const logs = data?.recentLogs ?? [];
+  const stats = data?.stats ?? {
+    totalWallets: 0,
+    totalLogs: 0,
+    successfulTxns: 0,
+    failedTxns: 0,
+  };
+  const cluster = data?.cluster ?? "devnet";
+
+  const successRate =
+    stats.successfulTxns + stats.failedTxns > 0
+      ? Math.round(
+          (stats.successfulTxns / (stats.successfulTxns + stats.failedTxns)) *
+            100,
+        )
+      : 100;
 
   return (
     <div>
@@ -118,133 +140,158 @@ export default function DashboardPage() {
         <div className="text-right text-sm text-[var(--muted)]">
           <div>
             Cluster:{" "}
-            <span className="text-solana-green font-medium">devnet</span>
+            <span className="text-solana-green font-medium">{cluster}</span>
           </div>
           <div>{time.toLocaleTimeString()}</div>
+          {error && (
+            <div className="text-yellow-400 text-xs mt-1">
+              ⚠ Live updates paused
+            </div>
+          )}
         </div>
       </div>
 
       {/* Stats Grid */}
       <div className="grid grid-cols-4 gap-4 mb-8">
         <StatCard
-          label="Total Balance"
-          value={`${totalBalance.toFixed(2)} SOL`}
-          sub="~$xxx USD"
+          label="Total Wallets"
+          value={String(stats.totalWallets)}
+          sub={`${wallets.length} active`}
           color="green"
         />
         <StatCard
-          label="Active Wallets"
-          value={String(MOCK_WALLETS.length)}
-          sub="3 with tokens"
+          label="Audit Events"
+          value={String(stats.totalLogs)}
+          sub="across all wallets"
           color="purple"
         />
         <StatCard
-          label="Running Agents"
-          value={`${runningAgents}/${MOCK_AGENTS.length}`}
-          sub={`${totalTicks} total ticks`}
+          label="Successful Txns"
+          value={String(stats.successfulTxns)}
+          sub={`${successRate}% success rate`}
           color="blue"
         />
         <StatCard
-          label="Transactions Today"
-          value="28"
-          sub="100% success rate"
-          color="yellow"
+          label="Failed Txns"
+          value={String(stats.failedTxns)}
+          sub={stats.failedTxns === 0 ? "No failures" : "Check logs"}
+          color={stats.failedTxns > 0 ? "yellow" : "green"}
         />
       </div>
 
       {/* Two Column Layout */}
       <div className="grid grid-cols-2 gap-6 mb-6">
-        {/* Agents Card */}
-        <div className="card">
-          <h2 className="text-lg font-semibold text-white mb-4">
-            Active Agents
-          </h2>
-          <div className="space-y-3">
-            {MOCK_AGENTS.map((agent) => (
-              <div
-                key={agent.id}
-                className="flex items-center justify-between p-3 bg-black/20 rounded-lg"
-              >
-                <div>
-                  <div className="font-medium text-white text-sm">
-                    {agent.name}
-                  </div>
-                  <div className="text-xs text-[var(--muted)]">
-                    {agent.strategy} • {agent.ticks} ticks
-                  </div>
-                </div>
-                <span
-                  className={
-                    agent.status === "running"
-                      ? "badge-success"
-                      : "badge-warning"
-                  }
-                >
-                  {agent.status}
-                </span>
-              </div>
-            ))}
-          </div>
-        </div>
-
         {/* Wallets Card */}
         <div className="card">
           <h2 className="text-lg font-semibold text-white mb-4">Wallets</h2>
+          {wallets.length === 0 ? (
+            <div className="text-center py-8 text-[var(--muted)] text-sm">
+              <p>No wallets found.</p>
+              <p className="text-xs mt-1">
+                Create one with:{" "}
+                <code className="text-solana-green">
+                  agentic-wallet wallet create
+                </code>
+              </p>
+            </div>
+          ) : (
+            <div className="space-y-3">
+              {wallets.map((w) => (
+                <div
+                  key={w.id}
+                  className="flex items-center justify-between p-3 bg-black/20 rounded-lg"
+                >
+                  <div>
+                    <div className="font-medium text-white text-sm">
+                      {w.label}
+                    </div>
+                    <div className="text-xs text-[var(--muted)] font-mono">
+                      {truncate(w.publicKey, 24)}
+                    </div>
+                  </div>
+                  <div className="text-right">
+                    <div className="text-xs text-[var(--muted)]">
+                      {timeAgo(w.createdAt)}
+                    </div>
+                    <div className="text-xs text-[var(--muted)] font-mono">
+                      {w.id.substring(0, 8)}...
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+
+        {/* Quick Info Card */}
+        <div className="card">
+          <h2 className="text-lg font-semibold text-white mb-4">System Info</h2>
           <div className="space-y-3">
-            {MOCK_WALLETS.map((w) => (
-              <div
-                key={w.id}
-                className="flex items-center justify-between p-3 bg-black/20 rounded-lg"
-              >
-                <div>
-                  <div className="font-medium text-white text-sm">
-                    {w.label}
-                  </div>
-                  <div className="text-xs text-[var(--muted)] font-mono">
-                    {w.publicKey}
-                  </div>
-                </div>
-                <div className="text-right">
-                  <div className="text-sm font-medium text-solana-green">
-                    {w.balanceSol.toFixed(2)} SOL
-                  </div>
-                  <div className="text-xs text-[var(--muted)]">
-                    {w.tokens} tokens
-                  </div>
-                </div>
-              </div>
-            ))}
+            <InfoRow label="Cluster" value={cluster} />
+            <InfoRow label="RPC" value={truncate(data?.rpcUrl ?? "", 35)} />
+            <InfoRow
+              label="Last Update"
+              value={
+                data?.timestamp
+                  ? new Date(data.timestamp).toLocaleTimeString()
+                  : "-"
+              }
+            />
+            <InfoRow
+              label="Keystore"
+              value={`${stats.totalWallets} wallet(s)`}
+            />
+            <InfoRow label="Audit Logs" value={`${stats.totalLogs} entries`} />
+            <InfoRow
+              label="Transactions"
+              value={`${stats.successfulTxns} OK / ${stats.failedTxns} failed`}
+            />
           </div>
         </div>
       </div>
 
       {/* Activity Feed */}
       <div className="card">
-        <h2 className="text-lg font-semibold text-white mb-4">
-          Recent Activity
-        </h2>
-        <div className="space-y-2">
-          {MOCK_LOGS.map((log, i) => (
-            <div
-              key={i}
-              className="flex items-center gap-3 p-2 hover:bg-white/5 rounded-lg transition-colors"
-            >
-              <div
-                className={`w-2 h-2 rounded-full ${log.success ? "bg-[var(--success)]" : "bg-[var(--danger)]"}`}
-              />
-              <span className="text-xs text-[var(--muted)] w-16">
-                {log.time}
-              </span>
-              <span className="text-sm font-medium text-white w-48">
-                {log.action}
-              </span>
-              <span className="text-sm text-[var(--muted)]">{log.wallet}</span>
-              <span className="text-sm text-[var(--muted)] ml-auto">
-                {log.detail}
-              </span>
-            </div>
-          ))}
+        <div className="flex items-center justify-between mb-4">
+          <h2 className="text-lg font-semibold text-white">Recent Activity</h2>
+          <span className="text-xs text-[var(--muted)]">
+            Last {logs.length} events &bull; auto-refreshes every 5s
+          </span>
         </div>
+        {logs.length === 0 ? (
+          <div className="text-center py-8 text-[var(--muted)] text-sm">
+            No activity yet. Run the demo or create a wallet to get started.
+          </div>
+        ) : (
+          <div className="space-y-2 max-h-96 overflow-y-auto">
+            {logs.slice(0, 25).map((log, i) => (
+              <div
+                key={`${log.timestamp}-${i}`}
+                className="flex items-center gap-3 p-2 hover:bg-white/5 rounded-lg transition-colors"
+              >
+                <div
+                  className={`w-2 h-2 rounded-full flex-shrink-0 ${log.success ? "bg-[var(--success)]" : "bg-[var(--danger)]"}`}
+                />
+                <span className="text-xs text-[var(--muted)] w-16 flex-shrink-0">
+                  {timeAgo(log.timestamp)}
+                </span>
+                <span className="text-sm font-medium text-white w-48 flex-shrink-0">
+                  {log.action}
+                </span>
+                <span className="text-sm text-[var(--muted)] flex-shrink-0">
+                  {log.walletId ? truncate(log.walletId, 12) : "\u2014"}
+                </span>
+                <span className="text-sm text-[var(--muted)] ml-auto text-right">
+                  {log.txSignature
+                    ? `tx: ${truncate(log.txSignature, 16)}`
+                    : log.error
+                      ? `\u274c ${truncate(log.error, 30)}`
+                      : ""}
+                </span>
+              </div>
+            ))}
+          </div>
+        )}
       </div>
     </div>
   );
@@ -273,6 +320,15 @@ function StatCard({
       <div className="text-xs text-[var(--muted)] mb-1">{label}</div>
       <div className="text-2xl font-bold text-white">{value}</div>
       <div className="text-xs text-[var(--muted)] mt-1">{sub}</div>
+    </div>
+  );
+}
+
+function InfoRow({ label, value }: { label: string; value: string }) {
+  return (
+    <div className="flex items-center justify-between p-2 bg-black/20 rounded-lg">
+      <span className="text-sm text-[var(--muted)]">{label}</span>
+      <span className="text-sm text-white font-mono">{value}</span>
     </div>
   );
 }

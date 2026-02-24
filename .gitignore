@@ -3,7 +3,11 @@ dist/
 .next/
 .env
 .env.local
+.env.production
 *.log
+*.keystore
 .agentic-wallet/
 .turbo/
 coverage/
+*.tsbuildinfo
+out/

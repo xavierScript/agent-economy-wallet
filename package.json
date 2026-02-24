@@ -1,19 +1,15 @@
 {
   "name": "agentic-wallet",
   "version": "1.0.0",
-  "description": "Autonomous AI agent wallets for Solana — create, sign, trade, and manage wallets without human intervention",
+  "description": "Programmatic Solana wallets — create, sign, hold tokens, and interact with on-chain programs",
   "private": true,
   "type": "module",
   "scripts": {
-    "build": "pnpm --filter @agentic-wallet/core build && pnpm --filter @agentic-wallet/agent-engine build && pnpm --filter @agentic-wallet/cli build",
+    "build": "pnpm --filter @agentic-wallet/core build && pnpm --filter @agentic-wallet/cli build",
     "dev": "pnpm -r --parallel dev",
+    "start": "pnpm build && pnpm --filter @agentic-wallet/examples start",
     "cli": "pnpm --filter @agentic-wallet/cli build && node packages/cli/dist/index.js",
     "dashboard:dev": "pnpm --filter @agentic-wallet/dashboard dev",
-    "demo": "pnpm build && pnpm --filter @agentic-wallet/demo start",
-    "demo:create": "pnpm build && pnpm --filter @agentic-wallet/demo demo:create",
-    "demo:fund": "pnpm build && pnpm --filter @agentic-wallet/demo demo:fund",
-    "demo:run": "pnpm build && pnpm --filter @agentic-wallet/demo demo:run",
-    "demo:observe": "pnpm build && pnpm --filter @agentic-wallet/demo demo:observe",
     "test": "pnpm -r test",
     "lint": "pnpm -r lint",
     "clean": "pnpm -r clean"
