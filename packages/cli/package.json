@@ -1,7 +1,7 @@
 {
   "name": "@agentic-wallet/cli",
-  "version": "1.0.0",
-  "description": "CLI tool for managing Solana agentic wallets",
+  "version": "2.0.0",
+  "description": "Ink-based TUI for observing Solana agentic wallet actions",
   "type": "module",
   "bin": {
     "agentic-wallet": "./dist/index.js"
@@ -9,20 +9,21 @@
   "scripts": {
     "build": "tsc",
     "dev": "tsc --watch",
+    "start": "node dist/index.js",
     "clean": "rimraf dist"
   },
   "dependencies": {
     "@agentic-wallet/core": "workspace:*",
     "@solana/web3.js": "^1.95.0",
-    "commander": "^12.1.0",
-    "chalk": "^5.3.0",
-    "ora": "^8.0.1",
-    "cli-table3": "^0.6.5",
+    "ink": "^5.1.0",
+    "ink-spinner": "^5.0.0",
+    "react": "^18.3.1",
     "dotenv": "^16.4.5"
   },
   "devDependencies": {
     "typescript": "^5.4.0",
     "@types/node": "^20.14.0",
+    "@types/react": "^18.3.0",
     "rimraf": "^5.0.0"
   }
 }

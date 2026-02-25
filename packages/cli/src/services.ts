@@ -1,8 +1,8 @@
 /**
  * services.ts
  *
- * Bootstraps all wallet-core services used by the MCP tools.
- * Centralised here so every tool file receives the same shared instances.
+ * Bootstraps all wallet-core services shared by every TUI view and hook.
+ * Identical pattern to the MCP server — single source of truth.
  */
 
 import {
@@ -17,8 +17,6 @@ import {
   type AgentWalletConfig,
 } from "@agentic-wallet/core";
 
-// ── Types ────────────────────────────────────────────────────────────────────
-
 export interface WalletServices {
   config: AgentWalletConfig;
   connection: SolanaConnection;
@@ -30,12 +28,6 @@ export interface WalletServices {
   splTokenService: SplTokenService;
 }
 
-// ── Bootstrap ────────────────────────────────────────────────────────────────
-
-/**
- * Create and return every service the MCP tools depend on.
- * Called once at startup so all tool handlers share the same instances.
- */
 export function createServices(): WalletServices {
   const config = getDefaultConfig();
   const connection = new SolanaConnection(config.rpcUrl, config.cluster);
