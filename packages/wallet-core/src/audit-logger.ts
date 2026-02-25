@@ -53,7 +53,7 @@ export class AuditLogger {
     const filePath = join(this.logDir, `audit-${dateStr}.jsonl`);
     appendFileSync(filePath, JSON.stringify(fullEntry) + "\n", "utf-8");
 
-    // Notify listeners (for real-time dashboard)
+    // Notify listeners (for real-time events)
     for (const listener of this.listeners) {
       try {
         listener(fullEntry);

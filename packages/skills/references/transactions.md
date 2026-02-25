@@ -1,6 +1,6 @@
 # Transactions
 
-Execute transactions with agent wallets — SOL transfers, SPL token transfers, and token swaps.
+Execute transactions with agent wallets — SOL transfers and SPL token transfers.
 
 ⚠️ Before every transaction, complete the security checklist in [security.md](security.md).
 
@@ -93,86 +93,6 @@ const sig = await walletService.signAndSendTransaction(walletId, tx, {
 
 ---
 
-## Swap Tokens
-
-### CLI
-
-```bash
-agentic-wallet swap <walletId> --from <inputMint> --to <outputMint> --amount <rawAmount> --slippage <bps>
-
-# Example: Swap 0.1 SOL for test-USDC on devnet
-agentic-wallet swap a1b2c3d4-... \
-  --from So11111111111111111111111111111111111111112 \
-  --to <testUsdcMint> \
-  --amount 100000000 \
-  --slippage 100
-```
-
-### SDK
-
-```typescript
-import { DevnetSwapClient, SolanaConnection } from "@agentic-wallet/core";
-
-// Devnet: on-chain AMM
-const swapClient = new DevnetSwapClient(connection);
-await swapClient.loadOrSetup();
-
-const { quote, transaction } = await swapClient.buildSwap({
-  inputMint: "So11111111111111111111111111111111111111112",
-  outputMint: swapClient.getTestMint(),
-  amount: 100_000_000, // 0.1 SOL in lamports
-  userPublicKey: walletService.getPublicKey(walletId),
-  slippageBps: 50, // 0.5% slippage
-});
-
-console.log(`Quote: ${quote.inAmount} → ${quote.outAmount}`);
-
-const sig = await walletService.signAndSendVersionedTransaction(
-  walletId,
-  transaction,
-  {
-    action: "swap:devnet-amm",
-    details: { inAmount: quote.inAmount, outAmount: quote.outAmount },
-  },
-);
-```
-
-### Parameters
-
-| Parameter    | Type   | Required | Default | Description                                |
-| ------------ | ------ | -------- | ------- | ------------------------------------------ |
-| `walletId`   | string | Yes      |         | Wallet to use for the swap                 |
-| `--from`     | string | Yes      |         | Input token mint address                   |
-| `--to`       | string | Yes      |         | Output token mint address                  |
-| `--amount`   | string | Yes      |         | Amount in smallest unit (lamports for SOL) |
-| `--slippage` | string | No       | `50`    | Slippage tolerance in basis points         |
-
-### Common Token Mints
-
-| Token              | Mint Address                                            |
-| ------------------ | ------------------------------------------------------- |
-| SOL (wrapped)      | `So11111111111111111111111111111111111111112`           |
-| test-USDC (devnet) | Created dynamically by `DevnetSwapClient.loadOrSetup()` |
-| USDC (mainnet)     | `EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v`          |
-
-### How Swaps Work
-
-**Devnet (DevnetSwapClient):**
-
-1. Pool setup creates a test-USDC token and funds a pool authority
-2. Quote calculated via constant-product formula: `output = (reserveOut × amountIn) / (reserveIn + amountIn)`
-3. 0.3% fee applied
-4. Builds a versioned transaction
-5. Agent wallet signs and sends — real on-chain transaction
-
-**Mainnet (JupiterClient):**
-
-1. Jupiter API finds optimal route across all Solana DEXes
-2. Returns a versioned transaction with the best route
-3. Agent wallet signs and sends
-
----
-
 ## Error Handling
 
 | Error                           | Cause                                 | Fix                                                    |
@@ -186,8 +106,7 @@ const sig = await walletService.signAndSendVersionedTransaction(
 
 ## Transaction Types
 
-| Type         | Signs With             | Method                                            |
-| ------------ | ---------------------- | ------------------------------------------------- |
-| SOL transfer | Legacy `Transaction`   | `walletService.signAndSendTransaction()`          |
-| SPL transfer | Legacy `Transaction`   | `walletService.signAndSendTransaction()`          |
-| Token swap   | `VersionedTransaction` | `walletService.signAndSendVersionedTransaction()` |
+| Type         | Signs With           | Method                                   |
+| ------------ | -------------------- | ---------------------------------------- |
+| SOL transfer | Legacy `Transaction` | `walletService.signAndSendTransaction()` |
+| SPL transfer | Legacy `Transaction` | `walletService.signAndSendTransaction()` |

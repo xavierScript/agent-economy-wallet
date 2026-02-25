@@ -320,27 +320,4 @@ export class WalletService {
     const entry = this.keyManager.loadKeystore(walletId);
     return entry.publicKey;
   }
-
-  /**
-   * Request an airdrop on devnet (for testing).
-   */
-  async requestAirdrop(
-    walletId: string,
-    amountSol: number = 1,
-  ): Promise<string> {
-    const entry = this.keyManager.loadKeystore(walletId);
-    const lamports = amountSol * LAMPORTS_PER_SOL;
-    const sig = await this.connection.requestAirdrop(entry.publicKey, lamports);
-
-    this.auditLogger.log({
-      action: "airdrop:received",
-      walletId,
-      publicKey: entry.publicKey,
-      txSignature: sig,
-      success: true,
-      details: { amountSol, lamports },
-    });
-
-    return sig;
-  }
 }

@@ -18,8 +18,7 @@
   "exclude": ["node_modules", "dist"],
   "references": [
     { "path": "packages/wallet-core" },
-    { "path": "packages/agent-engine" },
     { "path": "packages/cli" },
-    { "path": "demo" }
+    { "path": "packages/mcp-server" }
   ]
 }

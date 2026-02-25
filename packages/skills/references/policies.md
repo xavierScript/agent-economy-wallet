@@ -23,14 +23,14 @@ const policy = PolicyEngine.createDevnetPolicy("my-policy");
 
 This creates:
 
-| Rule                    | Limit                                         |
-| ----------------------- | --------------------------------------------- |
-| `maxLamportsPerTx`      | 2,000,000,000 (2 SOL)                         |
-| `maxTxPerHour`          | 30                                            |
-| `maxTxPerDay`           | 200                                           |
-| `cooldownMs`            | 2,000 (2 seconds)                             |
-| `maxDailySpendLamports` | 10,000,000,000 (10 SOL)                       |
-| `allowedPrograms`       | System, Token, ATA, Jupiter v6, ComputeBudget |
+| Rule                    | Limit                             |
+| ----------------------- | --------------------------------- |
+| `maxLamportsPerTx`      | 2,000,000,000 (2 SOL)             |
+| `maxTxPerHour`          | 30                                |
+| `maxTxPerDay`           | 200                               |
+| `cooldownMs`            | 2,000 (2 seconds)                 |
+| `maxDailySpendLamports` | 10,000,000,000 (10 SOL)           |
+| `allowedPrograms`       | System, Token, ATA, ComputeBudget |
 
 ## Create Custom Policy
 
@@ -94,13 +94,13 @@ Maximum safety, minimum risk:
 }
 ```
 
-### ⚖️ Moderate (Trading Agent)
+### ⚖️ Moderate
 
-Balanced for regular DCA/swap operations:
+Balanced for regular transaction operations:
 
 ```typescript
 {
-  name: "Moderate Trading",
+  name: "Moderate",
   maxLamportsPerTx: 1_000_000_000,      // 1 SOL
   maxTxPerHour: 20,
   maxTxPerDay: 100,
@@ -110,7 +110,6 @@ Balanced for regular DCA/swap operations:
     "11111111111111111111111111111111",              // System
     "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA",  // Token
     "ATokenGPvbdGVxr1b2hvZbsiqW5xWH25efTNsLJA8knL",  // ATA
-    "JUP6LkbZbjS1jKKwapdHNy74zcZ3tLUZoi5QNyVTaV4",  // Jupiter v6
     "ComputeBudget111111111111111111111111111111",    // ComputeBudget
   ],
 }
@@ -170,5 +169,4 @@ const stats = policyEngine.getTransactionStats(walletId);
 | System Program           | `11111111111111111111111111111111`             | SOL transfers, account creation |
 | Token Program            | `TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA`  | SPL token operations            |
 | Associated Token Account | `ATokenGPvbdGVxr1b2hvZbsiqW5xWH25efTNsLJA8knL` | Token account creation          |
-| Jupiter v6               | `JUP6LkbZbjS1jKKwapdHNy74zcZ3tLUZoi5QNyVTaV4`  | DEX aggregator swaps            |
 | Compute Budget           | `ComputeBudget111111111111111111111111111111`  | Priority fees                   |

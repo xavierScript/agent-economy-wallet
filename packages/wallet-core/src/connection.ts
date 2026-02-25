@@ -38,15 +38,4 @@ export class SolanaConnection {
   async getMinimumBalanceForRentExemption(dataLength: number): Promise<number> {
     return this.connection.getMinimumBalanceForRentExemption(dataLength);
   }
-
-  async requestAirdrop(
-    publicKeyStr: string,
-    lamports: number,
-  ): Promise<string> {
-    const { PublicKey } = await import("@solana/web3.js");
-    const pk = new PublicKey(publicKeyStr);
-    const sig = await this.connection.requestAirdrop(pk, lamports);
-    await this.connection.confirmTransaction(sig, "confirmed");
-    return sig;
-  }
 }

@@ -9,12 +9,10 @@ A skill (structured instructions + reference docs) that teaches AI agents how to
 - Create Solana wallets with AES-256-GCM encrypted private keys
 - Sign and send transactions automatically (legacy + versioned)
 - Hold SOL and SPL tokens
-- Swap tokens via on-chain AMM (devnet) or Jupiter DEX (mainnet)
 - Enforce policies: spending limits, rate limits, program allowlists
-- Spawn autonomous trading agents (DCA, Rebalance, Arbitrage)
 - Log every action to an immutable audit trail
 
-Built for **Solana devnet** by default, with mainnet support via Jupiter.
+Built for **Solana devnet** by default.
 
 ## ⚠️ SECURITY FIRST
 
@@ -58,20 +56,15 @@ If empty, direct the user to [references/setup.md](references/setup.md).
 
 ## Quick Reference
 
-| Action           | CLI Command                                                            | Method                                   |
-| ---------------- | ---------------------------------------------------------------------- | ---------------------------------------- |
-| Create wallet    | `agentic-wallet wallet create --label "name"`                          | `walletService.createWallet()`           |
-| List wallets     | `agentic-wallet wallet list`                                           | `walletService.listWallets()`            |
-| Check balance    | `agentic-wallet wallet balance <id>`                                   | `walletService.getBalance()`             |
-| Airdrop (devnet) | `agentic-wallet wallet airdrop <id>`                                   | `walletService.requestAirdrop()`         |
-| Send SOL         | `agentic-wallet send sol <id> <to> <amount>`                           | `walletService.signAndSendTransaction()` |
-| Send SPL token   | `agentic-wallet send token <id> <to> <mint> <amt> <dec>`               | `txBuilder.buildTokenTransfer()`         |
-| Swap tokens      | `agentic-wallet swap <id> --from <mint> --to <mint> --amount <raw>`    | `swapClient.buildSwap()`                 |
-| Spawn agent      | `agentic-wallet agent spawn --name "Bot" --wallet <id> --strategy dca` | `orchestrator.spawnAgent()`              |
-| List agents      | `agentic-wallet agent list`                                            | `orchestrator.listAgents()`              |
-| Stop agent       | `agentic-wallet agent stop <agentId>`                                  | `orchestrator.stopAll()`                 |
-| View logs        | `agentic-wallet logs`                                                  | `auditLogger.readRecentLogs()`           |
-| View status      | `agentic-wallet status`                                                | —                                        |
+| Action         | CLI Command                                              | Method                                   |
+| -------------- | -------------------------------------------------------- | ---------------------------------------- |
+| Create wallet  | `agentic-wallet wallet create --label "name"`            | `walletService.createWallet()`           |
+| List wallets   | `agentic-wallet wallet list`                             | `walletService.listWallets()`            |
+| Check balance  | `agentic-wallet wallet balance <id>`                     | `walletService.getBalance()`             |
+| Send SOL       | `agentic-wallet send sol <id> <to> <amount>`             | `walletService.signAndSendTransaction()` |
+| Send SPL token | `agentic-wallet send token <id> <to> <mint> <amt> <dec>` | `txBuilder.buildTokenTransfer()`         |
+| View logs      | `agentic-wallet logs`                                    | `auditLogger.readRecentLogs()`           |
+| View status    | `agentic-wallet status`                                  | —                                        |
 
 ## Core Workflow
 
@@ -113,13 +106,7 @@ const wallet = await walletService.createWallet("my-agent", policy);
 
 ### 2. Fund the Wallet
 
-Devnet: go to https://faucet.solana.com and paste the public key.
-
-Or via CLI (rate-limited):
-
-```bash
-agentic-wallet wallet airdrop <walletId> --amount 2
-```
+Go to https://faucet.solana.com, paste the wallet's public key, select Devnet, and request SOL.
 
 ### 3. Execute Transactions
 
@@ -128,24 +115,6 @@ See [references/transactions.md](references/transactions.md) for all transaction
 ```bash
 # Send SOL
 agentic-wallet send sol <walletId> <recipientAddress> 0.5
-
-# Swap tokens
-agentic-wallet swap <walletId> \
-  --from So11111111111111111111111111111111111111112 \
-  --to <tokenMint> \
-  --amount 100000000
-```
-
-### 4. Spawn Autonomous Agents
-
-See [references/agents.md](references/agents.md) for strategy details.
-
-```bash
-agentic-wallet agent spawn \
-  --name "DCA Bot" \
-  --wallet <walletId> \
-  --strategy dca \
-  --config '{"outputMint":"<mint>","amountPerSwap":50000000}'
 ```
 
 ## Use by Platform
@@ -208,8 +177,7 @@ git clone https://github.com/your-username/agentic-wallet.git .windsurf/skills/a
 Copy this SKILL.md into your system prompt or conversation. The skill is just markdown — any agent that can read text can use it. For programmatic integration, import the SDK:
 
 ```typescript
-import { WalletService, DevnetSwapClient } from "@agentic-wallet/core";
-import { AgentOrchestrator } from "@agentic-wallet/agent-engine";
+import { WalletService } from "@agentic-wallet/core";
 ```
 
 ## What's Included
@@ -222,8 +190,7 @@ packages/skills/
     ├── security.md             # Security model, key management, threat model
     ├── wallets.md              # Wallet creation and management
     ├── policies.md             # Policy rules and enforcement
-    ├── transactions.md         # SOL transfers, SPL tokens, swaps
-    └── agents.md               # Autonomous agent strategies
+    └── transactions.md         # SOL transfers, SPL tokens
 ```
 
 ## Architecture
@@ -270,5 +237,4 @@ AI Agent (any framework)
 - [security.md](references/security.md) — ⚠️ READ FIRST: Key management, threat model
 - [wallets.md](references/wallets.md) — Wallet creation and management
 - [policies.md](references/policies.md) — Policy rules and enforcement
-- [transactions.md](references/transactions.md) — SOL, SPL tokens, swaps
-- [agents.md](references/agents.md) — Autonomous trading strategies
+- [transactions.md](references/transactions.md) — SOL, SPL tokens

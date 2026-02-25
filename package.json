@@ -5,11 +5,10 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "build": "pnpm --filter @agentic-wallet/core build && pnpm --filter @agentic-wallet/cli build",
+    "build": "pnpm --filter @agentic-wallet/core build && pnpm --filter @agentic-wallet/cli build && pnpm --filter @agentic-wallet/mcp-server build",
     "dev": "pnpm -r --parallel dev",
     "start": "pnpm build && pnpm --filter @agentic-wallet/examples start",
     "cli": "pnpm --filter @agentic-wallet/cli build && node packages/cli/dist/index.js",
-    "dashboard:dev": "pnpm --filter @agentic-wallet/dashboard dev",
     "test": "pnpm -r test",
     "lint": "pnpm -r lint",
     "clean": "pnpm -r clean"

@@ -37,7 +37,9 @@ const program = new Command();
 program
   .name("agentic-wallet")
   .description(
-    chalk.bold("🤖 Solana Agentic Wallet — Create, sign, and transact on Solana"),
+    chalk.bold(
+      "🤖 Solana Agentic Wallet — Create, sign, and transact on Solana",
+    ),
   )
   .version("0.1.0");
 
@@ -67,7 +69,9 @@ walletCmd
       console.log(chalk.bold("  Cluster:   "), config.cluster);
       console.log();
       console.log(
-        chalk.dim("  Fund with: agentic-wallet wallet airdrop " + wallet.id),
+        chalk.dim(
+          "  Fund at: https://faucet.solana.com  (paste the public key)",
+        ),
       );
     } catch (err: any) {
       spinner.fail(chalk.red(err.message));
@@ -135,25 +139,6 @@ walletCmd
           console.log(`    ${t.mint.substring(0, 12)}... → ${t.uiAmount}`);
         }
       }
-    } catch (err: any) {
-      spinner.fail(chalk.red(err.message));
-    }
-  });
-
-walletCmd
-  .command("airdrop <walletId>")
-  .description("Request devnet SOL airdrop")
-  .option("-a, --amount <sol>", "Amount of SOL", "1")
-  .action(async (walletId: string, opts: { amount: string }) => {
-    const spinner = ora(`Requesting ${opts.amount} SOL airdrop...`).start();
-    try {
-      const sig = await walletService.requestAirdrop(
-        walletId,
-        parseFloat(opts.amount),
-      );
-      spinner.succeed(
-        chalk.green(`Airdrop received! Signature: ${sig.substring(0, 20)}...`),
-      );
     } catch (err: any) {
       spinner.fail(chalk.red(err.message));
     }

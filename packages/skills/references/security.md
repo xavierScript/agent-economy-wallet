@@ -39,14 +39,14 @@ if (violation) {
 
 Default devnet policy enforces:
 
-| Rule                  | Limit                                         |
-| --------------------- | --------------------------------------------- |
-| Max per transaction   | 2 SOL (2,000,000,000 lamports)                |
-| Max transactions/hour | 30                                            |
-| Max transactions/day  | 200                                           |
-| Cooldown between txs  | 2 seconds                                     |
-| Max daily spend       | 10 SOL                                        |
-| Allowed programs      | System, Token, ATA, Jupiter v6, ComputeBudget |
+| Rule                  | Limit                             |
+| --------------------- | --------------------------------- |
+| Max per transaction   | 2 SOL (2,000,000,000 lamports)    |
+| Max transactions/hour | 30                                |
+| Max transactions/day  | 200                               |
+| Cooldown between txs  | 2 seconds                         |
+| Max daily spend       | 10 SOL                            |
+| Allowed programs      | System, Token, ATA, ComputeBudget |
 
 See [policies.md](policies.md) for creating custom policies.
 
@@ -57,18 +57,18 @@ Every wallet operation is logged to append-only JSONL files:
 ```json
 {
   "timestamp": "2025-01-15T10:30:00.000Z",
-  "action": "swap:devnet-amm",
+  "action": "sol:transfer",
   "walletId": "a1b2c3d4-...",
   "publicKey": "7xKXtg2C...",
   "txSignature": "5vGk...",
   "success": true,
-  "details": { "inAmount": 100000000, "outAmount": 17000000 }
+  "details": { "to": "...", "amount": 500000000 }
 }
 ```
 
 - Stored in `~/.agentic-wallet/logs/audit-YYYY-MM-DD.jsonl`
 - One file per day, append-only (never modified or deleted)
-- Logs wallet creation, transfers, swaps, agent ticks, errors
+- Logs wallet creation, transfers, errors
 
 ### Layer 4: Agent Validation (Enforced by Agent)
 
@@ -79,7 +79,7 @@ Before EVERY transaction, verify:
 □ Wallet has sufficient balance for the transaction + fees
 □ Recipient address is valid Solana base58 public key
 □ Amount is explicitly stated by user (not inferred)
-□ Transaction type matches user intent (send vs. swap)
+□ Transaction type matches user intent
 □ Policy limits have not been exceeded
 ```
 
@@ -194,7 +194,7 @@ Copy before every transaction:
 If you suspect compromise:
 
 1. **Stop all operations** — do not execute pending transactions
-2. **Stop all running agents** — `agentic-wallet agent stop-all`
+2. **Stop all running agents** (if applicable)
 3. **Inform the user immediately**
 4. **Review audit logs** — `agentic-wallet logs --count 50`
 5. Consider rotating the passphrase and re-encrypting keys

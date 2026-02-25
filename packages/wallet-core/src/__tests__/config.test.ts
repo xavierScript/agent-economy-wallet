@@ -9,7 +9,6 @@ describe("getDefaultConfig", () => {
     expect(config.keystoreDir).toBeDefined();
     expect(config.logDir).toBeDefined();
     expect(config.passphrase).toBeDefined();
-    expect(config.jupiterApiUrl).toBeDefined();
     expect(config.logLevel).toBeDefined();
   });
 

@@ -109,23 +109,7 @@ for (const t of tokens) {
 
 ## Fund Wallet (Devnet)
 
-### Manual (Recommended)
-
-Go to https://faucet.solana.com, paste the wallet's public key, select Devnet, request 2 SOL.
-
-### CLI
-
-```bash
-agentic-wallet wallet airdrop <walletId> --amount 2
-```
-
-⚠️ The devnet faucet is rate-limited (~1 request per 15-30s, max 2 SOL per request).
-
-### SDK
-
-```typescript
-const sig = await walletService.requestAirdrop(walletId, 2);
-```
+Go to https://faucet.solana.com, paste the wallet's public key, select Devnet, and request SOL.
 
 ## Get Public Key
 

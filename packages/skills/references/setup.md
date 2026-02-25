@@ -31,9 +31,6 @@ WALLET_PASSPHRASE=your-strong-passphrase-at-least-12-chars
 SOLANA_RPC_URL=https://api.devnet.solana.com
 SOLANA_CLUSTER=devnet
 
-# Optional — Jupiter API for mainnet swaps
-JUPITER_API_URL=https://api.jup.ag/swap/v1
-
 # Optional — logging verbosity
 LOG_LEVEL=info
 ```
@@ -45,7 +42,6 @@ LOG_LEVEL=info
 | `WALLET_PASSPHRASE` | **Yes**  | dev-only fallback               | Encrypts private keys with AES-256-GCM  |
 | `SOLANA_RPC_URL`    | No       | `https://api.devnet.solana.com` | Solana JSON-RPC endpoint                |
 | `SOLANA_CLUSTER`    | No       | `devnet`                        | `devnet` \| `testnet` \| `mainnet-beta` |
-| `JUPITER_API_URL`   | No       | `https://api.jup.ag/swap/v1`    | Jupiter DEX API (mainnet only)          |
 | `LOG_LEVEL`         | No       | `info`                          | `debug` \| `info` \| `warn` \| `error`  |
 
 ## 4. Build
@@ -54,7 +50,7 @@ LOG_LEVEL=info
 pnpm build
 ```
 
-This compiles: `wallet-core` → `agent-engine` → `cli` (in order).
+This compiles: `wallet-core` → `cli` (in order).
 
 ## 5. Verify Setup
 
@@ -74,20 +70,7 @@ pnpm cli wallet list
 
 ## 6. Fund on Devnet
 
-Go to https://faucet.solana.com, paste the wallet's public key, and request SOL.
-
-Or via CLI (rate-limited):
-
-```bash
-pnpm cli wallet airdrop <walletId> --amount 2
-```
-
-## 7. Dashboard (Optional)
-
-```bash
-pnpm dashboard:dev
-# Open http://localhost:3000
-```
+Go to https://faucet.solana.com, paste the wallet's public key, select Devnet, and request SOL.
 
 ## Data Storage
 
