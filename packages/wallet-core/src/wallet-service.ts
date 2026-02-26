@@ -183,6 +183,8 @@ export class WalletService {
   /**
    * Sign and send a legacy transaction.
    * Policy checks are enforced BEFORE signing.
+   * Additional signers (e.g. mint keypairs) can be provided when the
+   * transaction requires more than one signer.
    */
   async signAndSendTransaction(
     walletId: string,
@@ -190,6 +192,7 @@ export class WalletService {
     context: { action: string; details?: Record<string, unknown> } = {
       action: "transaction",
     },
+    additionalSigners: Keypair[] = [],
   ): Promise<TransactionSignature> {
     // Policy check
     const violation = this.policyEngine.checkTransaction(
@@ -218,8 +221,8 @@ export class WalletService {
       transaction.recentBlockhash = blockhash;
       transaction.feePayer = keypair.publicKey;
 
-      // Sign
-      transaction.sign(keypair);
+      // Sign (wallet keypair + any additional signers)
+      transaction.sign(keypair, ...additionalSigners);
 
       // Send
       const rawTx = transaction.serialize();

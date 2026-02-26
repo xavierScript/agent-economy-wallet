@@ -11,6 +11,7 @@ import {
   readFileSync,
   existsSync,
   readdirSync,
+  unlinkSync,
   chmodSync,
 } from "node:fs";
 import { join } from "node:path";
@@ -218,7 +219,6 @@ export class KeyManager {
   deleteWallet(walletId: string): void {
     const filePath = join(this.keystoreDir, `${walletId}.json`);
     if (existsSync(filePath)) {
-      const { unlinkSync } = require("node:fs");
       unlinkSync(filePath);
     }
   }

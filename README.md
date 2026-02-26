@@ -95,6 +95,7 @@ agentic-wallet/
 │   │       ├── policy-engine.ts     # Safety guardrails
 │   │       ├── transaction-builder.ts # High-level tx construction
 │   │       ├── spl-token.ts         # SPL Token operations
+│   │       ├── jupiter-service.ts   # Jupiter DEX aggregator
 │   │       ├── audit-logger.ts      # JSONL audit trail
 │   │       ├── connection.ts        # Solana RPC wrapper
 │   │       └── config.ts            # Configuration
@@ -126,13 +127,14 @@ agentic-wallet/
 
 See [SKILLS.md](SKILLS.md) for the full agent skills reference.
 
-| Skill             | What it does              |
-| ----------------- | ------------------------- |
-| `create-wallet`   | Generate encrypted wallet |
-| `send-sol`        | Transfer SOL              |
-| `send-spl-token`  | Transfer SPL tokens       |
-| `check-balance`   | Query balances            |
-| `view-audit-logs` | Read audit trail          |
+| Skill             | What it does                       |
+| ----------------- | ---------------------------------- |
+| `create-wallet`   | Generate encrypted wallet          |
+| `send-sol`        | Transfer SOL                       |
+| `send-spl-token`  | Transfer SPL tokens                |
+| `swap-tokens`     | Swap tokens via Jupiter aggregator |
+| `check-balance`   | Query balances                     |
+| `view-audit-logs` | Read audit trail                   |
 
 ## Technical Stack
 

@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { TransactionBuilder } from "../transaction-builder.js";
+import { TransactionBuilder } from "../protocols/transaction-builder.js";
 import { Keypair, PublicKey, SystemProgram } from "@solana/web3.js";
 import { SolanaConnection } from "../connection.js";
 

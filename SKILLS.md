@@ -1,25 +1,24 @@
 # SKILLS.md — Agentic Wallet Skills Reference
 
-> **For AI agents**: Start with the [main SKILL.md](packages/skills/SKILL.md) — it contains the complete guide with security rules, workflow, and all capabilities in one place.
+> **For AI agents**: Start with the [main SKILL.md](skills/SKILL.md) — it contains the complete guide with security rules, workflow, and all capabilities in one place.
 
 This file indexes all skills available to AI agents interacting with the Solana Agentic Wallet system.
 
 ## Primary Skill File
 
-📖 **[packages/skills/SKILL.md](packages/skills/SKILL.md)** — Comprehensive skill guide (OpenClaw-compatible)
+📖 **[skills/SKILL.md](skills/SKILL.md)** — Comprehensive skill guide (OpenClaw-compatible)
 
 ## Reference Guides
 
 Detailed documentation for each domain area:
 
-| Reference                                                                | Description                                                     |
-| ------------------------------------------------------------------------ | --------------------------------------------------------------- |
-| [references/setup.md](packages/skills/references/setup.md)               | Installation, environment variables, project setup              |
-| [references/security.md](packages/skills/references/security.md)         | Encryption details, defense layers, prompt injection protection |
-| [references/wallets.md](packages/skills/references/wallets.md)           | Create, list, fund, and manage agent wallets                    |
-| [references/policies.md](packages/skills/references/policies.md)         | Transaction limits, policy templates, enforcement flow          |
-| [references/transactions.md](packages/skills/references/transactions.md) | SOL transfers and SPL transfers                                 |
-| [references/agents.md](packages/skills/references/agents.md)             | Autonomous agents (planned)                                     |
+| Reference                                                       | Description                                                      |
+| --------------------------------------------------------------- | ---------------------------------------------------------------- |
+| [references/setup.md](skills/references/setup.md)               | Installation, environment variables, MCP server & CLI setup      |
+| [references/security.md](skills/references/security.md)         | Encryption details, defense layers, prompt injection protection  |
+| [references/wallets.md](skills/references/wallets.md)           | Create, list, fund, and manage agent wallets                     |
+| [references/policies.md](skills/references/policies.md)         | Transaction limits, policy templates, enforcement flow           |
+| [references/transactions.md](skills/references/transactions.md) | SOL/SPL transfers, Jupiter swaps, memos, airdrops, token minting |
 
 ## Skill Format
 
@@ -48,9 +47,10 @@ agentic-wallet send sol <walletId> <recipientAddress> 0.5
 ### TypeScript SDK
 
 ```typescript
-import { WalletService, SolanaConnection } from "@agentic-wallet/core";
+import { createCoreServices } from "@agentic-wallet/core";
 
-const walletService = new WalletService();
+const { walletService, policyEngine } = createCoreServices();
+const policy = policyEngine.constructor.createDevnetPolicy("my-agent-policy");
 const wallet = await walletService.createWallet("my-agent", policy);
 ```
 
@@ -65,9 +65,13 @@ AI Agent (any framework)
     │
     └── SDK: @agentic-wallet/core
             │
-            ├── KeyManager      — AES-256-GCM encrypted key storage
-            ├── WalletService   — sign & send transactions
-            ├── PolicyEngine    — safety guardrails (rate/spend limits)
-            ├── SplTokenService — SPL token operations
-            └── AuditLogger     — immutable JSONL audit trail
+            ├── KeyManager       — AES-256-GCM encrypted key storage
+            ├── WalletService    — sign & send transactions (legacy + versioned)
+            ├── PolicyEngine     — safety guardrails (rate/spend limits, allowlists)
+            ├── AuditLogger      — immutable JSONL audit trail
+            ├── protocols/
+            │   ├── SplTokenService    — SPL token/mint operations
+            │   ├── TransactionBuilder — SOL, SPL, memo tx builders
+            │   └── JupiterService     — DEX aggregator swaps (Jupiter v6)
+            └── createCoreServices()  — single-call bootstrap factory
 ```

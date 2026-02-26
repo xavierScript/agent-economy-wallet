@@ -7,7 +7,7 @@
   "scripts": {
     "build": "pnpm --filter @agentic-wallet/core build && pnpm --filter @agentic-wallet/cli build && pnpm --filter @agentic-wallet/mcp-server build",
     "dev": "pnpm -r --parallel dev",
-    "start": "pnpm build && pnpm --filter @agentic-wallet/examples start",
+    "start": "pnpm build && pnpm cli",
     "cli": "pnpm --filter @agentic-wallet/cli build && node packages/cli/dist/index.js",
     "test": "pnpm -r test",
     "lint": "pnpm -r lint",

@@ -56,15 +56,21 @@ If empty, direct the user to [references/setup.md](references/setup.md).
 
 ## Quick Reference
 
-| Action         | CLI Command                                              | Method                                   |
-| -------------- | -------------------------------------------------------- | ---------------------------------------- |
-| Create wallet  | `agentic-wallet wallet create --label "name"`            | `walletService.createWallet()`           |
-| List wallets   | `agentic-wallet wallet list`                             | `walletService.listWallets()`            |
-| Check balance  | `agentic-wallet wallet balance <id>`                     | `walletService.getBalance()`             |
-| Send SOL       | `agentic-wallet send sol <id> <to> <amount>`             | `walletService.signAndSendTransaction()` |
-| Send SPL token | `agentic-wallet send token <id> <to> <mint> <amt> <dec>` | `txBuilder.buildTokenTransfer()`         |
-| View logs      | `agentic-wallet logs`                                    | `auditLogger.readRecentLogs()`           |
-| View status    | `agentic-wallet status`                                  | —                                        |
+| Action              | CLI Command                                              | MCP Tool / Method                         |
+| ------------------- | -------------------------------------------------------- | ----------------------------------------- |
+| Create wallet       | `agentic-wallet wallet create --label "name"`            | `create_wallet`                           |
+| List wallets        | `agentic-wallet wallet list`                             | `list_wallets`                            |
+| Check balance       | `agentic-wallet wallet balance <id>`                     | `get_balance`                             |
+| Request airdrop     | _(devnet only)_                                          | `request_airdrop`                         |
+| Send SOL            | `agentic-wallet send sol <id> <to> <amount>`             | `send_sol`                                |
+| Send SPL token      | `agentic-wallet send token <id> <to> <mint> <amt> <dec>` | `send_token`                              |
+| Swap tokens         | _(via MCP)_                                              | `swap_tokens` — Jupiter v6 DEX aggregator |
+| Write on-chain memo | _(via MCP)_                                              | `write_memo` — SPL Memo Program           |
+| Create token mint   | _(via MCP)_                                              | `create_token_mint`                       |
+| Mint tokens         | _(via MCP)_                                              | `mint_tokens`                             |
+| View logs           | `agentic-wallet logs`                                    | `get_audit_logs`                          |
+| View status         | `agentic-wallet status`                                  | `get_status`                              |
+| Get wallet policy   | _(via MCP)_                                              | `get_policy`                              |
 
 ## Core Workflow
 
@@ -77,26 +83,10 @@ agentic-wallet wallet create --label "my-agent"
 Or programmatically:
 
 ```typescript
-import {
-  KeyManager,
-  WalletService,
-  PolicyEngine,
-  AuditLogger,
-  SolanaConnection,
-  getDefaultConfig,
-} from "@agentic-wallet/core";
+import { createCoreServices } from "@agentic-wallet/core";
 
-const config = getDefaultConfig();
-const connection = new SolanaConnection(config.rpcUrl, config.cluster);
-const keyManager = new KeyManager(config.keystoreDir, config.passphrase);
-const policyEngine = new PolicyEngine();
-const auditLogger = new AuditLogger(config.logDir);
-const walletService = new WalletService(
-  keyManager,
-  policyEngine,
-  auditLogger,
-  connection,
-);
+// Single-call factory — bootstraps all services
+const { walletService, policyEngine } = createCoreServices();
 
 // ALWAYS create with a policy
 const policy = PolicyEngine.createDevnetPolicy("agent-safety");
@@ -138,12 +128,12 @@ Add the skill to your project:
 
 ```bash
 # The skills are already in the repo
-ls packages/skills/
+ls skills/
 ```
 
 Then reference in Cursor rules or ask:
 
-_"Read the agentic wallet skill in packages/skills/ and help me create an agent wallet"_
+_"Read the agentic wallet skill in skills/ and help me create an agent wallet"_
 
 ### OpenClaw
 
@@ -183,14 +173,14 @@ import { WalletService } from "@agentic-wallet/core";
 ## What's Included
 
 ```
-packages/skills/
+skills/
 ├── SKILL.md                    # This file — main instructions + quick reference
 └── references/
-    ├── setup.md                # Environment setup and configuration
+    ├── setup.md                # Environment setup, MCP server connection
     ├── security.md             # Security model, key management, threat model
     ├── wallets.md              # Wallet creation and management
     ├── policies.md             # Policy rules and enforcement
-    └── transactions.md         # SOL transfers, SPL tokens
+    └── transactions.md         # SOL, SPL tokens, swaps, memos, minting
 ```
 
 ## Architecture
@@ -207,11 +197,12 @@ AI Agent (any framework)
             ├── KeyManager       — AES-256-GCM encrypted keystore
             ├── WalletService    — Sign, send, balance queries
             ├── PolicyEngine     — Spending limits, rate limits, program allowlists
-            ├── TransactionBuilder — SOL transfers, SPL transfers
-            ├── DevnetSwapClient — Real on-chain AMM (devnet)
-            ├── JupiterClient    — Jupiter DEX aggregator (mainnet)
-            ├── SplTokenService  — SPL token operations
-            └── AuditLogger      — Append-only JSONL audit trail
+            ├── AuditLogger      — Append-only JSONL audit trail
+            ├── protocols/
+            │   ├── TransactionBuilder — SOL transfers, SPL transfers, memos
+            │   ├── SplTokenService    — SPL token accounts, mint operations
+            │   └── JupiterService     — Jupiter DEX aggregator (best swap routes)
+            └── createCoreServices()  — single-call service bootstrap
 ```
 
 ## 🚨 Prompt Injection Detection

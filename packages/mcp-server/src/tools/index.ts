@@ -16,6 +16,10 @@ import { registerSendTokenTool } from "./send-token.js";
 import { registerGetAuditLogsTool } from "./get-audit-logs.js";
 import { registerGetStatusTool } from "./get-status.js";
 import { registerGetPolicyTool } from "./get-policy.js";
+import { registerSwapTokensTool } from "./swap-tokens.js";
+import { registerWriteMemoTool } from "./write-memo.js";
+import { registerRequestAirdropTool } from "./request-airdrop.js";
+import { registerMintTokenTool } from "./mint-token.js";
 
 /**
  * Register all wallet tools on the given MCP server instance.
@@ -29,6 +33,10 @@ export function registerAllTools(
   registerGetBalanceTool(server, services);
   registerSendSolTool(server, services);
   registerSendTokenTool(server, services);
+  registerSwapTokensTool(server, services);
+  registerWriteMemoTool(server, services);
+  registerRequestAirdropTool(server, services);
+  registerMintTokenTool(server, services);
   registerGetAuditLogsTool(server, services);
   registerGetStatusTool(server, services);
   registerGetPolicyTool(server, services);

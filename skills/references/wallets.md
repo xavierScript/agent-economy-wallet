@@ -21,26 +21,11 @@ agentic-wallet wallet create --label "my-agent"
 ### SDK
 
 ```typescript
-import {
-  KeyManager,
-  WalletService,
-  PolicyEngine,
-  AuditLogger,
-  SolanaConnection,
-  getDefaultConfig,
-} from "@agentic-wallet/core";
+import { createCoreServices } from "@agentic-wallet/core";
+import { PolicyEngine } from "@agentic-wallet/core";
 
-const config = getDefaultConfig();
-const connection = new SolanaConnection(config.rpcUrl, config.cluster);
-const keyManager = new KeyManager(config.keystoreDir, config.passphrase);
-const policyEngine = new PolicyEngine();
-const auditLogger = new AuditLogger(config.logDir);
-const walletService = new WalletService(
-  keyManager,
-  policyEngine,
-  auditLogger,
-  connection,
-);
+// Bootstrap all services with one call
+const { walletService, policyEngine } = createCoreServices();
 
 // Create with safety policy
 const policy = PolicyEngine.createDevnetPolicy("my-agent-policy");

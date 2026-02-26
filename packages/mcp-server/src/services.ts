@@ -1,68 +1,36 @@
 /**
  * services.ts
  *
- * Bootstraps all wallet-core services used by the MCP tools.
- * Centralised here so every tool file receives the same shared instances.
+ * Extends the shared core service factory with MCP-specific services
+ * (e.g. JupiterService).  Tool files receive this augmented bag.
  */
 
 import {
-  KeyManager,
-  WalletService,
-  PolicyEngine,
-  AuditLogger,
-  SolanaConnection,
-  TransactionBuilder,
-  SplTokenService,
-  getDefaultConfig,
-  type AgentWalletConfig,
+  createCoreServices,
+  type CoreServices,
+  JupiterService,
 } from "@agentic-wallet/core";
 
 // ── Types ────────────────────────────────────────────────────────────────────
 
-export interface WalletServices {
-  config: AgentWalletConfig;
-  connection: SolanaConnection;
-  keyManager: KeyManager;
-  policyEngine: PolicyEngine;
-  auditLogger: AuditLogger;
-  walletService: WalletService;
-  txBuilder: TransactionBuilder;
-  splTokenService: SplTokenService;
+export interface WalletServices extends CoreServices {
+  jupiterService: JupiterService;
 }
 
 // ── Bootstrap ────────────────────────────────────────────────────────────────
 
 /**
- * Create and return every service the MCP tools depend on.
+ * Create core services + MCP-specific extras.
  * Called once at startup so all tool handlers share the same instances.
  */
 export function createServices(): WalletServices {
-  const config = getDefaultConfig();
-  const connection = new SolanaConnection(config.rpcUrl, config.cluster);
-  const keyManager = new KeyManager(config.keystoreDir, config.passphrase);
+  const core = createCoreServices();
 
-  const home = process.env.HOME || process.env.USERPROFILE || ".";
-  const policyEngine = new PolicyEngine(`${home}/.agentic-wallet/policies`);
+  const jupiterService = new JupiterService({
+    defaultSlippageBps: 50,
+    maxSlippageBps: 300,
+    maxPriceImpactPct: 5,
+  });
 
-  const auditLogger = new AuditLogger(config.logDir);
-  const walletService = new WalletService(
-    keyManager,
-    policyEngine,
-    auditLogger,
-    connection,
-  );
-
-  const txBuilder = new TransactionBuilder(connection);
-  const splTokenService = new SplTokenService(connection);
-
-  return {
-    config,
-    connection,
-    keyManager,
-    policyEngine,
-    auditLogger,
-    walletService,
-    txBuilder,
-    splTokenService,
-  };
+  return { ...core, jupiterService };
 }

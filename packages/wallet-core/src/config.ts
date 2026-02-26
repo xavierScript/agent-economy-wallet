@@ -2,9 +2,8 @@ import { resolve } from "node:path";
 import type { Cluster } from "@solana/web3.js";
 import { config as loadEnv } from "dotenv";
 
-// Load .env from project root (walks up from any sub-package)
+// Load .env — walk up from sub-packages so the root .env is always found.
 loadEnv();
-loadEnv({ path: resolve(process.cwd(), ".env") });
 loadEnv({ path: resolve(process.cwd(), "..", ".env") });
 loadEnv({ path: resolve(process.cwd(), "..", "..", ".env") });
 
