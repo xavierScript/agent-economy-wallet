@@ -8,18 +8,18 @@
 import type { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import type { WalletServices } from "../services.js";
 
-import { registerCreateWalletTool } from "./create-wallet.js";
-import { registerListWalletsTool } from "./list-wallets.js";
-import { registerGetBalanceTool } from "./get-balance.js";
-import { registerSendSolTool } from "./send-sol.js";
-import { registerSendTokenTool } from "./send-token.js";
-import { registerGetAuditLogsTool } from "./get-audit-logs.js";
-import { registerGetStatusTool } from "./get-status.js";
-import { registerGetPolicyTool } from "./get-policy.js";
-import { registerSwapTokensTool } from "./swap-tokens.js";
-import { registerWriteMemoTool } from "./write-memo.js";
-import { registerRequestAirdropTool } from "./request-airdrop.js";
-import { registerMintTokenTool } from "./mint-token.js";
+import { registerCreateWalletTool } from "./wallet/create-wallet.js";
+import { registerListWalletsTool } from "./wallet/list-wallets.js";
+import { registerGetBalanceTool } from "./wallet/get-balance.js";
+import { registerGetAuditLogsTool } from "./wallet/get-audit-logs.js";
+import { registerGetStatusTool } from "./wallet/get-status.js";
+import { registerGetPolicyTool } from "./wallet/get-policy.js";
+import { registerSendSolTool } from "./transfers/send-sol.js";
+import { registerSendTokenTool } from "./transfers/send-token.js";
+import { registerWriteMemoTool } from "./transfers/write-memo.js";
+import { registerRequestAirdropTool } from "./transfers/request-airdrop.js";
+import { registerSwapTokensTool } from "./tokens/swap-tokens.js";
+import { registerMintTokenTool } from "./tokens/mint-token.js";
 
 /**
  * Register all wallet tools on the given MCP server instance.
