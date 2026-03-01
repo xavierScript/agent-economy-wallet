@@ -21,19 +21,15 @@ export function registerCreateWalletTool(
       title: "Create Wallet",
       description:
         "Create a new Solana wallet with AES-256-GCM encrypted key storage. " +
-        "Returns the wallet ID and public key. A devnet safety policy " +
-        "(2 SOL per-tx limit, rate limits) is attached by default.",
+        "Returns the wallet ID and public key. The devnet safety policy " +
+        "(2 SOL per-tx limit, 10 tx/hr rate limit, 10 SOL daily cap) is " +
+        "always attached — agents cannot create policy-free wallets.",
       inputSchema: {
         label: z
           .string()
           .optional()
           .default("agent-wallet")
           .describe("Human-readable label for the wallet"),
-        attach_policy: z
-          .boolean()
-          .optional()
-          .default(true)
-          .describe("Attach the default devnet safety policy"),
       },
       annotations: {
         title: "Create Wallet",
@@ -43,10 +39,8 @@ export function registerCreateWalletTool(
         openWorldHint: false,
       },
     },
-    async ({ label, attach_policy }) => {
-      const policy = attach_policy
-        ? PolicyEngine.createDevnetPolicy()
-        : undefined;
+    async ({ label }) => {
+      const policy = PolicyEngine.createDevnetPolicy();
       const wallet = await walletService.createWallet(label, policy);
 
       return {
@@ -59,7 +53,7 @@ export function registerCreateWalletTool(
                 label: wallet.label,
                 publicKey: wallet.publicKey,
                 cluster: config.cluster,
-                policyAttached: attach_policy,
+                policyAttached: true,
                 note: "Fund this wallet at https://faucet.solana.com by pasting the public key.",
               },
               null,

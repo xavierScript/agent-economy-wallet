@@ -9,12 +9,14 @@ import {
   createCoreServices,
   type CoreServices,
   JupiterService,
+  X402Client,
 } from "@agentic-wallet/core";
 
 // ── Types ────────────────────────────────────────────────────────────────────
 
 export interface WalletServices extends CoreServices {
   jupiterService: JupiterService;
+  x402Client: X402Client;
 }
 
 // ── Bootstrap ────────────────────────────────────────────────────────────────
@@ -32,5 +34,11 @@ export function createServices(): WalletServices {
     maxPriceImpactPct: 5,
   });
 
-  return { ...core, jupiterService };
+  const x402Client = new X402Client({
+    preferredNetwork: X402Client.getNetworkId(core.config.cluster),
+    autoRetry: true,
+    maxPaymentLamports: 1_000_000_000, // 1 SOL default max
+  });
+
+  return { ...core, jupiterService, x402Client };
 }

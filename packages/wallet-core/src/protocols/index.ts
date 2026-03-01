@@ -16,3 +16,12 @@ export {
   type JupiterServiceConfig,
   WELL_KNOWN_TOKENS,
 } from "./jupiter-service.js";
+export {
+  X402Client,
+  type PaymentRequirements,
+  type PaymentRequired,
+  type PaymentPayload,
+  type SettlementResponse,
+  type X402PaymentResult,
+  type X402ClientConfig,
+} from "./x402-client.js";

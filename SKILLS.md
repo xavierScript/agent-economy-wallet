@@ -103,6 +103,7 @@ AI Agent (any framework)
             ├── protocols/
             │   ├── SplTokenService    — SPL token/mint operations
             │   ├── TransactionBuilder — SOL, SPL, memo tx builders
-            │   └── JupiterService     — DEX aggregator swaps (Jupiter v6)
+            │   ├── JupiterService     — DEX aggregator swaps (Jupiter v6)
+            │   └── X402Client         — x402 HTTP payment protocol client
             └── createCoreServices()  — single-call bootstrap factory
 ```

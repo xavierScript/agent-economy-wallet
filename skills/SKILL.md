@@ -71,6 +71,8 @@ If empty, direct the user to [references/setup.md](references/setup.md).
 | View logs           | `agentic-wallet logs`                                    | `get_audit_logs`                          |
 | View status         | `agentic-wallet status`                                  | `get_status`                              |
 | Get wallet policy   | _(via MCP)_                                              | `get_policy`                              |
+| Pay x402 resource   | _(via MCP)_                                              | `pay_x402` — x402 HTTP payment protocol   |
+| Probe x402 pricing  | _(via MCP)_                                              | `probe_x402` — check cost before paying   |
 
 ## Core Workflow
 

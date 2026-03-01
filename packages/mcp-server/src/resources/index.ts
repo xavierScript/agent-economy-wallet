@@ -28,6 +28,9 @@ import { registerWalletAuditLogsResource } from "./audit/wallet-audit-logs.js";
 import { registerSystemStatusResource } from "./system/system-status.js";
 import { registerSystemConfigResource } from "./system/system-config.js";
 
+// payments/
+import { registerX402ConfigResource } from "./payments/x402-config.js";
+
 /**
  * Register all MCP resources on the given server instance.
  */
@@ -47,4 +50,7 @@ export function registerAllResources(
   // system/
   registerSystemStatusResource(server, services);
   registerSystemConfigResource(server, services);
+
+  // payments/
+  registerX402ConfigResource(server, services);
 }

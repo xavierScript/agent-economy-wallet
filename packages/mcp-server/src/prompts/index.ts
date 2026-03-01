@@ -26,6 +26,9 @@ import { registerRiskAssessmentPrompt } from "./analysis/risk-assessment.js";
 import { registerDailyReportPrompt } from "./analysis/daily-report.js";
 import { registerSecurityAuditPrompt } from "./analysis/security-audit.js";
 
+// payments/
+import { registerX402PaymentPrompt } from "./payments/x402-payment.js";
+
 /**
  * Register all MCP prompts on the given server instance.
  */
@@ -44,4 +47,7 @@ export function registerAllPrompts(
   registerRiskAssessmentPrompt(server, services);
   registerDailyReportPrompt(server, services);
   registerSecurityAuditPrompt(server, services);
+
+  // payments/
+  registerX402PaymentPrompt(server, services);
 }

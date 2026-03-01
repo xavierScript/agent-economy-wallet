@@ -24,6 +24,10 @@ import { registerRequestAirdropTool } from "./transfers/request-airdrop.js";
 import { registerSwapTokensTool } from "./tokens/swap-tokens.js";
 import { registerMintTokenTool } from "./tokens/mint-token.js";
 
+// payments/
+import { registerPayX402Tool } from "./payments/pay-x402.js";
+import { registerProbeX402Tool } from "./payments/probe-x402.js";
+
 /**
  * Register all wallet tools on the given MCP server instance.
  */
@@ -44,4 +48,8 @@ export function registerAllTools(
   registerGetAuditLogsTool(server, services);
   registerGetStatusTool(server, services);
   registerGetPolicyTool(server, services);
+
+  // payments/ — x402 HTTP payment protocol
+  registerPayX402Tool(server, services);
+  registerProbeX402Tool(server, services);
 }

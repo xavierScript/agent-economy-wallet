@@ -25,6 +25,13 @@ export {
   type JupiterTokenInfo,
   type JupiterServiceConfig,
   WELL_KNOWN_TOKENS,
+  X402Client,
+  type PaymentRequirements,
+  type PaymentRequired,
+  type PaymentPayload,
+  type SettlementResponse,
+  type X402PaymentResult,
+  type X402ClientConfig,
 } from "./protocols/index.js";
 export { SolanaConnection } from "./connection.js";
 export { type AgentWalletConfig, getDefaultConfig } from "./config.js";

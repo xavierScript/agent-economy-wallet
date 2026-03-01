@@ -333,3 +333,89 @@ The `to` field is optional — defaults to the signing wallet itself.
 | On-chain memo     | Legacy `Transaction`        | `walletService.signAndSendTransaction()`              |
 | Create token mint | Legacy `Transaction`        | `walletService.signAndSendTransaction([mintKeypair])` |
 | Mint tokens       | Legacy `Transaction`        | `walletService.signAndSendTransaction()`              |
+| x402 payment      | Legacy `Transaction`        | `X402Client.payForResource()` → partial sign          |
+
+---
+
+## x402 HTTP Payments
+
+Pay for x402-protected HTTP resources using a managed wallet. The x402 protocol enables AI agents to autonomously access paid APIs on the internet.
+
+### MCP Tools
+
+#### Probe (check pricing)
+
+```json
+{
+  "url": "https://api.example.com/weather"
+}
+```
+
+Returns payment requirements (price, token, network) without spending any funds.
+
+#### Pay and access
+
+```json
+{
+  "wallet_id": "a1b2c3d4-...",
+  "url": "https://api.example.com/weather",
+  "method": "GET"
+}
+```
+
+### Response
+
+```json
+{
+  "success": true,
+  "url": "https://api.example.com/weather",
+  "httpStatus": 200,
+  "contentType": "application/json",
+  "body": "{\"temp\": 72}",
+  "payment": {
+    "amountPaid": "1000000",
+    "tokenMint": "So11111111111111111111111111111111111111112",
+    "payTo": "2wKup...",
+    "network": "solana:EtWTRABZaYq6iMfeYKouRu166VU2xqa1"
+  },
+  "settlement": {
+    "success": true,
+    "transaction": "5vGk..."
+  }
+}
+```
+
+### Policy Enforcement
+
+x402 payments are checked against standard spending limits:
+
+- Rate limits (`maxTxPerHour` / `maxTxPerDay`)
+- Cooldown between transactions
+- A separate `maxPaymentLamports` cap on x402 client (default: 1 SOL)
+
+### SDK
+
+```typescript
+import { X402Client } from "@agentic-wallet/core";
+
+const x402 = new X402Client({
+  preferredNetwork: X402Client.getNetworkId("devnet"),
+  maxPaymentLamports: 500_000_000, // 0.5 SOL max
+});
+
+// Probe pricing
+const probe = await x402.probeResource("https://api.example.com/weather");
+console.log(probe.svmOptions); // payment options
+
+// Pay and access
+const result = await x402.payForResource(
+  "https://api.example.com/weather",
+  { method: "GET" },
+  async (tx) => {
+    tx.partialSign(keypair);
+    return tx;
+  },
+  walletPublicKey,
+);
+console.log(result.body); // the protected resource
+```
