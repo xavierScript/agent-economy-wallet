@@ -99,6 +99,10 @@ The MCP server exposes all 14 wallet tools via the Model Context Protocol (stdio
 
 ### Claude Desktop
 
+> **Security**: Never put `WALLET_PASSPHRASE` or `MASTER_WALLET_SECRET_KEY` in the Claude Desktop config.
+> The MCP server **auto-loads your `.env` file** at startup, so all secrets stay in `.env` (which is gitignored).
+> The client config only needs the path to the server binary.
+
 Add to `~/Library/Application Support/Claude/claude_desktop_config.json` (macOS) or `%APPDATA%\Claude\claude_desktop_config.json` (Windows):
 
 ```json
@@ -108,19 +112,13 @@ Add to `~/Library/Application Support/Claude/claude_desktop_config.json` (macOS)
       "command": "node",
       "args": [
         "C:\\Users\\HP\\web3-projects\\agentic-wallet\\packages\\mcp-server\\dist\\index.js"
-      ],
-      "env": {
-        "WALLET_PASSPHRASE": "your-strong-passphrase (12 char long)",
-        "SOLANA_CLUSTER": "devnet",
-        "SOLANA_RPC_URL": "https://api.devnet.solana.com",
-        "OWNER_ADDRESS": "55czFRi1njMSE7eJyDLx1R5yS1Bi5GiL2Ek4F1cZPLFx",
-        "MASTER_WALLET_SECRET_KEY": ,
-        "AGENT_SEED_SOL": 0.05
-      }
+      ]
     }
   }
 }
 ```
+
+All configuration (passphrase, RPC URL, master wallet key, etc.) is read from your `.env` file in the project root.
 
 ### VS Code (Copilot Agent Mode)
 

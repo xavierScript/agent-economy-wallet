@@ -12,6 +12,15 @@
  * Transport: stdio (default for local MCP servers)
  */
 
+// Load .env from the project root (three levels up from dist/index.js).
+// This keeps secrets out of the MCP client config — only the server path
+// needs to be in claude_desktop_config.json / mcp.json.
+import { config as loadEnv } from "dotenv";
+import { dirname, resolve } from "path";
+import { fileURLToPath } from "url";
+const __filename = fileURLToPath(import.meta.url);
+loadEnv({ path: resolve(dirname(__filename), "../../../.env") });
+
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
 import { createServices } from "./services.js";
