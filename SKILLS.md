@@ -12,13 +12,13 @@ This file indexes all skills available to AI agents interacting with the Solana 
 
 Detailed documentation for each domain area:
 
-| Reference                                                       | Description                                                      |
-| --------------------------------------------------------------- | ---------------------------------------------------------------- |
-| [references/setup.md](skills/references/setup.md)               | Installation, environment variables, MCP server & CLI setup      |
-| [references/security.md](skills/references/security.md)         | Encryption details, defense layers, prompt injection protection  |
-| [references/wallets.md](skills/references/wallets.md)           | Create, list, fund, and manage agent wallets                     |
-| [references/policies.md](skills/references/policies.md)         | Transaction limits, policy templates, enforcement flow           |
-| [references/transactions.md](skills/references/transactions.md) | SOL/SPL transfers, Jupiter swaps, memos, airdrops, token minting |
+| Reference                                                       | Description                                                     |
+| --------------------------------------------------------------- | --------------------------------------------------------------- |
+| [references/setup.md](skills/references/setup.md)               | Installation, environment variables, MCP server & CLI setup     |
+| [references/security.md](skills/references/security.md)         | Encryption details, defense layers, prompt injection protection |
+| [references/wallets.md](skills/references/wallets.md)           | Create, list, fund, and manage agent wallets                    |
+| [references/policies.md](skills/references/policies.md)         | Transaction limits, policy templates, enforcement flow          |
+| [references/transactions.md](skills/references/transactions.md) | SOL/SPL transfers, Jupiter swaps, memos, token minting          |
 
 ## Skill Format
 

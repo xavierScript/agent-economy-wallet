@@ -8,10 +8,11 @@ import {
   type TransactionSignature,
 } from "@solana/web3.js";
 import { KeyManager, type KeystoreEntry } from "./key-manager.js";
-import { PolicyEngine, type Policy } from "./guardrails/policy-engine.js";
-import { type HumanOnlyOpts } from "./guardrails/human-only.js";
+import { PolicyEngine, type Policy } from "../guardrails/policy-engine.js";
+import { type HumanOnlyOpts } from "../guardrails/human-only.js";
 import { AuditLogger } from "./audit-logger.js";
 import { SolanaConnection } from "./connection.js";
+import { MasterFunder } from "./master-funder.js";
 
 export interface WalletInfo {
   id: string;
@@ -47,29 +48,39 @@ export class WalletService {
   private policyEngine: PolicyEngine;
   private auditLogger: AuditLogger;
   private connection: SolanaConnection;
+  private masterFunder: MasterFunder | null;
 
   constructor(
     keyManager: KeyManager,
     policyEngine: PolicyEngine,
     auditLogger: AuditLogger,
     connection: SolanaConnection,
+    masterFunder?: MasterFunder | null,
   ) {
     this.keyManager = keyManager;
     this.policyEngine = policyEngine;
     this.auditLogger = auditLogger;
     this.connection = connection;
+    this.masterFunder = masterFunder ?? null;
   }
 
   /**
    * Create a new agent wallet with an optional policy.
+   *
+   * When `autoFund` is true (the default) and a MasterFunder is configured,
+   * the wallet is seeded with SOL from the master wallet immediately after
+   * the policy is attached — so the agent's very first action is already
+   * constrained by guardrails.
    */
   async createWallet(
     label: string = "agent-wallet",
     policy?: Policy,
     metadata: Record<string, unknown> = {},
+    autoFund: boolean = true,
   ): Promise<WalletInfo> {
     const entry = this.keyManager.createWallet(label, metadata);
 
+    // Attach policy BEFORE any funding so guardrails are active from the start.
     if (policy) {
       this.policyEngine.attachPolicy(entry.id, policy);
     }
@@ -82,14 +93,43 @@ export class WalletService {
       details: { label },
     });
 
+    // ── Auto-fund from master wallet ─────────────────────────────────
+    let fundedSol = 0;
+    let fundTxSignature: string | undefined;
+
+    if (autoFund && this.masterFunder) {
+      try {
+        fundTxSignature = await this.masterFunder.fundWallet(
+          entry.publicKey,
+          entry.id,
+        );
+        fundedSol = this.masterFunder.seedSol;
+      } catch (err: any) {
+        // Funding failure is non-fatal — wallet is still created.
+        // The audit log already records the failure inside MasterFunder.
+        this.auditLogger.log({
+          action: "wallet:auto-fund-failed",
+          walletId: entry.id,
+          publicKey: entry.publicKey,
+          success: false,
+          error: err.message,
+        });
+      }
+    }
+
+    const balanceLamports = Math.round(fundedSol * LAMPORTS_PER_SOL);
+
     return {
       id: entry.id,
       label: entry.label,
       publicKey: entry.publicKey,
-      balanceSol: 0,
-      balanceLamports: 0,
+      balanceSol: fundedSol,
+      balanceLamports,
       createdAt: entry.createdAt,
-      metadata: entry.metadata,
+      metadata: {
+        ...entry.metadata,
+        ...(fundTxSignature ? { fundTxSignature } : {}),
+      },
     };
   }
 

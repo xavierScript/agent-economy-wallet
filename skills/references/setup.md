@@ -31,18 +31,24 @@ WALLET_PASSPHRASE=your-strong-passphrase-at-least-12-chars
 SOLANA_RPC_URL=https://api.devnet.solana.com
 SOLANA_CLUSTER=devnet
 
+# Optional — auto-fund new agent wallets from your master wallet
+MASTER_WALLET_SECRET_KEY=your-base58-secret-key
+AGENT_SEED_SOL=0.05
+
 # Optional — logging verbosity
 LOG_LEVEL=info
 ```
 
 ### Environment Variables
 
-| Variable            | Required | Default                         | Description                             |
-| ------------------- | -------- | ------------------------------- | --------------------------------------- |
-| `WALLET_PASSPHRASE` | **Yes**  | dev-only fallback               | Encrypts private keys with AES-256-GCM  |
-| `SOLANA_RPC_URL`    | No       | `https://api.devnet.solana.com` | Solana JSON-RPC endpoint                |
-| `SOLANA_CLUSTER`    | No       | `devnet`                        | `devnet` \| `testnet` \| `mainnet-beta` |
-| `LOG_LEVEL`         | No       | `info`                          | `debug` \| `info` \| `warn` \| `error`  |
+| Variable                   | Required | Default                         | Description                             |
+| -------------------------- | -------- | ------------------------------- | --------------------------------------- |
+| `WALLET_PASSPHRASE`        | **Yes**  | dev-only fallback               | Encrypts private keys with AES-256-GCM  |
+| `SOLANA_RPC_URL`           | No       | `https://api.devnet.solana.com` | Solana JSON-RPC endpoint                |
+| `SOLANA_CLUSTER`           | No       | `devnet`                        | `devnet` \| `testnet` \| `mainnet-beta` |
+| `LOG_LEVEL`                | No       | `info`                          | `debug` \| `info` \| `warn` \| `error`  |
+| `MASTER_WALLET_SECRET_KEY` | No       | —                               | Base58 secret key for auto-funding      |
+| `AGENT_SEED_SOL`           | No       | `0.05`                          | SOL to seed each new agent wallet       |
 
 ## 4. Build
 
@@ -65,11 +71,31 @@ node packages/mcp-server/dist/index.js
 
 ## 6. Fund on Devnet
 
-Use the `request_airdrop` MCP tool or go to https://faucet.solana.com, paste the wallet's public key, select Devnet, and request SOL.
+### Auto-funding from Master Wallet (Recommended)
+
+Set `MASTER_WALLET_SECRET_KEY` in your `.env` to the base58-encoded secret key
+of your funding wallet. New agent wallets will be **automatically funded** on
+creation — no airdrop needed, no rate limits.
+
+```dotenv
+# Base58-encoded secret key of your master/funding wallet
+MASTER_WALLET_SECRET_KEY=your-base58-secret-key
+
+# Amount of SOL to seed each new wallet (default: 0.05)
+AGENT_SEED_SOL=0.05
+```
+
+> **Security**: For devnet/testnet only. On mainnet, use a dedicated treasury
+> wallet with its own spending limits rather than your primary wallet.
+
+### Manual Fallback
+
+If `MASTER_WALLET_SECRET_KEY` is not set, you can fund wallets manually
+via https://faucet.solana.com (devnet only).
 
 ## 7. Connect MCP Server to an AI Agent
 
-The MCP server exposes all 13 wallet tools via the Model Context Protocol (stdio transport).
+The MCP server exposes all 14 wallet tools via the Model Context Protocol (stdio transport).
 
 ### Claude Desktop
 
@@ -84,10 +110,12 @@ Add to `~/Library/Application Support/Claude/claude_desktop_config.json` (macOS)
         "C:\\Users\\HP\\web3-projects\\agentic-wallet\\packages\\mcp-server\\dist\\index.js"
       ],
       "env": {
-        "WALLET_PASSPHRASE": "your-strong-passphrase",
+        "WALLET_PASSPHRASE": "your-strong-passphrase (12 char long)",
         "SOLANA_CLUSTER": "devnet",
         "SOLANA_RPC_URL": "https://api.devnet.solana.com",
-        "OWNER_ADDRESS": "55czFRi1njMSE7eJyDLx1R5yS1Bi5GiL2Ek4F1cZPLFx"
+        "OWNER_ADDRESS": "55czFRi1njMSE7eJyDLx1R5yS1Bi5GiL2Ek4F1cZPLFx",
+        "MASTER_WALLET_SECRET_KEY": ,
+        "AGENT_SEED_SOL": 0.05
       }
     }
   }
@@ -114,14 +142,13 @@ Add to your workspace `.vscode/mcp.json`:
 }
 ```
 
-### Available MCP Tools (13 total)
+### Available MCP Tools (14 total)
 
 | Tool                | Description                              |
 | ------------------- | ---------------------------------------- |
 | `create_wallet`     | Create wallet with encrypted key storage |
 | `list_wallets`      | List all wallets with balances           |
 | `get_balance`       | SOL + SPL token balances                 |
-| `request_airdrop`   | Fund wallet on devnet (max 2 SOL)        |
 | `send_sol`          | SOL transfer with policy enforcement     |
 | `send_token`        | SPL token transfer                       |
 | `swap_tokens`       | Jupiter DEX swap                         |
@@ -131,6 +158,8 @@ Add to your workspace `.vscode/mcp.json`:
 | `get_audit_logs`    | Read audit trail                         |
 | `get_status`        | System status                            |
 | `get_policy`        | Wallet policy + tx stats                 |
+| `pay_x402`          | Pay for x402-protected HTTP resources    |
+| `probe_x402`        | Check x402 pricing before paying         |
 
 ## Data Storage
 

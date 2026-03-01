@@ -92,7 +92,15 @@ for (const t of tokens) {
 }
 ```
 
-## Fund Wallet (Devnet)
+## Fund Wallet
+
+### Auto-funding (Recommended)
+
+When `MASTER_WALLET_SECRET_KEY` is set, new wallets are funded automatically
+during `createWallet()` — policy is attached **before** funding, so the agent
+is constrained from the very first lamport.
+
+### Manual Funding (Devnet Fallback)
 
 Go to https://faucet.solana.com, paste the wallet's public key, select Devnet, and request SOL.
 

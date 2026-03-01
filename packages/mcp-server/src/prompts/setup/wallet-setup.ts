@@ -19,7 +19,8 @@ export function registerWalletSetupPrompt(
       title: "Wallet Setup",
       description:
         "Step-by-step guide for creating a new agentic wallet with security policies. " +
-        "Walks through wallet creation, policy configuration, and initial funding via airdrop.",
+        "Walks through wallet creation, policy configuration, and automatic funding " +
+        "from the master wallet.",
       argsSchema: {
         wallet_label: z
           .string()
@@ -67,7 +68,8 @@ export function registerWalletSetupPrompt(
                 `1. **Create the wallet** using the \`create_wallet\` tool with label "${label}"`,
                 `2. **Configure a ${risk} policy** with these limits:`,
                 `   ${policyPresets[risk]}`,
-                `3. **Request an airdrop** of 2 SOL to fund the wallet for testing`,
+                `3. **Verify funding** — the wallet should be auto-funded from the master wallet.`,
+                `   If auto-funding is not configured (no MASTER_WALLET_SECRET_KEY), fund the wallet manually.`,
                 `4. **Verify the setup** by checking the wallet balance and confirming the policy is active`,
                 ``,
                 `After each step, report the result before moving on. If any step fails, explain the error and suggest a fix.`,

@@ -253,7 +253,8 @@ The logger uses `appendFileSync` — it cannot overwrite existing entries. Actio
 | `spl-token:mint`        | Tokens minted                                              |
 | `swap:jupiter`          | Jupiter swap executed                                      |
 | `memo:write`            | On-chain memo written                                      |
-| `airdrop:request`       | Devnet airdrop requested                                   |
+| `master-fund:sent`      | Agent wallet auto-funded from master wallet                |
+| `master-fund:failed`    | Master wallet funding failed (e.g. insufficient balance)   |
 | _(any action)_ — failed | Policy violation or RPC error logged with `success: false` |
 
 The `AuditLogger` supports real-time event listeners, which the CLI TUI uses to stream new entries into the logs view without polling.
@@ -363,7 +364,6 @@ The `portfolio-rebalance` prompt demonstrates multi-wallet coordination: it read
 - Execute Jupiter swaps (policy-checked, slippage/impact bounded)
 - Write on-chain memos
 - Create and mint SPL tokens
-- Request devnet airdrops (max 2 SOL)
 - Read audit logs, system status, policies
 
 ### Cannot do

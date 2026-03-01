@@ -12,7 +12,7 @@ import {
   TOKEN_PROGRAM_ID,
   ASSOCIATED_TOKEN_PROGRAM_ID,
 } from "@solana/spl-token";
-import { SolanaConnection } from "../connection.js";
+import { SolanaConnection } from "../core/connection.js";
 
 /**
  * TransactionBuilder provides high-level helpers for constructing

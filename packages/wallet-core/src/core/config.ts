@@ -27,6 +27,23 @@ export interface AgentWalletConfig {
    * Set via OWNER_ADDRESS env var.
    */
   ownerAddress?: string;
+  /**
+   * Base58-encoded secret key of the master (funding) wallet.
+   * When set, newly created agent wallets are automatically funded
+   * from this wallet instead of relying on devnet faucets.
+   * Set via MASTER_WALLET_SECRET_KEY env var.
+   *
+   * ⚠️  For devnet/testnet only. On mainnet use a dedicated treasury
+   * wallet with its own spending limits rather than your primary wallet.
+   */
+  masterWalletSecretKey?: string;
+  /**
+   * Amount of SOL to seed each newly created agent wallet with.
+   * Only used when masterWalletSecretKey is configured.
+   * Defaults to 0.05 SOL — enough for ~100 simple transfers on devnet.
+   * Set via AGENT_SEED_SOL env var.
+   */
+  agentSeedSol: number;
 }
 
 function getPassphrase(): string {
@@ -57,5 +74,7 @@ export function getDefaultConfig(): AgentWalletConfig {
     logLevel:
       (process.env.LOG_LEVEL as AgentWalletConfig["logLevel"]) || "info",
     ownerAddress: process.env.OWNER_ADDRESS || undefined,
+    masterWalletSecretKey: process.env.MASTER_WALLET_SECRET_KEY || undefined,
+    agentSeedSol: Number(process.env.AGENT_SEED_SOL) || 0.05,
   };
 }

@@ -5,8 +5,8 @@
  * policy enforcement, and audit logging.
  */
 
-export { KeyManager, type KeystoreEntry } from "./key-manager.js";
-export { WalletService, type WalletInfo } from "./wallet-service.js";
+export { KeyManager, type KeystoreEntry } from "./core/key-manager.js";
+export { WalletService, type WalletInfo } from "./core/wallet-service.js";
 export {
   PolicyEngine,
   type Policy,
@@ -14,7 +14,7 @@ export {
   HUMAN_ONLY,
   type HumanOnlyOpts,
 } from "./guardrails/index.js";
-export { AuditLogger, type AuditLogEntry } from "./audit-logger.js";
+export { AuditLogger, type AuditLogEntry } from "./core/audit-logger.js";
 export {
   TransactionBuilder,
   SplTokenService,
@@ -33,6 +33,10 @@ export {
   type X402PaymentResult,
   type X402ClientConfig,
 } from "./protocols/index.js";
-export { SolanaConnection } from "./connection.js";
-export { type AgentWalletConfig, getDefaultConfig } from "./config.js";
-export { createCoreServices, type CoreServices } from "./service-factory.js";
+export { SolanaConnection } from "./core/connection.js";
+export { type AgentWalletConfig, getDefaultConfig } from "./core/config.js";
+export {
+  createCoreServices,
+  type CoreServices,
+} from "./core/service-factory.js";
+export { MasterFunder, type MasterFunderConfig } from "./core/master-funder.js";

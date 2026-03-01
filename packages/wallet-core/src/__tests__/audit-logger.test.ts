@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach, afterEach } from "vitest";
-import { AuditLogger, type AuditLogEntry } from "../audit-logger.js";
+import { AuditLogger, type AuditLogEntry } from "../core/audit-logger.js";
 import { existsSync, rmSync } from "node:fs";
 import { join } from "node:path";
 import { tmpdir } from "node:os";

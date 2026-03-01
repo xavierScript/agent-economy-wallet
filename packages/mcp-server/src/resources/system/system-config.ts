@@ -35,6 +35,8 @@ export function registerSystemConfigResource(
                 rpcUrl: config.rpcUrl,
                 logLevel: config.logLevel,
                 hasOwnerAddress: !!config.ownerAddress,
+                hasMasterWallet: !!config.masterWalletSecretKey,
+                agentSeedSol: config.agentSeedSol,
                 keystoreDir: config.keystoreDir,
                 logDir: config.logDir,
               },

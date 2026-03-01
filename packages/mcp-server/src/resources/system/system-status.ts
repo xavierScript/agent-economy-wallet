@@ -11,7 +11,8 @@ export function registerSystemStatusResource(
   server: McpServer,
   services: WalletServices,
 ): void {
-  const { config, walletService, auditLogger, policyEngine } = services;
+  const { config, walletService, auditLogger, policyEngine, masterFunder } =
+    services;
 
   server.registerResource(
     "system-status",
@@ -50,6 +51,13 @@ export function registerSystemStatusResource(
                 walletCount: wallets.length,
                 walletsWithPolicies,
                 totalBalanceSol: Math.round(totalSol * 1e6) / 1e6,
+                masterFunder: masterFunder
+                  ? {
+                      configured: true,
+                      publicKey: masterFunder.publicKey,
+                      seedSol: masterFunder.seedSol,
+                    }
+                  : { configured: false },
                 wallets: wallets.map((w) => ({
                   id: w.id,
                   label: w.label,

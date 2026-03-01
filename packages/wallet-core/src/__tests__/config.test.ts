@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { getDefaultConfig } from "../config.js";
+import { getDefaultConfig } from "../core/config.js";
 
 describe("getDefaultConfig", () => {
   it("should return a valid config object", () => {

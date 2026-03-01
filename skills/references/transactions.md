@@ -218,42 +218,6 @@ await walletService.signAndSendTransaction(walletId, tx, {
 
 ---
 
-## Request Airdrop (Devnet Only)
-
-Fund a devnet wallet with free SOL. Max 2 SOL per request.
-If the RPC rate-limits the direct airdrop, the tool returns a fallback link to https://faucet.solana.com.
-
-### MCP Tool
-
-```json
-{
-  "wallet_id": "a1b2c3d4-...",
-  "amount": 1
-}
-```
-
-### Response
-
-```json
-{
-  "success": true,
-  "amount": 1,
-  "signature": "5vGk...",
-  "newBalance": 1.0,
-  "explorer": "https://explorer.solana.com/tx/5vGk...?cluster=devnet"
-}
-```
-
-If airdrop fails (rate limited), the response includes step-by-step fallback instructions with the faucet URL.
-
-### Notes
-
-- Devnet/testnet only — will error on mainnet
-- Max 2 SOL per request (devnet RPC enforced)
-- Wait 15–30 s between requests to avoid rate limits
-
----
-
 ## Create Token Mint
 
 Create a new SPL token mint. The signing wallet becomes the mint authority and can later mint tokens.

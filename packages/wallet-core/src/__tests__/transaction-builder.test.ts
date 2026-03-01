@@ -1,7 +1,7 @@
 import { describe, it, expect } from "vitest";
 import { TransactionBuilder } from "../protocols/transaction-builder.js";
 import { Keypair, PublicKey, SystemProgram } from "@solana/web3.js";
-import { SolanaConnection } from "../connection.js";
+import { SolanaConnection } from "../core/connection.js";
 
 describe("TransactionBuilder", () => {
   const connection = new SolanaConnection(

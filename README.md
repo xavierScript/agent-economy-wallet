@@ -30,7 +30,7 @@ A **TUI (terminal UI)** lets human operators observe all wallet state and audit 
 ┌──────────────────────────▼───────────────────────────────────────┐
 │                    MCP Server  (@agentic-wallet/mcp-server)        │
 │                                                                    │
-│  Tools (15)              Resources (8)         Prompts (7)        │
+│  Tools (14)              Resources (8)         Prompts (7)        │
 │  ─────────────────────   ─────────────────     ───────────────    │
 │  create_wallet           wallet://wallets       wallet-setup      │
 │  list_wallets            wallet://wallets/{id}  trading-strategy  │
@@ -39,8 +39,7 @@ A **TUI (terminal UI)** lets human operators observe all wallet state and audit 
 │  send_token              wallet://…/audit-logs  risk-assessment   │
 │  swap_tokens             wallet://system/status daily-report      │
 │  write_memo              wallet://system/config security-audit    │
-│  request_airdrop         wallet://x402/config   x402-payment      │
-│  create_token_mint                                                 │
+│  create_token_mint       wallet://x402/config   x402-payment      │
 │  mint_tokens                                                       │
 │  get_audit_logs                                                    │
 │  get_status                                                        │
@@ -209,7 +208,6 @@ The agent will call the `wallet://system/status` resource and respond with live 
 | `send_token`        | Transfer SPL tokens — creates recipient ATA if needed                                       |
 | `swap_tokens`       | Jupiter DEX swap — best route across all Solana liquidity                                   |
 | `write_memo`        | Write an on-chain memo (SPL Memo Program)                                                   |
-| `request_airdrop`   | Fund a wallet on devnet (max 2 SOL)                                                         |
 | `create_token_mint` | Create a new SPL token mint                                                                 |
 | `mint_tokens`       | Mint tokens to any wallet (must be mint authority)                                          |
 | `get_audit_logs`    | Read the immutable audit trail                                                              |

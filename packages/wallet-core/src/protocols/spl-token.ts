@@ -15,7 +15,7 @@ import {
   ASSOCIATED_TOKEN_PROGRAM_ID,
   MINT_SIZE,
 } from "@solana/spl-token";
-import { SolanaConnection } from "../connection.js";
+import { SolanaConnection } from "../core/connection.js";
 
 export interface TokenAccountInfo {
   mint: string;

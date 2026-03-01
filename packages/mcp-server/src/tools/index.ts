@@ -20,7 +20,6 @@ import { registerGetPolicyTool } from "./wallet/get-policy.js";
 import { registerSendSolTool } from "./transfers/send-sol.js";
 import { registerSendTokenTool } from "./transfers/send-token.js";
 import { registerWriteMemoTool } from "./transfers/write-memo.js";
-import { registerRequestAirdropTool } from "./transfers/request-airdrop.js";
 import { registerSwapTokensTool } from "./tokens/swap-tokens.js";
 import { registerMintTokenTool } from "./tokens/mint-token.js";
 
@@ -43,7 +42,6 @@ export function registerAllTools(
   registerSendTokenTool(server, services);
   registerSwapTokensTool(server, services);
   registerWriteMemoTool(server, services);
-  registerRequestAirdropTool(server, services);
   registerMintTokenTool(server, services);
   registerGetAuditLogsTool(server, services);
   registerGetStatusTool(server, services);

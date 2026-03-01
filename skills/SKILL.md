@@ -61,7 +61,6 @@ If empty, direct the user to [references/setup.md](references/setup.md).
 | Create wallet       | `agentic-wallet wallet create --label "name"`            | `create_wallet`                           |
 | List wallets        | `agentic-wallet wallet list`                             | `list_wallets`                            |
 | Check balance       | `agentic-wallet wallet balance <id>`                     | `get_balance`                             |
-| Request airdrop     | _(devnet only)_                                          | `request_airdrop`                         |
 | Send SOL            | `agentic-wallet send sol <id> <to> <amount>`             | `send_sol`                                |
 | Send SPL token      | `agentic-wallet send token <id> <to> <mint> <amt> <dec>` | `send_token`                              |
 | Swap tokens         | _(via MCP)_                                              | `swap_tokens` — Jupiter v6 DEX aggregator |

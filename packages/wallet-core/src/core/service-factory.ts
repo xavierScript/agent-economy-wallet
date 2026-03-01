@@ -7,11 +7,12 @@
 
 import { KeyManager } from "./key-manager.js";
 import { WalletService } from "./wallet-service.js";
-import { PolicyEngine } from "./guardrails/policy-engine.js";
+import { PolicyEngine } from "../guardrails/policy-engine.js";
 import { AuditLogger } from "./audit-logger.js";
 import { SolanaConnection } from "./connection.js";
-import { TransactionBuilder } from "./protocols/transaction-builder.js";
-import { SplTokenService } from "./protocols/spl-token.js";
+import { TransactionBuilder } from "../protocols/transaction-builder.js";
+import { SplTokenService } from "../protocols/spl-token.js";
+import { MasterFunder } from "./master-funder.js";
 import { getDefaultConfig, type AgentWalletConfig } from "./config.js";
 
 // ── Types ────────────────────────────────────────────────────────────────────
@@ -28,6 +29,8 @@ export interface CoreServices {
   walletService: WalletService;
   txBuilder: TransactionBuilder;
   splTokenService: SplTokenService;
+  /** null when MASTER_WALLET_SECRET_KEY is not set */
+  masterFunder: MasterFunder | null;
 }
 
 // ── Factory ──────────────────────────────────────────────────────────────────
@@ -45,11 +48,21 @@ export function createCoreServices(): CoreServices {
   const policyEngine = new PolicyEngine(`${home}/.agentic-wallet/policies`);
 
   const auditLogger = new AuditLogger(config.logDir);
+
+  // Master funder — returns null when MASTER_WALLET_SECRET_KEY is not set
+  const masterFunder = MasterFunder.create(
+    config.masterWalletSecretKey,
+    config.agentSeedSol,
+    connection,
+    auditLogger,
+  );
+
   const walletService = new WalletService(
     keyManager,
     policyEngine,
     auditLogger,
     connection,
+    masterFunder,
   );
 
   const txBuilder = new TransactionBuilder(connection);
@@ -64,5 +77,6 @@ export function createCoreServices(): CoreServices {
     walletService,
     txBuilder,
     splTokenService,
+    masterFunder,
   };
 }

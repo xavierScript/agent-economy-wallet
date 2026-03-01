@@ -43,6 +43,11 @@ export function registerCreateWalletTool(
       const policy = PolicyEngine.createDevnetPolicy();
       const wallet = await walletService.createWallet(label, policy);
 
+      const fundTxSignature = wallet.metadata.fundTxSignature as
+        | string
+        | undefined;
+      const funded = wallet.balanceSol > 0;
+
       return {
         content: [
           {
@@ -54,7 +59,16 @@ export function registerCreateWalletTool(
                 publicKey: wallet.publicKey,
                 cluster: config.cluster,
                 policyAttached: true,
-                note: "Fund this wallet at https://faucet.solana.com by pasting the public key.",
+                funded,
+                ...(funded
+                  ? {
+                      seedSol: wallet.balanceSol,
+                      fundTxSignature,
+                      fundExplorer: `https://explorer.solana.com/tx/${fundTxSignature}?cluster=${config.cluster}`,
+                    }
+                  : {
+                      note: "No master wallet configured. Fund manually or set MASTER_WALLET_SECRET_KEY.",
+                    }),
               },
               null,
               2,
