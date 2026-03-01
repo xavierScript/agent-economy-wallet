@@ -352,6 +352,34 @@ The system is designed for multiple independent agents, each with their own wall
 
 The `portfolio-rebalance` prompt demonstrates multi-wallet coordination: it reads all wallet balances, calculates target allocations, and orchestrates `send_sol` calls between wallets.
 
+### AI Agent as Trading Bot
+
+Instead of a standalone bot process, the trading capability is exposed as MCP tools that let any AI agent **become** a trading bot. This is architecturally important: the agent uses the same policy engine, audit trail, and guardrails as any other wallet operation.
+
+**How it works:**
+
+1. `fetch_prices` — calls Jupiter Price API v2, returns real-time USD prices for SOL, USDC, and any mint address
+2. `evaluate_strategy` — runs a named strategy (threshold-rebalance or sma-crossover) against current prices and balances, returns a BUY/SELL/HOLD signal with exact amounts
+3. `swap_tokens` — executes the trade if the signal is not HOLD (existing tool, policy-enforced)
+
+The `autonomous-trading` prompt ties these together: it instructs the agent to run a multi-tick loop of _fetch → evaluate → swap → log_. Each tick is a full MCP tool call sequence. The agent reports a summary table at the end.
+
+**Available strategies:**
+
+| Strategy              | Logic                                                                                               |
+| --------------------- | --------------------------------------------------------------------------------------------------- |
+| `threshold-rebalance` | Maintains a target SOL allocation (e.g. 70%); triggers rebalance when drift exceeds a threshold     |
+| `sma-crossover`       | Tracks fast and slow simple moving averages; generates BUY when fast crosses above slow, SELL below |
+
+The SMA strategy maintains per-wallet state across `evaluate_strategy` calls within a server session, so the agent can call it repeatedly and get progressively more accurate signals as the price window fills.
+
+**Key design choices:**
+
+- No separate process — the AI agent IS the bot during a prompted session
+- All swaps go through PolicyEngine — spend caps, rate limits, and slippage bounds still apply
+- All actions are audit-logged — every tick is traceable
+- The `trading://strategies` resource lets the agent self-discover available strategies before running
+
 ---
 
 ## 10. What Agents Can and Cannot Do

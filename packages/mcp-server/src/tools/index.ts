@@ -27,6 +27,10 @@ import { registerMintTokenTool } from "./tokens/mint-token.js";
 import { registerPayX402Tool } from "./payments/pay-x402.js";
 import { registerProbeX402Tool } from "./payments/probe-x402.js";
 
+// trading/
+import { registerFetchPricesTool } from "./trading/fetch-prices.js";
+import { registerEvaluateStrategyTool } from "./trading/evaluate-strategy.js";
+
 /**
  * Register all wallet tools on the given MCP server instance.
  */
@@ -50,4 +54,8 @@ export function registerAllTools(
   // payments/ — x402 HTTP payment protocol
   registerPayX402Tool(server, services);
   registerProbeX402Tool(server, services);
+
+  // trading/ — price feeds and strategy evaluation
+  registerFetchPricesTool(server, services);
+  registerEvaluateStrategyTool(server, services);
 }

@@ -20,6 +20,7 @@ import { registerWalletSetupPrompt } from "./setup/wallet-setup.js";
 // trading/
 import { registerTradingStrategyPrompt } from "./trading/trading-strategy.js";
 import { registerPortfolioRebalancePrompt } from "./trading/portfolio-rebalance.js";
+import { registerAutonomousTradingPrompt } from "./trading/autonomous-trading.js";
 
 // analysis/
 import { registerRiskAssessmentPrompt } from "./analysis/risk-assessment.js";
@@ -42,6 +43,7 @@ export function registerAllPrompts(
   // trading/
   registerTradingStrategyPrompt(server, services);
   registerPortfolioRebalancePrompt(server, services);
+  registerAutonomousTradingPrompt(server, services);
 
   // analysis/
   registerRiskAssessmentPrompt(server, services);

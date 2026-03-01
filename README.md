@@ -30,22 +30,24 @@ A **TUI (terminal UI)** lets human operators observe all wallet state and audit 
 ┌──────────────────────────▼───────────────────────────────────────┐
 │                    MCP Server  (@agentic-wallet/mcp-server)        │
 │                                                                    │
-│  Tools (14)              Resources (8)         Prompts (7)        │
+│  Tools (16)              Resources (9)         Prompts (8)        │
 │  ─────────────────────   ─────────────────     ───────────────    │
 │  create_wallet           wallet://wallets       wallet-setup      │
 │  list_wallets            wallet://wallets/{id}  trading-strategy  │
 │  get_balance             wallet://…/policy      portfolio-        │
 │  send_sol                wallet://audit-logs      rebalance       │
-│  send_token              wallet://…/audit-logs  risk-assessment   │
-│  swap_tokens             wallet://system/status daily-report      │
-│  write_memo              wallet://system/config security-audit    │
-│  create_token_mint       wallet://x402/config   x402-payment      │
-│  mint_tokens                                                       │
-│  get_audit_logs                                                    │
+│  send_token              wallet://…/audit-logs  autonomous-       │
+│  swap_tokens             wallet://system/status   trading ← NEW  │
+│  write_memo              wallet://system/config risk-assessment   │
+│  create_token_mint       wallet://x402/config   daily-report      │
+│  mint_tokens             trading://strategies   security-audit    │
+│  get_audit_logs            ← NEW                x402-payment      │
 │  get_status                                                        │
 │  get_policy                                                        │
-│  pay_x402 ← NEW                                                   │
-│  probe_x402 ← NEW                                                 │
+│  pay_x402                                                          │
+│  probe_x402                                                        │
+│  fetch_prices ← NEW                                                │
+│  evaluate_strategy ← NEW                                           │
 │                                                                    │
 │  ✗ close_wallet — human-only, CLI only                            │
 └──────────────────────────┬───────────────────────────────────────┘
@@ -199,37 +201,39 @@ The agent will call the `wallet://system/status` resource and respond with live 
 
 ### Tools — agent-callable actions
 
-| Tool                | Description                                                                                 |
-| ------------------- | ------------------------------------------------------------------------------------------- |
-| `create_wallet`     | Create wallet with AES-256-GCM encrypted key storage. Devnet safety policy always attached. |
-| `list_wallets`      | List all wallets with current SOL balances                                                  |
-| `get_balance`       | SOL + SPL token balances for a wallet                                                       |
-| `send_sol`          | Transfer SOL — policy-checked before signing                                                |
-| `send_token`        | Transfer SPL tokens — creates recipient ATA if needed                                       |
-| `swap_tokens`       | Jupiter DEX swap — best route across all Solana liquidity                                   |
-| `write_memo`        | Write an on-chain memo (SPL Memo Program)                                                   |
-| `create_token_mint` | Create a new SPL token mint                                                                 |
-| `mint_tokens`       | Mint tokens to any wallet (must be mint authority)                                          |
-| `get_audit_logs`    | Read the immutable audit trail                                                              |
-| `get_status`        | System-wide status: wallets, balances, recent activity                                      |
-| `get_policy`        | Wallet policy configuration + transaction stats                                             |
-| `pay_x402`          | Pay for an x402-protected HTTP resource using a managed wallet (Solana SVM exact scheme)    |
-| `probe_x402`        | Check if a URL requires x402 payment and discover pricing — no funds spent                  |
+| Tool                | Description                                                                                       |
+| ------------------- | ------------------------------------------------------------------------------------------------- | --- | -------------- | ------------------------------------------------------------------------------------------ |
+| `create_wallet`     | Create wallet with AES-256-GCM encrypted key storage. Devnet safety policy always attached.       |
+| `list_wallets`      | List all wallets with current SOL balances                                                        |
+| `get_balance`       | SOL + SPL token balances for a wallet                                                             |
+| `send_sol`          | Transfer SOL — policy-checked before signing                                                      |
+| `send_token`        | Transfer SPL tokens — creates recipient ATA if needed                                             |
+| `swap_tokens`       | Jupiter DEX swap — best route across all Solana liquidity                                         |
+| `write_memo`        | Write an on-chain memo (SPL Memo Program)                                                         |
+| `create_token_mint` | Create a new SPL token mint                                                                       |
+| `mint_tokens`       | Mint tokens to any wallet (must be mint authority)                                                |
+| `get_audit_logs`    | Read the immutable audit trail                                                                    |
+| `get_status`        | System-wide status: wallets, balances, recent activity                                            |
+| `get_policy`        | Wallet policy configuration + transaction stats                                                   |
+| `pay_x402`          | Pay for an x402-protected HTTP resource using a managed wallet (Solana SVM exact scheme)          |
+| `probe_x402`        | Check if a URL requires x402 payment and discover pricing — no funds spent                        |     | `fetch_prices` | Fetch real-time USD prices from Jupiter Price API v2 (SOL, USDC, USDT, BONK, JUP, or mint) |
+| `evaluate_strategy` | Evaluate a trading strategy (threshold-rebalance or sma-crossover) and get a BUY/SELL/HOLD signal |
 
 > `close_wallet` is intentionally absent. Wallet closure is irreversible and must be initiated by a human via the CLI.
 
 ### Resources — readable context
 
-| URI                                | Description                                       |
-| ---------------------------------- | ------------------------------------------------- |
-| `wallet://wallets`                 | All wallets with balances                         |
-| `wallet://wallets/{id}`            | Single wallet detail                              |
-| `wallet://wallets/{id}/policy`     | Policy rules + current spend/rate stats           |
-| `wallet://audit-logs`              | Recent global audit log entries                   |
-| `wallet://wallets/{id}/audit-logs` | Per-wallet audit history                          |
-| `wallet://system/status`           | Cluster, RPC, aggregate balances, recent activity |
-| `wallet://system/config`           | Active configuration (passphrase redacted)        |
-| `wallet://x402/config`             | x402 payment protocol config + supported networks |
+| URI                                | Description                                                  |
+| ---------------------------------- | ------------------------------------------------------------ |
+| `wallet://wallets`                 | All wallets with balances                                    |
+| `wallet://wallets/{id}`            | Single wallet detail                                         |
+| `wallet://wallets/{id}/policy`     | Policy rules + current spend/rate stats                      |
+| `wallet://audit-logs`              | Recent global audit log entries                              |
+| `wallet://wallets/{id}/audit-logs` | Per-wallet audit history                                     |
+| `wallet://system/status`           | Cluster, RPC, aggregate balances, recent activity            |
+| `wallet://system/config`           | Active configuration (passphrase redacted)                   |
+| `wallet://x402/config`             | x402 payment protocol config + supported networks            |
+| `trading://strategies`             | Available trading strategies, parameters, and usage workflow |
 
 ### Prompts — guided agent workflows
 
@@ -242,6 +246,7 @@ The agent will call the `wallet://system/status` resource and respond with live 
 | `daily-report`        | Full daily ops report: balances, tx counts, success rates, recommendations |
 | `security-audit`      | Comprehensive security review: missing policies, anomalies, config gaps    |
 | `x402-payment`        | Step-by-step guide for paying x402-protected HTTP resources                |
+| `autonomous-trading`  | Turn the agent into a trading bot — multi-tick price→strategy→swap loop    |
 
 ---
 
@@ -298,9 +303,9 @@ agentic-wallet/
 │   │   └── src/
 │   │       ├── index.ts                # Server bootstrap (stdio transport)
 │   │       ├── services.ts             # Service wiring for tool handlers
-│   │       ├── tools/                  # 13 agent-callable tools
-│   │       ├── resources/              # 7 readable data resources
-│   │       └── prompts/                # 6 guided workflow prompts
+│   │       ├── tools/                  # 16 agent-callable tools
+│   │       ├── resources/              # 9 readable data resources
+│   │       └── prompts/                # 8 guided workflow prompts
 │   │
 │   └── cli/                       # TUI — human operator view
 │       └── src/

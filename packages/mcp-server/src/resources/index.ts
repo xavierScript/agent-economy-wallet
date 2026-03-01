@@ -31,6 +31,9 @@ import { registerSystemConfigResource } from "./system/system-config.js";
 // payments/
 import { registerX402ConfigResource } from "./payments/x402-config.js";
 
+// trading/
+import { registerTradingStrategiesResource } from "./trading/trading-strategies.js";
+
 /**
  * Register all MCP resources on the given server instance.
  */
@@ -53,4 +56,7 @@ export function registerAllResources(
 
   // payments/
   registerX402ConfigResource(server, services);
+
+  // trading/
+  registerTradingStrategiesResource(server, services);
 }
