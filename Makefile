@@ -35,6 +35,13 @@ help:
 	@echo  make clean-mcp      Remove mcp-server/dist
 	@echo.
 	@echo  make rebuild        clean + build
+	@echo.
+	@echo  Docker targets
+	@echo  ────────────────────────────────────────────────────────────
+	@echo  make docker-build   Build the Docker image (no cache)
+	@echo  make docker-up      Build image and launch the TUI container
+	@echo  make docker-down    Stop and remove containers
+	@echo  make docker-clean   Stop containers and remove the wallet-data volume
 	@echo  ────────────────────────────────────────────────────────────
 	@echo.
 
@@ -121,3 +128,20 @@ clean-mcp:
 # ── Rebuild ──────────────────────────────────────────────────────────────────
 .PHONY: rebuild
 rebuild: clean build
+
+# ── Docker ───────────────────────────────────────────────────────────────────
+.PHONY: docker-build
+docker-build:
+	docker build --no-cache -t agentic-wallet:latest .
+
+.PHONY: docker-up
+docker-up:
+	docker compose up cli
+
+.PHONY: docker-down
+docker-down:
+	docker compose down
+
+.PHONY: docker-clean
+docker-clean:
+	docker compose down -v

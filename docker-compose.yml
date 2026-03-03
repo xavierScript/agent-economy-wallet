@@ -1,0 +1,68 @@
+services:
+  # ── CLI / TUI ─────────────────────────────────────────────────────────────
+  # Human operator view: live wallet balances, audit log stream, close wallet.
+  # Run:  docker compose up cli
+  cli:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: runner
+    image: agentic-wallet:latest
+    container_name: agentic-wallet-cli
+
+    # Required for Ink/React TUI to render correctly
+    stdin_open: true
+    tty: true
+
+    env_file:
+      - .env
+
+    # Persist keystores, audit logs, and policy state across restarts.
+    # All agent wallets survive container rebuilds.
+    volumes:
+      - wallet-data:/root/.agentic-wallet
+
+    # Devnet — no network restrictions needed.
+    # Remove this block if you need a custom RPC behind a VPN/proxy.
+    networks:
+      - solana
+
+  # ── MCP Server ────────────────────────────────────────────────────────────
+  # Runs the MCP server for smoke-testing inside Docker.
+  # For connecting Claude Desktop / VS Code Copilot / Cursor, use the stdio
+  # command shown in the README instead (docker run --rm -i ...).
+  mcp:
+    image: agentic-wallet:latest # reuses the image built by the cli service
+    container_name: agentic-wallet-mcp
+    depends_on:
+      - cli # ensures the image is built before mcp tries to use it
+    command: ["node", "packages/mcp-server/dist/index.js"]
+
+    # MCP speaks stdio — keep stdin open so an MCP client can attach
+    stdin_open: true
+    tty: false # stdio transport does not need a TTY
+
+    env_file:
+      - .env
+
+    volumes:
+      - wallet-data:/root/.agentic-wallet # shared wallet state with cli
+
+    networks:
+      - solana
+
+    # Don't start automatically with `docker compose up` —
+    # start explicitly with `docker compose run --rm -i mcp`
+    profiles:
+      - mcp
+
+# ── Shared wallet data volume ─────────────────────────────────────────────────
+# Named volume so data persists between `docker compose down` and `up`.
+# Inspect with: docker volume inspect agentic-wallet_wallet-data
+volumes:
+  wallet-data:
+    driver: local
+
+networks:
+  solana:
+    driver: bridge

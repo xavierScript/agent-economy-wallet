@@ -94,6 +94,57 @@ A **TUI (terminal UI)** lets human operators observe all wallet state and audit 
 
 ## Quick Start
 
+### Option A — Docker (fastest, zero local setup)
+
+Requires [Docker Desktop](https://www.docker.com/products/docker-desktop/) (or Docker Engine + Compose).
+
+```bash
+git clone https://github.com/xavierScript/agentic_wallet.git
+cd agentic_wallet
+
+# 1. Create your .env — only WALLET_PASSPHRASE is required
+cp .env.example .env
+
+# 2. Build the image and launch the TUI
+docker compose up cli
+```
+
+The first run compiles the full monorepo inside the builder stage (~60 s). Subsequent runs reuse the cached image.
+
+**Wallet data** (keystores, audit logs, policy state) is stored in a named Docker volume (`agentic-wallet_wallet-data`) and persists between `docker compose down` / `up` cycles.
+
+#### Connect an MCP client to the Docker container
+
+Claude Desktop, VS Code Copilot, Cursor, and any other MCP client can connect to the containerised MCP server over stdio using `docker run`:
+
+```json
+{
+  "mcpServers": {
+    "agentic-wallet": {
+      "command": "docker",
+      "args": [
+        "run",
+        "--rm",
+        "-i",
+        "-v",
+        "agentic-wallet_wallet-data:/root/.agentic-wallet",
+        "--env-file",
+        "/absolute/path/to/.env",
+        "agentic-wallet:latest",
+        "node",
+        "packages/mcp-server/dist/index.js"
+      ]
+    }
+  }
+}
+```
+
+> The `-i` flag keeps stdin open for the stdio transport. The named volume ensures the MCP container shares the same wallet state as the TUI container.
+
+---
+
+### Option B — Manual (Node.js + pnpm)
+
 ### Prerequisites
 
 - Node.js 18+

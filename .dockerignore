@@ -1,0 +1,31 @@
+# Dependencies — reinstalled inside the container
+node_modules
+**/node_modules
+
+# Compiled output — rebuilt inside the container
+**/dist
+
+# Git
+.git
+.gitignore
+
+# Local secrets — passed in via env_file at runtime, never baked into the image
+.env
+.env.*
+!.env.example
+
+# Wallet data — mounted as a Docker volume, not baked in
+.agentic-wallet
+
+# Kora keypair and config (sensitive)
+kora/kora-signer.json
+
+# Editor / OS noise
+.vscode
+.idea
+*.DS_Store
+Thumbs.db
+
+# Test output and coverage
+coverage
+*.log
