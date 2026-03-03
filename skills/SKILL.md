@@ -141,7 +141,7 @@ _"Read the agentic wallet skill in skills/ and help me create an agent wallet"_
 Install into your workspace skills folder:
 
 ```bash
-git clone https://github.com/your-username/agentic-wallet.git ~/.openclaw/workspace/skills/agentic-wallet
+git clone https://github.com/xavierScript/agentic_wallet.git ~/.openclaw/workspace/skills/agentic-wallet
 ```
 
 Add credentials to your OpenClaw config (`~/.openclaw/openclaw.json`):
@@ -160,7 +160,7 @@ Add credentials to your OpenClaw config (`~/.openclaw/openclaw.json`):
 ### Windsurf / Codeium
 
 ```bash
-git clone https://github.com/your-username/agentic-wallet.git .windsurf/skills/agentic-wallet
+git clone https://github.com/xavierScript/agentic_wallet.git .windsurf/skills/agentic-wallet
 ```
 
 ### Other Agents (GPT, Gemini, LangChain, Eliza, etc.)

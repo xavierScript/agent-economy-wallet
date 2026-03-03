@@ -5,7 +5,6 @@ import {
   SystemProgram,
   VersionedTransaction,
   LAMPORTS_PER_SOL,
-  type TransactionSignature,
 } from "@solana/web3.js";
 import { KeyManager, type KeystoreEntry } from "./key-manager.js";
 import { PolicyEngine, type Policy } from "../guardrails/policy-engine.js";

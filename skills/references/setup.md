@@ -10,8 +10,8 @@ Get the Agentic Wallet SDK running so agents can create wallets and execute tran
 ## 2. Install
 
 ```bash
-git clone https://github.com/your-username/agentic-wallet.git
-cd agentic-wallet
+git clone https://github.com/xavierScript/agentic_wallet.git
+cd agentic_wallet
 pnpm install
 ```
 
@@ -35,20 +35,30 @@ SOLANA_CLUSTER=devnet
 MASTER_WALLET_SECRET_KEY=your-base58-secret-key
 AGENT_SEED_SOL=0.05
 
+# Optional — receives swept SOL when a wallet is closed via the TUI
+OWNER_ADDRESS=your-base58-owner-public-key
+
+# Optional — Kora gasless paymaster relay (see kora/README.md)
+KORA_RPC_URL=http://localhost:8080
+# KORA_API_KEY=your-api-key-here
+
 # Optional — logging verbosity
 LOG_LEVEL=info
 ```
 
 ### Environment Variables
 
-| Variable                   | Required | Default                         | Description                             |
-| -------------------------- | -------- | ------------------------------- | --------------------------------------- |
-| `WALLET_PASSPHRASE`        | **Yes**  | dev-only fallback               | Encrypts private keys with AES-256-GCM  |
-| `SOLANA_RPC_URL`           | No       | `https://api.devnet.solana.com` | Solana JSON-RPC endpoint                |
-| `SOLANA_CLUSTER`           | No       | `devnet`                        | `devnet` \| `testnet` \| `mainnet-beta` |
-| `LOG_LEVEL`                | No       | `info`                          | `debug` \| `info` \| `warn` \| `error`  |
-| `MASTER_WALLET_SECRET_KEY` | No       | —                               | Base58 secret key for auto-funding      |
-| `AGENT_SEED_SOL`           | No       | `0.05`                          | SOL to seed each new agent wallet       |
+| Variable                   | Required | Default                         | Description                                                             |
+| -------------------------- | -------- | ------------------------------- | ----------------------------------------------------------------------- |
+| `WALLET_PASSPHRASE`        | **Yes**  | dev-only fallback               | Encrypts private keys with AES-256-GCM                                  |
+| `SOLANA_RPC_URL`           | No       | `https://api.devnet.solana.com` | Solana JSON-RPC endpoint                                                |
+| `SOLANA_CLUSTER`           | No       | `devnet`                        | `devnet` \| `testnet` \| `mainnet-beta`                                 |
+| `LOG_LEVEL`                | No       | `info`                          | `debug` \| `info` \| `warn` \| `error`                                  |
+| `MASTER_WALLET_SECRET_KEY` | No       | —                               | Base58 secret key for auto-funding                                      |
+| `AGENT_SEED_SOL`           | No       | `0.05`                          | SOL to seed each new agent wallet                                       |
+| `OWNER_ADDRESS`            | No       | —                               | Receives swept SOL when a wallet is closed                              |
+| `KORA_RPC_URL`             | No       | —                               | Kora paymaster URL — enables gasless txs; omit to use standard fee path |
+| `KORA_API_KEY`             | No       | —                               | API key for authenticated Kora nodes                                    |
 
 ## 4. Build
 
@@ -95,7 +105,7 @@ via https://faucet.solana.com (devnet only).
 
 ## 7. Connect MCP Server to an AI Agent
 
-The MCP server exposes all 14 wallet tools via the Model Context Protocol (stdio transport).
+The MCP server exposes all 16 wallet tools via the Model Context Protocol (stdio transport).
 
 ### Claude Desktop
 
@@ -140,24 +150,26 @@ Add to your workspace `.vscode/mcp.json`:
 }
 ```
 
-### Available MCP Tools (14 total)
+### Available MCP Tools (16 total)
 
-| Tool                | Description                              |
-| ------------------- | ---------------------------------------- |
-| `create_wallet`     | Create wallet with encrypted key storage |
-| `list_wallets`      | List all wallets with balances           |
-| `get_balance`       | SOL + SPL token balances                 |
-| `send_sol`          | SOL transfer with policy enforcement     |
-| `send_token`        | SPL token transfer                       |
-| `swap_tokens`       | Jupiter DEX swap                         |
-| `write_memo`        | Write on-chain memo (SPL Memo Program)   |
-| `create_token_mint` | Create new SPL token mint                |
-| `mint_tokens`       | Mint tokens to a wallet                  |
-| `get_audit_logs`    | Read audit trail                         |
-| `get_status`        | System status                            |
-| `get_policy`        | Wallet policy + tx stats                 |
-| `pay_x402`          | Pay for x402-protected HTTP resources    |
-| `probe_x402`        | Check x402 pricing before paying         |
+| Tool                | Description                                              |
+| ------------------- | -------------------------------------------------------- |
+| `create_wallet`     | Create wallet with encrypted key storage                 |
+| `list_wallets`      | List all wallets with balances                           |
+| `get_balance`       | SOL + SPL token balances                                 |
+| `send_sol`          | SOL transfer with policy enforcement                     |
+| `send_token`        | SPL token transfer                                       |
+| `swap_tokens`       | Jupiter DEX swap                                         |
+| `write_memo`        | Write on-chain memo (SPL Memo Program)                   |
+| `create_token_mint` | Create new SPL token mint                                |
+| `mint_tokens`       | Mint tokens to a wallet                                  |
+| `get_audit_logs`    | Read audit trail                                         |
+| `get_status`        | System status                                            |
+| `get_policy`        | Wallet policy + tx stats                                 |
+| `pay_x402`          | Pay for x402-protected HTTP resources                    |
+| `probe_x402`        | Check x402 pricing before paying                         |
+| `fetch_prices`      | Fetch real-time USD prices from Jupiter Price API v2     |
+| `evaluate_strategy` | Evaluate a trading strategy and get BUY/SELL/HOLD signal |
 
 ## Data Storage
 

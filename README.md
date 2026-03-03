@@ -215,7 +215,7 @@ For 28 copy-paste prompts covering every capability — from wallet creation and
 ### Tools — agent-callable actions
 
 | Tool                | Description                                                                                       |
-| ------------------- | ------------------------------------------------------------------------------------------------- | --- | -------------- | ------------------------------------------------------------------------------------------ |
+| ------------------- | ------------------------------------------------------------------------------------------------- |
 | `create_wallet`     | Create wallet with AES-256-GCM encrypted key storage. Devnet safety policy always attached.       |
 | `list_wallets`      | List all wallets with current SOL balances                                                        |
 | `get_balance`       | SOL + SPL token balances for a wallet                                                             |
@@ -229,7 +229,8 @@ For 28 copy-paste prompts covering every capability — from wallet creation and
 | `get_status`        | System-wide status: wallets, balances, recent activity                                            |
 | `get_policy`        | Wallet policy configuration + transaction stats                                                   |
 | `pay_x402`          | Pay for an x402-protected HTTP resource using a managed wallet (Solana SVM exact scheme)          |
-| `probe_x402`        | Check if a URL requires x402 payment and discover pricing — no funds spent                        |     | `fetch_prices` | Fetch real-time USD prices from Jupiter Price API v2 (SOL, USDC, USDT, BONK, JUP, or mint) |
+| `probe_x402`        | Check if a URL requires x402 payment and discover pricing — no funds spent                        |
+| `fetch_prices`      | Fetch real-time USD prices from Jupiter Price API v2 (SOL, USDC, USDT, BONK, JUP, or mint)        |
 | `evaluate_strategy` | Evaluate a trading strategy (threshold-rebalance or sma-crossover) and get a BUY/SELL/HOLD signal |
 
 > `close_wallet` is intentionally absent. Wallet closure is irreversible and must be initiated by a human via the CLI.
