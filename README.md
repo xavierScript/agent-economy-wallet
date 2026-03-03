@@ -168,26 +168,6 @@ Add to `~/Library/Application Support/Claude/claude_desktop_config.json` (macOS)
 
 Restart Claude Desktop. The wallet tools will appear in the tool list.
 
-### VS Code (GitHub Copilot / MCP extension)
-
-Add to `.vscode/mcp.json` in your workspace:
-
-```json
-{
-  "servers": {
-    "agentic-wallet": {
-      "type": "stdio",
-      "command": "node",
-      "args": ["${workspaceFolder}/packages/mcp-server/dist/index.js"],
-      "env": {
-        "WALLET_PASSPHRASE": "your-strong-passphrase-here",
-        "SOLANA_CLUSTER": "devnet"
-      }
-    }
-  }
-}
-```
-
 ### Cursor / other MCP clients
 
 Use the same `command` + `args` pattern above. The server communicates over stdin/stdout and requires no network port.
