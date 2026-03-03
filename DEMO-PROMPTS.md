@@ -349,7 +349,7 @@ would bring the portfolio back to target?
 
 ---
 
-## 25. Autonomous Trading Loop (MCP Prompt)
+## 25. Autonomous Trading Loop
 
 > **Demonstrates:** `autonomous-trading` MCP prompt — multi-tick trading loop where the AI agent acts as an autonomous trading bot.
 
