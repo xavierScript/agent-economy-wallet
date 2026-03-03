@@ -1,6 +1,6 @@
 # Solana Agentic Wallet
 
-> **Autonomous AI agents with secure Solana wallets** — encrypted key management, policy-enforced transaction signing, and a full Model Context Protocol (MCP) server that any AI agent can connect to.
+> **Autonomous AI agents with secure Solana wallets** — encrypted key management, policy-enforced transaction signing, a full MCP server, and agent skill scripts any AI can use.
 
 [![Solana](https://img.shields.io/badge/Solana-Devnet-14F195?style=flat-square&logo=solana)](https://solana.com)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.5-blue?style=flat-square&logo=typescript)](https://typescriptlang.org)
@@ -15,6 +15,8 @@ A complete toolkit for running autonomous AI agents on Solana. Each agent gets i
 
 The primary agent interface is an **MCP server** — meaning any MCP-compatible AI (Claude Desktop, VS Code Copilot, Cursor, or any custom agent) can connect and immediately gain the ability to create wallets, sign transactions, execute Jupiter swaps, mint tokens, and more — without touching private keys directly.
 
+For agents with shell access (Claude Code, Cursor terminal, any CLI agent), **5 standalone bash scripts** in `skills/scripts/` provide balance checks, devnet airdrops, audit log summaries, and transaction lookups — no MCP client required.
+
 A **TUI (terminal UI)** lets human operators observe all wallet state and audit logs in real time, and is the only place wallet closure can be initiated (a human-only operation by design).
 
 ---
@@ -25,32 +27,44 @@ A **TUI (terminal UI)** lets human operators observe all wallet state and audit 
 ┌──────────────────────────────────────────────────────────────────┐
 │                    AI Agent Layer                                  │
 │   Claude Desktop │ VS Code Copilot │ Cursor │ Custom MCP Client  │
-└──────────────────────────┬───────────────────────────────────────┘
-                           │  Model Context Protocol (stdio)
-┌──────────────────────────▼───────────────────────────────────────┐
-│                    MCP Server  (@agentic-wallet/mcp-server)        │
-│                                                                    │
-│  Tools (16)              Resources (9)         Prompts (8)        │
-│  ─────────────────────   ─────────────────     ───────────────    │
-│  create_wallet           wallet://wallets       wallet-setup      │
-│  list_wallets            wallet://wallets/{id}  trading-strategy  │
-│  get_balance             wallet://…/policy      portfolio-        │
-│  send_sol                wallet://audit-logs      rebalance       │
-│  send_token              wallet://…/audit-logs  autonomous-       │
-│  swap_tokens             wallet://system/status   trading ← NEW  │
-│  write_memo              wallet://system/config risk-assessment   │
-│  create_token_mint       wallet://x402/config   daily-report      │
-│  mint_tokens             trading://strategies   security-audit    │
-│  get_audit_logs            ← NEW                x402-payment      │
-│  get_status                                                        │
-│  get_policy                                                        │
-│  pay_x402                                                          │
-│  probe_x402                                                        │
-│  fetch_prices ← NEW                                                │
-│  evaluate_strategy ← NEW                                           │
-│                                                                    │
-│  ✗ close_wallet — human-only, CLI only                            │
-└──────────────────────────┬───────────────────────────────────────┘
+│              Claude Code │ Any shell-capable agent                │
+└──────────┬───────────────────────────────────────┬───────────────┘
+           │  Model Context Protocol (stdio)        │  bash skills/scripts/
+┌──────────▼───────────────────────────────────┐   │
+│         MCP Server  (@agentic-wallet/mcp-server)  │   │
+│                                               │   │
+│  Tools (16)         Resources (9)  Prompts (8)│   │
+│  ──────────────     ─────────────  ──────────-│   │
+│  create_wallet      wallet://…     wallet-    │   │
+│  list_wallets       wallet://…/id  setup      │   │
+│  get_balance        wallet://…/pol trading-   │   │
+│  send_sol           wallet://audit strategy   │   │
+│  send_token         wallet://sys/  portfolio- │   │
+│  swap_tokens        wallet://x402  rebalance  │   │
+│  write_memo         trading://str  autonomous-│   │
+│  create_token_mint               trading      │   │
+│  mint_tokens                     risk-assess  │   │
+│  get_audit_logs                  daily-report │   │
+│  get_status                      security-    │   │
+│  get_policy                      audit        │   │
+│  pay_x402                        x402-payment │   │
+│  probe_x402                                   │   │
+│  fetch_prices                                 │   │
+│  evaluate_strategy                            │   │
+│  ✗ close_wallet — human-only, CLI only        │   │
+└──────────┬────────────────────────────────────┘   │
+           │                               ┌─────────▼──────────────┐
+           │                               │  Bash Scripts (5)       │
+           │                               │  skills/scripts/        │
+           │                               │  ─────────────────────  │
+           │                               │  airdrop.sh             │
+           │                               │  check-balance.sh       │
+           │                               │  audit-summary.sh       │
+           │                               │  tx-lookup.sh           │
+           │                               │  health-check.sh        │
+           │                               │  (read-only except      │
+           │                               │   airdrop — no signing) │
+           └───────────────────────────────┴──────────┬─────────────┘
                            │
 ┌──────────────────────────▼───────────────────────────────────────┐
 │               Wallet Core  (@agentic-wallet/core)                  │
@@ -168,6 +182,22 @@ Add to `~/Library/Application Support/Claude/claude_desktop_config.json` (macOS)
 
 Restart Claude Desktop. The wallet tools will appear in the tool list.
 
+### VS Code (GitHub Copilot / MCP extension)
+
+Add `.vscode/mcp.json` to your workspace:
+
+```json
+{
+  "servers": {
+    "agentic-wallet": {
+      "type": "stdio",
+      "command": "node",
+      "args": ["${workspaceFolder}/packages/mcp-server/dist/index.js"]
+    }
+  }
+}
+```
+
 ### Cursor / other MCP clients
 
 Use the same `command` + `args` pattern above. The server communicates over stdin/stdout and requires no network port.
@@ -183,6 +213,38 @@ The agent will call the `wallet://system/status` resource and respond with live 
 ### Demo Prompts
 
 For 28 copy-paste prompts covering every capability — from wallet creation and gasless transfers through autonomous multi-tick trading — see **[DEMO-PROMPTS.md](DEMO-PROMPTS.md)**.
+
+---
+
+## Agent Skills
+
+**[SKILLS.md](SKILLS.md)** is the agent operating manual — read it first before any wallet operation.
+
+It covers what the agent can and cannot do, safety rules, common workflows, and the executable script interface. Point any agent at it:
+
+> "Read SKILLS.md and then create a wallet."
+
+### Bash Scripts — No MCP Required
+
+Agents with shell access can use the standalone scripts in `skills/scripts/` without the MCP server:
+
+| Script             | Purpose                             |
+| ------------------ | ----------------------------------- |
+| `airdrop.sh`       | Request devnet SOL for a wallet     |
+| `check-balance.sh` | Quick SOL balance via RPC           |
+| `audit-summary.sh` | Summarize today's audit log entries |
+| `tx-lookup.sh`     | Transaction details by signature    |
+| `health-check.sh`  | Scan all wallets for issues         |
+
+All scripts output JSON. Requirements: `bash`, `curl`, `bc`. On Windows use WSL or Git Bash.
+
+```bash
+bash skills/scripts/health-check.sh
+bash skills/scripts/check-balance.sh <wallet-public-key>
+bash skills/scripts/airdrop.sh <wallet-public-key> 1
+```
+
+See [skills/SKILL.md](skills/SKILL.md) for full docs, response formats, and agent trigger phrases.
 
 ---
 
@@ -383,17 +445,18 @@ Agent: Let me check if this requires payment...
 
 See [DEEP-DIVE.md](DEEP-DIVE.md) for the full explanation. Summary:
 
-| Concern           | Approach                                                                                                      |
-| ----------------- | ------------------------------------------------------------------------------------------------------------- |
-| Key storage       | AES-256-GCM, PBKDF2 (210,000 iterations, SHA-512), random salt/IV per key                                     |
-| Key in memory     | Unlocked only during signing, never written to disk in plaintext                                              |
-| Spend limits      | Per-tx cap, daily cap, enforced before signing in `PolicyEngine`                                              |
-| Rate limits       | Per-hour and per-day tx counts, configurable cooldown between txs                                             |
-| Program allowlist | Optionally restrict which on-chain programs a wallet may call                                                 |
-| Audit trail       | Append-only JSONL, every operation logged regardless of success/failure                                       |
-| Human-only ops    | `closeWallet` requires `HumanOnlyOpts` — a compile-time type guard that prevents any MCP tool from calling it |
-| Gasless relay     | Kora optional — if node is down, `WalletService` falls back to standard path automatically                    |
-| MCP agents        | No tool exposes raw keypairs or passphrase; agents operate through policy-checked `WalletService` only        |
+| Concern           | Approach                                                                                                                |
+| ----------------- | ----------------------------------------------------------------------------------------------------------------------- |
+| Key storage       | AES-256-GCM, PBKDF2 (210,000 iterations, SHA-512), random salt/IV per key                                               |
+| Key in memory     | Unlocked only during signing, never written to disk in plaintext                                                        |
+| Spend limits      | Per-tx cap, daily cap, enforced before signing in `PolicyEngine`                                                        |
+| Rate limits       | Per-hour and per-day tx counts, configurable cooldown between txs                                                       |
+| Program allowlist | Optionally restrict which on-chain programs a wallet may call                                                           |
+| Audit trail       | Append-only JSONL, every operation logged regardless of success/failure                                                 |
+| Human-only ops    | `closeWallet` requires `HumanOnlyOpts` — a compile-time type guard that prevents any MCP tool or script from calling it |
+| Gasless relay     | Kora optional — if node is down, `WalletService` falls back to standard path automatically                              |
+| MCP agents        | No tool exposes raw keypairs or passphrase; agents operate through policy-checked `WalletService` only                  |
+| Bash scripts      | Read-only (balance, logs, tx lookup); `airdrop.sh` only requests devnet SOL — no signing, no key access                 |
 
 ---
 
