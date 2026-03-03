@@ -1,148 +1,96 @@
-# Setup
+# Setup Reference
 
-Get the Agentic Wallet SDK running so agents can create wallets and execute transactions.
+> Environment configuration, prerequisites, and connection options for the Agentic Wallet system.
 
-## 1. Prerequisites
+---
 
-- **Node.js 18+** — `node -v`
-- **pnpm 8+** — `npm install -g pnpm`
+## Prerequisites
 
-## 2. Install
+### For the MCP Server and CLI
+
+| Requirement | Version    | Purpose                  |
+| ----------- | ---------- | ------------------------ |
+| Node.js     | 18+        | Runtime                  |
+| pnpm        | 8+         | Package manager          |
+| Solana CLI  | (optional) | Airdrops, key inspection |
+
+### For the Bash Scripts (`skills/scripts/`)
+
+| Requirement | Notes                                                |
+| ----------- | ---------------------------------------------------- |
+| `bash`      | Any modern version. On Windows, use WSL or Git Bash. |
+| `curl`      | For RPC calls and API requests                       |
+| `bc`        | For lamport ↔ SOL arithmetic                         |
+
+No Node.js or pnpm needed to run the scripts — they call the Solana RPC directly.
+
+---
+
+## Environment Variables
+
+Set these in the root `.env` file:
+
+### Required
+
+| Variable            | Description                                                                    |
+| ------------------- | ------------------------------------------------------------------------------ |
+| `WALLET_PASSPHRASE` | Encrypts all private keys. Min 12 characters. Use a strong, unique passphrase. |
+
+### Optional (with defaults)
+
+| Variable         | Default                         | Description                                              |
+| ---------------- | ------------------------------- | -------------------------------------------------------- |
+| `SOLANA_RPC_URL` | `https://api.devnet.solana.com` | Solana RPC endpoint                                      |
+| `SOLANA_CLUSTER` | `devnet`                        | Cluster: `devnet`, `testnet`, or `mainnet-beta`          |
+| `LOG_LEVEL`      | `info`                          | Logging: `debug`, `info`, `warn`, `error`                |
+| `AGENT_SEED_SOL` | `0.05`                          | SOL to auto-fund new wallets (when master wallet is set) |
+
+### Optional (no default)
+
+| Variable                   | Description                                                  |
+| -------------------------- | ------------------------------------------------------------ |
+| `OWNER_ADDRESS`            | Receives swept SOL when a wallet is closed                   |
+| `MASTER_WALLET_SECRET_KEY` | Base58 secret key — auto-funds new agent wallets on creation |
+| `KORA_RPC_URL`             | Kora gasless relay URL (e.g., `http://localhost:8080`)       |
+| `KORA_API_KEY`             | API key for Kora (if the node requires auth)                 |
+
+---
+
+## Build
 
 ```bash
-git clone https://github.com/xavierScript/agentic_wallet.git
-cd agentic_wallet
 pnpm install
+pnpm build          # builds: wallet-core → cli → mcp-server
 ```
 
-## 3. Configure Environment
+Or with Make:
 
 ```bash
-cp .env.example .env
+make install
+make build
 ```
 
-Edit `.env`:
+---
 
-```dotenv
-# REQUIRED — encrypts/decrypts all private keys
-WALLET_PASSPHRASE=your-strong-passphrase-at-least-12-chars
+## Running the MCP Server
 
-# Solana network (devnet is default and recommended for testing)
-SOLANA_RPC_URL=https://api.devnet.solana.com
-SOLANA_CLUSTER=devnet
-
-# Optional — auto-fund new agent wallets from your master wallet
-MASTER_WALLET_SECRET_KEY=your-base58-secret-key
-AGENT_SEED_SOL=0.05
-
-# Optional — receives swept SOL when a wallet is closed via the TUI
-OWNER_ADDRESS=your-base58-owner-public-key
-
-# Optional — Kora gasless paymaster relay (see kora/README.md)
-KORA_RPC_URL=http://localhost:8080
-# KORA_API_KEY=your-api-key-here
-
-# Optional — logging verbosity
-LOG_LEVEL=info
-```
-
-### Environment Variables
-
-| Variable                   | Required | Default                         | Description                                                             |
-| -------------------------- | -------- | ------------------------------- | ----------------------------------------------------------------------- |
-| `WALLET_PASSPHRASE`        | **Yes**  | dev-only fallback               | Encrypts private keys with AES-256-GCM                                  |
-| `SOLANA_RPC_URL`           | No       | `https://api.devnet.solana.com` | Solana JSON-RPC endpoint                                                |
-| `SOLANA_CLUSTER`           | No       | `devnet`                        | `devnet` \| `testnet` \| `mainnet-beta`                                 |
-| `LOG_LEVEL`                | No       | `info`                          | `debug` \| `info` \| `warn` \| `error`                                  |
-| `MASTER_WALLET_SECRET_KEY` | No       | —                               | Base58 secret key for auto-funding                                      |
-| `AGENT_SEED_SOL`           | No       | `0.05`                          | SOL to seed each new agent wallet                                       |
-| `OWNER_ADDRESS`            | No       | —                               | Receives swept SOL when a wallet is closed                              |
-| `KORA_RPC_URL`             | No       | —                               | Kora paymaster URL — enables gasless txs; omit to use standard fee path |
-| `KORA_API_KEY`             | No       | —                               | API key for authenticated Kora nodes                                    |
-
-## 4. Build
-
-```bash
-pnpm build
-```
-
-This compiles all packages in order: `wallet-core` → `cli` → `mcp-server`.
-
-## 5. Verify Setup
-
-```bash
-# Run the TUI dashboard (Ink-based terminal UI)
-pnpm cli
-
-# Or check the MCP server starts cleanly
-node packages/mcp-server/dist/index.js
-# (exits immediately without a client — that's expected)
-```
-
-## 6. Fund on Devnet
-
-### Auto-funding from Master Wallet (Recommended)
-
-Set `MASTER_WALLET_SECRET_KEY` in your `.env` to the base58-encoded secret key
-of your funding wallet. New agent wallets will be **automatically funded** on
-creation — no airdrop needed, no rate limits.
-
-```dotenv
-# Base58-encoded secret key of your master/funding wallet
-MASTER_WALLET_SECRET_KEY=your-base58-secret-key
-
-# Amount of SOL to seed each new wallet (default: 0.05)
-AGENT_SEED_SOL=0.05
-```
-
-> **Security**: For devnet/testnet only. On mainnet, use a dedicated treasury
-> wallet with its own spending limits rather than your primary wallet.
-
-### Manual Fallback
-
-If `MASTER_WALLET_SECRET_KEY` is not set, you can fund wallets manually
-via https://faucet.solana.com (devnet only).
-
-## 7. Connect MCP Server to an AI Agent
-
-The MCP server exposes all 16 wallet tools via the Model Context Protocol (stdio transport).
+The MCP server communicates over **stdio** (stdin/stdout). It is started by an MCP client, not manually.
 
 ### Claude Desktop
 
-> **Security**: Never put `WALLET_PASSPHRASE` or `MASTER_WALLET_SECRET_KEY` in the Claude Desktop config.
-> The MCP server **auto-loads your `.env` file** at startup, so all secrets stay in `.env` (which is gitignored).
-> The client config only needs the path to the server binary.
+Config location:
 
-Add to `~/Library/Application Support/Claude/claude_desktop_config.json` (macOS) or `%APPDATA%\Claude\claude_desktop_config.json` (Windows):
+- macOS: `~/Library/Application Support/Claude/claude_desktop_config.json`
+- Windows: `%APPDATA%\Claude\claude_desktop_config.json`
 
 ```json
 {
   "mcpServers": {
     "agentic-wallet": {
       "command": "node",
-      "args": [
-        "C:\\Users\\HP\\web3-projects\\agentic-wallet\\packages\\mcp-server\\dist\\index.js"
-      ]
-    }
-  }
-}
-```
-
-All configuration (passphrase, RPC URL, master wallet key, etc.) is read from your `.env` file in the project root.
-
-### VS Code (Copilot Agent Mode)
-
-Add to your workspace `.vscode/mcp.json`:
-
-```json
-{
-  "servers": {
-    "agentic-wallet": {
-      "type": "stdio",
-      "command": "node",
-      "args": ["packages/mcp-server/dist/index.js"],
+      "args": ["<absolute-path>/packages/mcp-server/dist/index.js"],
       "env": {
-        "WALLET_PASSPHRASE": "your-passphrase",
+        "WALLET_PASSPHRASE": "your-strong-passphrase-here",
         "SOLANA_CLUSTER": "devnet"
       }
     }
@@ -150,56 +98,91 @@ Add to your workspace `.vscode/mcp.json`:
 }
 ```
 
-### Available MCP Tools (16 total)
+### VS Code (Copilot / MCP extension)
 
-| Tool                | Description                                              |
-| ------------------- | -------------------------------------------------------- |
-| `create_wallet`     | Create wallet with encrypted key storage                 |
-| `list_wallets`      | List all wallets with balances                           |
-| `get_balance`       | SOL + SPL token balances                                 |
-| `send_sol`          | SOL transfer with policy enforcement                     |
-| `send_token`        | SPL token transfer                                       |
-| `swap_tokens`       | Jupiter DEX swap                                         |
-| `write_memo`        | Write on-chain memo (SPL Memo Program)                   |
-| `create_token_mint` | Create new SPL token mint                                |
-| `mint_tokens`       | Mint tokens to a wallet                                  |
-| `get_audit_logs`    | Read audit trail                                         |
-| `get_status`        | System status                                            |
-| `get_policy`        | Wallet policy + tx stats                                 |
-| `pay_x402`          | Pay for x402-protected HTTP resources                    |
-| `probe_x402`        | Check x402 pricing before paying                         |
-| `fetch_prices`      | Fetch real-time USD prices from Jupiter Price API v2     |
-| `evaluate_strategy` | Evaluate a trading strategy and get BUY/SELL/HOLD signal |
-
-## Data Storage
-
-All data is stored locally:
-
-```
-~/.agentic-wallet/
-├── keys/           # AES-256-GCM encrypted keystores (JSON files)
-├── logs/           # Audit logs (JSONL, one file per day)
-└── policies/       # Policy state (JSON)
-```
-
-## OpenClaw Setup
-
-Add credentials to `~/.openclaw/openclaw.json`:
+Add `.vscode/mcp.json` to your workspace:
 
 ```json
 {
-  "env": {
-    "vars": {
-      "WALLET_PASSPHRASE": "your-strong-passphrase",
-      "SOLANA_CLUSTER": "devnet",
-      "SOLANA_RPC_URL": "https://api.devnet.solana.com"
+  "servers": {
+    "agentic-wallet": {
+      "type": "stdio",
+      "command": "node",
+      "args": ["${workspaceFolder}/packages/mcp-server/dist/index.js"],
+      "env": {
+        "WALLET_PASSPHRASE": "your-strong-passphrase-here",
+        "SOLANA_CLUSTER": "devnet"
+      }
     }
   }
 }
 ```
 
-Then restart the gateway:
+### Cursor / Other MCP Clients
+
+Same `command` + `args` pattern. No network port needed.
+
+---
+
+## Running the TUI (CLI)
+
+The TUI is for human operators — it shows live wallet state and is the only place to close wallets.
 
 ```bash
-openclaw gateway restart
+pnpm cli                    # interactive TUI
+pnpm cli wallet list        # non-interactive: list wallets
+pnpm cli wallet balance ID  # non-interactive: check balance
+pnpm cli status             # non-interactive: system status
+pnpm cli logs               # non-interactive: recent audit logs
 ```
+
+---
+
+## Data Directories
+
+| Directory                                  | Purpose                                   |
+| ------------------------------------------ | ----------------------------------------- |
+| `~/.agentic-wallet/keys/`                  | Encrypted keystore files (one per wallet) |
+| `~/.agentic-wallet/logs/`                  | Audit log files (JSONL, one per day)      |
+| `~/.agentic-wallet/keys/policy-state.json` | Policy engine state (rate limit counters) |
+
+On Windows, `~` = `%USERPROFILE%` (e.g., `C:\Users\YourName`).
+
+---
+
+## Kora Gasless Setup (Optional)
+
+Kora is a Solana paymaster relay. When configured, agent wallets don't pay network fees.
+
+1. Set up a Kora node (see `kora/README.md`)
+2. Set `KORA_RPC_URL=http://localhost:8080` in `.env`
+3. Optionally set `KORA_API_KEY` if the node requires authentication
+4. Rebuild: `pnpm build`
+
+If Kora is unavailable at runtime, the system automatically falls back to standard fee payment.
+
+---
+
+## Verification
+
+### MCP path
+
+1. Connect your MCP client to the server
+2. Ask the agent: _"Read the wallet system status and tell me how many wallets exist."_
+3. The agent should call `wallet://system/status` and return live data
+4. If no wallets exist yet, ask: _"Create a new wallet labeled 'test-agent' and show me its balance."_
+
+### Bash script path (no MCP client needed)
+
+```bash
+# Check the overall system state (requires wallets to have been created first)
+bash skills/scripts/health-check.sh
+
+# Request devnet SOL for a public key shown after create_wallet
+bash skills/scripts/airdrop.sh <public-key> 1
+
+# Confirm the airdrop arrived
+bash skills/scripts/check-balance.sh <public-key>
+```
+
+All scripts output JSON. A successful `health-check.sh` confirms the wallet directory exists and RPC is reachable.

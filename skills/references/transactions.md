@@ -1,385 +1,184 @@
-# Transactions
+# Transactions Reference
 
-Execute transactions with agent wallets — SOL transfers and SPL token transfers.
-
-⚠️ Before every transaction, complete the security checklist in [security.md](security.md).
-
-## Send SOL
-
-### CLI
-
-```bash
-agentic-wallet send sol <walletId> <recipientAddress> <amountSOL>
-
-# Example:
-agentic-wallet send sol a1b2c3d4-... 7xKXtg2CnuE9p5dPHQc... 0.5
-# ✓ Sent! Signature: 5vGk...
-```
-
-### SDK
-
-```typescript
-import { PublicKey } from "@solana/web3.js";
-
-const fromPk = new PublicKey(walletService.getPublicKey(walletId));
-const toPk = new PublicKey("7xKXtg2CnuE...");
-const tx = txBuilder.buildSolTransfer(fromPk, toPk, 0.5);
-const sig = await walletService.signAndSendTransaction(walletId, tx, {
-  action: "sol:transfer",
-  details: { to: toPk.toBase58(), amount: 0.5 },
-});
-```
-
-### Parameters
-
-| Parameter          | Type   | Required | Description                          |
-| ------------------ | ------ | -------- | ------------------------------------ |
-| `walletId`         | string | Yes      | Source wallet ID                     |
-| `recipientAddress` | string | Yes      | Recipient Solana public key (base58) |
-| `amountSOL`        | number | Yes      | Amount of SOL to send                |
-
-### Policy Enforcement
-
-SOL transfers are checked against:
-
-- `maxLamportsPerTx` — amount must be under the per-tx limit
-- `maxTxPerHour` / `maxTxPerDay` — rate limits
-- `cooldownMs` — minimum time since last transaction
-- `maxDailySpendLamports` — cumulative daily cap
-- `allowedPrograms` — System Program must be in the allowlist
+> How transactions are built, signed, sent, and verified in the Agentic Wallet system.
 
 ---
 
-## Send SPL Tokens
+## Transaction Pipeline
 
-### CLI
+Every transaction follows this pipeline:
 
-```bash
-agentic-wallet send token <walletId> <recipientAddress> <mintAddress> <amount> <decimals>
-
-# Example (send 10 USDC):
-agentic-wallet send token a1b2c3d4-... 7xKXtg2C... EPjFWdd5Auf... 10 6
 ```
-
-### SDK
-
-```typescript
-const fromPk = new PublicKey(walletService.getPublicKey(walletId));
-const toPk = new PublicKey("recipient...");
-const mint = new PublicKey("EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v");
-
-const tx = await txBuilder.buildTokenTransfer(fromPk, toPk, mint, 10.5, 6);
-const sig = await walletService.signAndSendTransaction(walletId, tx, {
-  action: "spl:transfer",
-  details: { to: toPk.toBase58(), mint: mint.toBase58(), amount: 10.5 },
-});
-```
-
-### Parameters
-
-| Parameter          | Type   | Required | Description                             |
-| ------------------ | ------ | -------- | --------------------------------------- |
-| `walletId`         | string | Yes      | Source wallet ID                        |
-| `recipientAddress` | string | Yes      | Recipient public key                    |
-| `mintAddress`      | string | Yes      | Token mint address                      |
-| `amount`           | number | Yes      | Human-readable amount (e.g., 10.5 USDC) |
-| `decimals`         | number | Yes      | Token decimals (6 for USDC, 9 for SOL)  |
-
-### Notes
-
-- Recipient's Associated Token Account is created automatically if needed
-- Sender pays ~0.002 SOL rent for new ATA creation
-- Both Token Program and ATA Program must be in the policy allowlist
-
----
-
-## Error Handling
-
-| Error                           | Cause                                 | Fix                                                    |
-| ------------------------------- | ------------------------------------- | ------------------------------------------------------ |
-| `Policy violation: ...`         | Transaction exceeds policy limits     | Check policy with `policyEngine.getTransactionStats()` |
-| `Insufficient funds`            | Wallet doesn't have enough SOL/tokens | Fund wallet or reduce amount                           |
-| `429 Too Many Requests`         | Devnet RPC rate limit                 | Wait 15-30s and retry                                  |
-| `Transaction simulation failed` | Invalid transaction                   | Check accounts, amounts, and programs                  |
-
----
-
-## Swap Tokens (Jupiter)
-
-Swap any SPL token via the Jupiter aggregator — Solana's primary DEX aggregator. Routes across multiple liquidity sources for the best price.
-
-### MCP Tool
-
-Use the `swap_tokens` tool:
-
-```json
-{
-  "wallet_id": "a1b2c3d4-...",
-  "input_token": "SOL",
-  "output_token": "USDC",
-  "amount": 0.1,
-  "slippage_bps": 50
-}
-```
-
-### SDK
-
-```typescript
-import { JupiterService } from "@agentic-wallet/core";
-
-const jupiter = new JupiterService();
-
-// Get a quote
-const inputMint = jupiter.resolveTokenMint("SOL");
-const outputMint = jupiter.resolveTokenMint("USDC");
-const rawAmount = jupiter.toRawAmount(0.1, 9); // 9 decimals for SOL
-const quote = await jupiter.getQuote(inputMint, outputMint, rawAmount, 50);
-
-// Build the swap transaction
-const swapTx = await jupiter.getSwapTransaction(quote, walletPublicKey);
-
-// Sign and send (policy-checked)
-const sig = await walletService.signAndSendVersionedTransaction(
-  walletId,
-  swapTx,
-  {
-    action: "swap:jupiter",
-    details: { inputToken: "SOL", outputToken: "USDC", inputAmount: 0.1 },
-  },
-);
-```
-
-### Parameters
-
-| Parameter      | Type   | Required | Description                                             |
-| -------------- | ------ | -------- | ------------------------------------------------------- |
-| `wallet_id`    | string | Yes      | Source wallet ID                                        |
-| `input_token`  | string | Yes      | Input token symbol (SOL, USDC, etc.) or mint address    |
-| `output_token` | string | Yes      | Output token symbol or mint address                     |
-| `amount`       | number | Yes      | Amount of input token (human-readable)                  |
-| `slippage_bps` | number | No       | Slippage tolerance in basis points (default: 50 = 0.5%) |
-
-### Supported Tokens (by symbol)
-
-| Symbol | Name        | Mint                                           |
-| ------ | ----------- | ---------------------------------------------- |
-| SOL    | Wrapped SOL | `So11111111111111111111111111111111111111112`  |
-| USDC   | USD Coin    | `EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v` |
-| USDT   | Tether USD  | `Es9vMFrzaCERmJfrF4H2FYD4KCoNkY11McCe8BenwNYB` |
-| BONK   | Bonk        | `DezXAZ8z7PnrnRJjz3wXBoRgixCa6xjnB7YaB1pPB263` |
-| JUP    | Jupiter     | `JUPyiwrYJFskUPiHa7hkeR8VUtAeFoSYbKedZNsDvCN`  |
-
-Any SPL token can be swapped by providing its full mint address.
-
-### Safety
-
-- **Price impact cap**: Swaps with >5% price impact are rejected
-- **Slippage cap**: Maximum 3% (300 bps) slippage enforced
-- **Policy enforcement**: Rate limits and spending caps still apply
-- **Versioned transactions**: Jupiter uses VersionedTransaction (v0)
-
----
-
-## Write On-Chain Memo
-
-Store a text message permanently in the Solana transaction log using the SPL Memo Program.
-Useful for agent decision logs, audit notes, and simple on-chain presence.
-
-### MCP Tool
-
-```json
-{
-  "wallet_id": "a1b2c3d4-...",
-  "message": "Agent decision: auto-compounding at 12:00 UTC",
-  "transfer_to": "7xKXtg2C...",   ← optional: attach a SOL amount
-  "transfer_amount": 0.001        ← optional
-}
-```
-
-### SDK
-
-```typescript
-const signerPk = new PublicKey(walletService.getPublicKey(walletId));
-const tx = txBuilder.buildMemo(signerPk, "Hello, Solana!");
-await walletService.signAndSendTransaction(walletId, tx, {
-  action: "memo:write",
-  details: { message: "Hello, Solana!" },
-});
-```
-
-### Parameters
-
-| Parameter         | Type   | Required | Description                                        |
-| ----------------- | ------ | -------- | -------------------------------------------------- |
-| `wallet_id`       | string | Yes      | Wallet ID (UUID) that signs the memo               |
-| `message`         | string | Yes      | Memo text — max 500 chars, stored on-chain forever |
-| `transfer_to`     | string | No       | Attach an optional SOL transfer to the same tx     |
-| `transfer_amount` | number | No       | SOL amount to transfer alongside the memo          |
-
----
-
-## Create Token Mint
-
-Create a new SPL token mint. The signing wallet becomes the mint authority and can later mint tokens.
-
-### MCP Tool
-
-```json
-{
-  "wallet_id": "a1b2c3d4-...",
-  "decimals": 9
-}
-```
-
-### Response
-
-```json
-{
-  "success": true,
-  "mintAddress": "AaBbCc...",
-  "mintAuthority": "7xKXtg...",
-  "decimals": 9,
-  "signature": "5vGk...",
-  "explorer": "https://explorer.solana.com/address/AaBbCc...?cluster=devnet"
-}
-```
-
-### Workflow
-
-1. `create_token_mint` → get a `mintAddress`
-2. `mint_tokens` → mint supply to a wallet
-3. `send_token` → distribute tokens
-
----
-
-## Mint Tokens
-
-Mint new tokens from an existing SPL token mint to any wallet.
-The signing wallet must be the current mint authority.
-Automatically creates the recipient's Associated Token Account if it doesn't exist yet.
-
-### MCP Tool
-
-```json
-{
-  "wallet_id": "a1b2c3d4-...",
-  "mint": "AaBbCc...",
-  "to": "7xKXtg...",
-  "amount": 1000
-}
-```
-
-The `to` field is optional — defaults to the signing wallet itself.
-
-### Response
-
-```json
-{
-  "success": true,
-  "signature": "5vGk...",
-  "mint": "AaBbCc...",
-  "recipient": "7xKXtg...",
-  "amountMinted": 1000,
-  "tokenAccount": "DdEeFf...",
-  "explorer": "https://explorer.solana.com/tx/5vGk...?cluster=devnet"
-}
+Agent calls tool (e.g., send_sol)
+    │
+    ▼
+Tool handler builds transaction
+    │
+    ▼
+PolicyEngine.checkTransaction()
+    ├── REJECT → log violation, return error
+    └── ALLOW ↓
+    │
+    ▼
+KeyManager.unlock(walletId, passphrase)
+    → Decrypt private key in memory
+    │
+    ▼
+Transaction.sign(keypair)
+    │
+    ▼
+Send via Kora (gasless)?
+    ├── Yes → KoraService.signAndSend() (Kora pays fees)
+    │         └── Fallback to standard if Kora unavailable
+    └── No  → connection.sendRawTransaction()
+    │
+    ▼
+AuditLogger.log(action, details, success)
+    │
+    ▼
+Return TransactionResult to agent
+    { signature, gasless, network, explorerUrl }
 ```
 
 ---
 
 ## Transaction Types
 
-| Type              | Signs With                  | Method                                                |
-| ----------------- | --------------------------- | ----------------------------------------------------- |
-| SOL transfer      | Legacy `Transaction`        | `walletService.signAndSendTransaction()`              |
-| SPL transfer      | Legacy `Transaction`        | `walletService.signAndSendTransaction()`              |
-| Token swap        | `VersionedTransaction` (v0) | `walletService.signAndSendVersionedTransaction()`     |
-| On-chain memo     | Legacy `Transaction`        | `walletService.signAndSendTransaction()`              |
-| Create token mint | Legacy `Transaction`        | `walletService.signAndSendTransaction([mintKeypair])` |
-| Mint tokens       | Legacy `Transaction`        | `walletService.signAndSendTransaction()`              |
-| x402 payment      | Legacy `Transaction`        | `X402Client.payForResource()` → partial sign          |
+### Legacy Transactions
+
+Used for most operations: SOL transfers, token transfers, memos, mint creation, minting.
+
+```
+SystemProgram.transfer()     → send_sol
+Token.transfer()             → send_token
+MemoProgram.memo()           → write_memo
+Token.createMint()           → create_token_mint
+Token.mintTo()               → mint_tokens
+```
+
+### Versioned Transactions
+
+Used for Jupiter swaps (required by Jupiter's routing engine):
+
+```
+Jupiter quote → swap transaction → VersionedTransaction
+    → signAndSendVersionedTransaction()
+```
+
+Versioned transactions support address lookup tables (ALTs), which Jupiter uses to compress complex multi-hop routes into fewer bytes.
 
 ---
 
-## x402 HTTP Payments
+## Gasless Transactions (Kora)
 
-Pay for x402-protected HTTP resources using a managed wallet. The x402 protocol enables AI agents to autonomously access paid APIs on the internet.
+When `KORA_RPC_URL` is configured, transactions are routed through the Kora gasless paymaster relay:
 
-### MCP Tools
+1. Transaction is built normally
+2. Instead of the agent wallet paying network fees, Kora's signer pays
+3. The agent wallet only needs SOL for the transfer amount itself
+4. If Kora is unavailable, the system automatically falls back to standard fee payment
 
-#### Probe (check pricing)
+**Agent impact:** No code changes needed. The `gasless` field in `TransactionResult` indicates which path was used.
 
-```json
-{
-  "url": "https://api.example.com/weather"
-}
-```
+---
 
-Returns payment requirements (price, token, network) without spending any funds.
+## Transaction Result Format
 
-#### Pay and access
-
-```json
-{
-  "wallet_id": "a1b2c3d4-...",
-  "url": "https://api.example.com/weather",
-  "method": "GET"
-}
-```
-
-### Response
+Every tool that sends a transaction returns:
 
 ```json
 {
-  "success": true,
-  "url": "https://api.example.com/weather",
-  "httpStatus": 200,
-  "contentType": "application/json",
-  "body": "{\"temp\": 72}",
-  "payment": {
-    "amountPaid": "1000000",
-    "tokenMint": "So11111111111111111111111111111111111111112",
-    "payTo": "2wKup...",
-    "network": "solana:EtWTRABZaYq6iMfeYKouRu166VU2xqa1"
-  },
-  "settlement": {
-    "success": true,
-    "transaction": "5vGk..."
-  }
+  "signature": "5vGk...",
+  "gasless": true,
+  "network": "devnet",
+  "explorerUrl": "https://explorer.solana.com/tx/5vGk...?cluster=devnet"
 }
 ```
 
-### Policy Enforcement
+| Field         | Description                                                  |
+| ------------- | ------------------------------------------------------------ |
+| `signature`   | Base58 transaction signature — unique on-chain identifier    |
+| `gasless`     | `true` if Kora paid the fee, `false` if the agent wallet did |
+| `network`     | Solana cluster (devnet, testnet, mainnet-beta)               |
+| `explorerUrl` | Direct link to view the transaction on Solana Explorer       |
 
-x402 payments are checked against standard spending limits:
+---
 
-- Rate limits (`maxTxPerHour` / `maxTxPerDay`)
-- Cooldown between transactions
-- A separate `maxPaymentLamports` cap on x402 client (default: 1 SOL)
+## SOL and Lamport Conversions
 
-### SDK
+| SOL          | Lamports                        |
+| ------------ | ------------------------------- |
+| 1 SOL        | 1,000,000,000 lamports          |
+| 0.1 SOL      | 100,000,000 lamports            |
+| 0.01 SOL     | 10,000,000 lamports             |
+| 0.001 SOL    | 1,000,000 lamports              |
+| 0.000005 SOL | 5,000 lamports (typical tx fee) |
 
-```typescript
-import { X402Client } from "@agentic-wallet/core";
+Policy limits are defined in **lamports**. Tool parameters use **SOL** (human-readable). The conversion is handled internally.
 
-const x402 = new X402Client({
-  preferredNetwork: X402Client.getNetworkId("devnet"),
-  maxPaymentLamports: 500_000_000, // 0.5 SOL max
-});
+---
 
-// Probe pricing
-const probe = await x402.probeResource("https://api.example.com/weather");
-console.log(probe.svmOptions); // payment options
+## Token Operations
 
-// Pay and access
-const result = await x402.payForResource(
-  "https://api.example.com/weather",
-  { method: "GET" },
-  async (tx) => {
-    tx.partialSign(keypair);
-    return tx;
-  },
-  walletPublicKey,
-);
-console.log(result.body); // the protected resource
-```
+### SPL Token Transfers
+
+When sending SPL tokens via `send_token`:
+
+1. The recipient's Associated Token Account (ATA) is checked
+2. If the ATA doesn't exist, it is created automatically (costs ~0.002 SOL in rent)
+3. The transfer is executed using `Token.transfer` or `Token.transferChecked`
+
+### Token Decimals
+
+| Token         | Decimals | 1 Token =                |
+| ------------- | -------- | ------------------------ |
+| SOL (wrapped) | 9        | 1,000,000,000 base units |
+| USDC          | 6        | 1,000,000 base units     |
+| USDT          | 6        | 1,000,000 base units     |
+| BONK          | 5        | 100,000 base units       |
+| Custom        | varies   | set at mint creation     |
+
+Always pass the correct `decimals` when sending tokens. Default is 6 (USDC-like).
+
+---
+
+## Jupiter Swap Details
+
+The `swap_tokens` tool uses Jupiter v6 aggregator:
+
+1. **Quote:** Fetches best route across all DEXs (Raydium, Orca, Meteora, etc.)
+2. **Route:** May involve multi-hop paths for better pricing
+3. **Slippage:** Configurable (default 50 bps = 0.5%, max 300 bps = 3%)
+4. **Price impact:** Jupiter calculates the impact; high impact swaps are warned but not blocked
+5. **Signing:** Swap TX is a versioned transaction, signed by the wallet
+
+### Well-Known Token Symbols
+
+These symbols are resolved to mint addresses automatically:
+
+| Symbol | Mint Address                                                |
+| ------ | ----------------------------------------------------------- |
+| SOL    | `So11111111111111111111111111111111111111112` (wrapped SOL) |
+| USDC   | `EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v`              |
+| USDT   | `Es9vMFrzaCERmJfrF4H2FYD4KCoNkY11McCe8BenwNYB`              |
+| BONK   | `DezXAZ8z7PnrnRJjz3wXBoRgixCa6xjnB7YaB1pPB263`              |
+| JUP    | `JUPyiwrYJFskUPiHa7hkeR8VUtAeFoSYbKedZNsDvCN`               |
+
+Any string longer than 20 characters is treated as a mint address directly.
+
+---
+
+## x402 Payment Transactions
+
+x402 payments use a specialized flow:
+
+1. Initial HTTP request to the URL
+2. Server returns `402 Payment Required` with `PAYMENT-REQUIRED` header
+3. Header contains: amount, token (USDC), payTo address, network, timeout
+4. System builds a `TransferChecked` instruction to the specified `payTo` address
+5. Transaction is **partially signed** (not submitted directly)
+6. The signed transaction is sent back as a `PAYMENT-SIGNATURE` header
+7. The x402 **facilitator** verifies and submits the transaction
+8. On success, the resource content is returned
+
+**Key difference from normal transfers:** The tool signs but does not submit. The facilitator submits. This means the payment is atomic with the resource delivery.

@@ -332,7 +332,13 @@ agentic-wallet/
 │
 ├── skills/                        # Agent skill reference docs
 │   ├── SKILL.md                        # Structured agent instructions
-│   └── references/                     # security, setup, transactions, wallets
+│   ├── references/                     # security, setup, transactions, wallets
+│   └── scripts/                        # Executable scripts agents can run directly
+│       ├── airdrop.sh                  # Request devnet SOL airdrop
+│       ├── check-balance.sh            # Quick RPC balance check
+│       ├── audit-summary.sh            # Audit log summary report
+│       ├── tx-lookup.sh                # Transaction details by signature
+│       └── health-check.sh             # All-wallet health scan
 │
 ├── kora/                          # Kora paymaster node config (optional)
 │   ├── kora.toml                       # Kora node configuration

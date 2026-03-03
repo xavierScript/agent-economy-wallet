@@ -1,140 +1,155 @@
-# Wallets
+# Wallets Reference
 
-Create and manage agent-controlled Solana wallets with encrypted key storage.
+> Wallet lifecycle, policy configuration, and multi-wallet patterns.
 
-## Create Wallet
+---
 
-⚠️ **Always attach a policy.** See [policies.md](policies.md).
+## Wallet Lifecycle
 
-### CLI
-
-```bash
-agentic-wallet wallet create --label "my-agent"
-
-# Output:
-# ✓ Wallet created!
-#   ID:         a1b2c3d4-e5f6-7890-abcd-ef1234567890
-#   Public Key: 7xKXtg2CnuE9p5dPHQc2CY8Y4M3fV...
-#   Cluster:    devnet
+```
+create_wallet() → Active (policy attached, auto-funded)
+                     │
+                     ├── send_sol / send_token / swap_tokens / pay_x402
+                     ├── get_balance / get_policy / get_audit_logs
+                     │
+              [Human-only via CLI]
+                     │
+                     ▼
+               close_wallet() → Swept (remaining SOL sent to owner) → Deleted
 ```
 
-### SDK
+### Creation
+
+When `create_wallet` is called:
+
+1. An Ed25519 keypair is generated
+2. The private key is encrypted (AES-256-GCM + PBKDF2) and saved to `~/.agentic-wallet/keys/<uuid>.json`
+3. The devnet safety policy is attached (mandatory, cannot be skipped)
+4. If `MASTER_WALLET_SECRET_KEY` is configured, the wallet receives `AGENT_SEED_SOL` (default: 0.05 SOL) automatically
+5. `wallet:created` is logged to the audit trail
+
+### Active State
+
+A wallet in active state can:
+
+- Hold SOL and SPL tokens
+- Sign and send transactions (within policy limits)
+- Be queried for balances and policy status
+
+### Closure (Human-Only)
+
+Wallet closure is **irreversible** and **human-only**:
+
+1. Human initiates closure via CLI (`close_wallet`)
+2. Remaining SOL is swept to `OWNER_ADDRESS` (if configured)
+3. The keystore file is deleted from disk
+4. `wallet:closed` is logged
+5. The wallet ID becomes permanently invalid
+
+**Agents cannot close wallets.** This is enforced at compile time via the `HumanOnlyOpts` type guard.
+
+---
+
+## Policy Details
+
+### Policy Structure
 
 ```typescript
-import { createCoreServices } from "@agentic-wallet/core";
-import { PolicyEngine } from "@agentic-wallet/core";
-
-// Bootstrap all services with one call
-const { walletService, policyEngine } = createCoreServices();
-
-// Create with safety policy
-const policy = PolicyEngine.createDevnetPolicy("my-agent-policy");
-const wallet = await walletService.createWallet("my-agent", policy);
-// → { id, publicKey, label, balanceSol, createdAt }
-```
-
-### Response Fields
-
-| Field             | Type   | Description                                               |
-| ----------------- | ------ | --------------------------------------------------------- |
-| `id`              | string | UUID — use this to reference the wallet in all operations |
-| `publicKey`       | string | Solana base58 public key                                  |
-| `label`           | string | Human-readable name                                       |
-| `balanceSol`      | number | Current SOL balance                                       |
-| `balanceLamports` | number | Current balance in lamports                               |
-| `createdAt`       | string | ISO timestamp                                             |
-
-## List Wallets
-
-### CLI
-
-```bash
-agentic-wallet wallet list
-```
-
-Shows a table with ID, Label, Public Key, and Balance for all wallets.
-
-### SDK
-
-```typescript
-const wallets = await walletService.listWallets();
-for (const w of wallets) {
-  console.log(`${w.label}: ${w.publicKey} — ${w.balanceSol} SOL`);
+interface PolicyRule {
+  name: string; // Rule identifier
+  maxLamportsPerTx?: number; // Per-transaction spend cap
+  maxTxPerHour?: number; // Hourly rate limit
+  maxTxPerDay?: number; // Daily rate limit
+  cooldownMs?: number; // Min time between transactions
+  allowedPrograms?: string[]; // Program whitelist (empty = all allowed)
+  blockedPrograms?: string[]; // Program blacklist
+  maxDailySpendLamports?: number; // Daily cumulative spend cap
 }
 ```
 
-## Check Balance
+### Default Devnet Policy Values
 
-### CLI
+| Rule                    | Value          | Human-Readable                |
+| ----------------------- | -------------- | ----------------------------- |
+| `maxLamportsPerTx`      | 2,000,000,000  | 2 SOL per transaction         |
+| `maxTxPerHour`          | 10             | 10 transactions per hour      |
+| `maxTxPerDay`           | 50             | 50 transactions per day       |
+| `cooldownMs`            | 1,000          | 1 second between transactions |
+| `maxDailySpendLamports` | 10,000,000,000 | 10 SOL per day total          |
 
-```bash
-agentic-wallet wallet balance <walletId>
+### Policy Checking Flow
 
-# Output:
-#   Wallet: my-agent
-#   Public Key: 7xKXtg2CnuE...
-#   SOL: 1.500000
-#
-#   SPL Tokens:
-#     4zMMC9srt5... → 25.5
+```
+Transaction submitted
+    │
+    ▼
+Is there a policy attached?
+    ├── No  → allow (but warn in logs)
+    └── Yes → check each rule:
+                ├── Amount ≤ maxLamportsPerTx?
+                ├── Hourly count < maxTxPerHour?
+                ├── Daily count < maxTxPerDay?
+                ├── Time since last tx ≥ cooldownMs?
+                ├── Daily spend + this tx ≤ maxDailySpendLamports?
+                ├── Program in allowedPrograms? (if list is set)
+                └── Program NOT in blockedPrograms?
+                    │
+                    ├── All pass → sign and send
+                    └── Any fail → reject, log violation
 ```
 
-### SDK
+### Rate Limit Windows
 
-```typescript
-// SOL balance
-const { sol, lamports } = await walletService.getBalance(walletId);
+- **Hourly:** Rolling 60-minute window from current time
+- **Daily:** Rolling 24-hour window from current time
+- **Cooldown:** Time since the most recent transaction
 
-// SPL token balances
-const tokens = await walletService.getTokenBalances(walletId);
-for (const t of tokens) {
-  console.log(`${t.mint}: ${t.uiAmount} (${t.decimals} decimals)`);
-}
+Rate limit state is tracked in memory and persisted to `~/.agentic-wallet/keys/policy-state.json` so it survives process restarts.
+
+---
+
+## Multi-Wallet Patterns
+
+### One Wallet Per Agent
+
+The simplest pattern. Each AI agent gets its own wallet with its own policy:
+
+```
+Agent A → Wallet A (trading bot, 2 SOL/tx)
+Agent B → Wallet B (payment agent, 2 SOL/tx)
+Agent C → Wallet C (data buyer, 2 SOL/tx)
 ```
 
-## Fund Wallet
+### Role-Based Wallets
 
-### Auto-funding (Recommended)
+Create wallets with descriptive labels for different purposes:
 
-When `MASTER_WALLET_SECRET_KEY` is set, new wallets are funded automatically
-during `createWallet()` — policy is attached **before** funding, so the agent
-is constrained from the very first lamport.
-
-### Manual Funding (Devnet Fallback)
-
-Go to https://faucet.solana.com, paste the wallet's public key, select Devnet, and request SOL.
-
-## Get Public Key
-
-```typescript
-const publicKey = walletService.getPublicKey(walletId);
-// → "7xKXtg2CnuE9p5dPHQc2CY8Y4M3fV..."
+```
+create_wallet(label: "hot-trading")     → for active trading
+create_wallet(label: "cold-holding")    → for long-term storage
+create_wallet(label: "payment-agent")   → for x402 API payments
 ```
 
-## Key Storage Details
+### Portfolio Rebalancing
 
-Each wallet is stored as an encrypted JSON file in `~/.agentic-wallet/keys/`:
+Multiple wallets can be rebalanced using the `portfolio-rebalance` prompt:
 
-```json
-{
-  "id": "a1b2c3d4-...",
-  "label": "my-agent",
-  "publicKey": "7xKXtg2C...",
-  "crypto": {
-    "cipher": "aes-256-gcm",
-    "ciphertext": "encrypted-base64...",
-    "kdf": "pbkdf2",
-    "kdfparams": {
-      "iterations": 210000,
-      "salt": "random-hex...",
-      "dklen": 32,
-      "digest": "sha512"
-    },
-    "iv": "random-hex...",
-    "authTag": "random-hex..."
-  },
-  "createdAt": "2025-01-15T10:30:00.000Z"
-}
+```
+list_wallets() → get all wallet IDs and balances
+For each wallet:
+  get_balance(wallet_id) → current allocation
+Calculate target allocations
+For wallets over-allocated: send_sol to under-allocated wallets
 ```
 
-The private key is **never** stored in plaintext. It's encrypted with AES-256-GCM using a key derived from your `WALLET_PASSPHRASE` via PBKDF2 (210,000 iterations, SHA-512).
+---
+
+## Wallet Data Locations
+
+| Data                | Location                                        |
+| ------------------- | ----------------------------------------------- |
+| Encrypted keystores | `~/.agentic-wallet/keys/<uuid>.json`            |
+| Policy state        | `~/.agentic-wallet/keys/policy-state.json`      |
+| Audit logs          | `~/.agentic-wallet/logs/audit-YYYY-MM-DD.jsonl` |
+
+All paths are relative to the user's home directory. On Windows, `~` resolves to `%USERPROFILE%`.
