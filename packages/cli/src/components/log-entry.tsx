@@ -21,6 +21,8 @@ function actionStyle(action: string): { icon: string; color: string } {
   if (action.startsWith("memo:")) return { icon: "✎", color: "white" };
   if (action.startsWith("airdrop:")) return { icon: "▼", color: "blue" };
   if (action.startsWith("mint:")) return { icon: "✦", color: "yellow" };
+  if (action.startsWith("x402:")) return { icon: "$", color: "green" };
+  if (action.startsWith("master-fund:")) return { icon: "▲", color: "blue" };
   return { icon: "●", color: "gray" };
 }
 

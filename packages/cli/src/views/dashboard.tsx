@@ -28,6 +28,9 @@ export function DashboardView({ services, refreshKey }: DashboardViewProps) {
   const totalSol = wallets.reduce((s, w) => s + w.balanceSol, 0);
   const successCount = logs.filter((l) => l.success).length;
 
+  const koraActive = services.koraService !== null;
+  const funderActive = services.masterFunder !== null;
+
   return (
     <Box flexDirection="column">
       {/* ── Stat cards ─────────────────────────── */}
@@ -60,11 +63,35 @@ export function DashboardView({ services, refreshKey }: DashboardViewProps) {
           borderStyle="round"
           borderColor="cyan"
           paddingX={2}
+          marginRight={3}
           flexDirection="column"
         >
           <Text dimColor>CLUSTER</Text>
           <Text bold color="cyan">
             {services.config.cluster.toUpperCase()}
+          </Text>
+        </Box>
+        <Box
+          borderStyle="round"
+          borderColor={koraActive ? "green" : "gray"}
+          paddingX={2}
+          marginRight={3}
+          flexDirection="column"
+        >
+          <Text dimColor>KORA</Text>
+          <Text bold color={koraActive ? "green" : "gray"}>
+            {koraActive ? "gasless" : "off"}
+          </Text>
+        </Box>
+        <Box
+          borderStyle="round"
+          borderColor={funderActive ? "green" : "gray"}
+          paddingX={2}
+          flexDirection="column"
+        >
+          <Text dimColor>FUNDER</Text>
+          <Text bold color={funderActive ? "green" : "gray"}>
+            {funderActive ? "ready" : "off"}
           </Text>
         </Box>
       </Box>

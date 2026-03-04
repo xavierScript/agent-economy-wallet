@@ -22,7 +22,7 @@ export function registerCreateWalletTool(
       description:
         "Create a new Solana wallet with AES-256-GCM encrypted key storage. " +
         "Returns the wallet ID and public key. The devnet safety policy " +
-        "(2 SOL per-tx limit, 10 tx/hr rate limit, 10 SOL daily cap) is " +
+        "(2 SOL per-tx limit, 30 tx/hr rate limit, 10 SOL daily cap) is " +
         "always attached — agents cannot create policy-free wallets.",
       inputSchema: {
         label: z

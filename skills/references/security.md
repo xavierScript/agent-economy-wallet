@@ -67,9 +67,9 @@ Applied automatically to every new wallet:
 | Rule                    | Value                   | Purpose                          |
 | ----------------------- | ----------------------- | -------------------------------- |
 | `maxLamportsPerTx`      | 2,000,000,000 (2 SOL)   | Prevents single large transfers  |
-| `maxTxPerHour`          | 10                      | Limits runaway loops             |
-| `maxTxPerDay`           | 50                      | Daily ceiling                    |
-| `cooldownMs`            | 1,000 (1 sec)           | Prevents rapid-fire transactions |
+| `maxTxPerHour`          | 30                      | Limits runaway loops             |
+| `maxTxPerDay`           | 200                     | Daily ceiling                    |
+| `cooldownMs`            | 2,000 (2 sec)           | Prevents rapid-fire transactions |
 | `maxDailySpendLamports` | 10,000,000,000 (10 SOL) | Daily spend cap                  |
 
 ### What Gets Checked
@@ -160,7 +160,7 @@ Every operation is logged to `~/.agentic-wallet/logs/audit-YYYY-MM-DD.jsonl`:
 | -------------------------- | ------------------------------------------------------------------------- |
 | Agent leaks private key    | Keys never leave the encrypted keystore. No tool exposes them.            |
 | Agent drains wallet        | Per-tx limit (2 SOL), daily cap (10 SOL), rate limits.                    |
-| Agent enters infinite loop | 10 tx/hr rate limit + 1-second cooldown.                                  |
+| Agent enters infinite loop | 30 tx/hr rate limit + 2-second cooldown.                                  |
 | Compromised passphrase     | 210,000 PBKDF2 iterations make brute force expensive.                     |
 | Agent closes wallet        | Impossible — `HumanOnlyOpts` compile-time guard.                          |
 | Injection via tool input   | All inputs validated by Zod schemas before handler runs.                  |

@@ -201,9 +201,10 @@ Every wallet is created with this safety policy:
 | Constraint                    | Value    |
 | ----------------------------- | -------- |
 | Max SOL per transaction       | 2 SOL    |
-| Max transactions per hour     | 10       |
+| Max transactions per hour     | 30       |
+| Max transactions per day      | 200      |
 | Max daily spend               | 10 SOL   |
-| Cooldown between transactions | 1 second |
+| Cooldown between transactions | 2 seconds |
 
 These limits prevent runaway spending. You cannot disable or modify them.
 

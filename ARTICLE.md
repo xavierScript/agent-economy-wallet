@@ -161,8 +161,8 @@ interface PolicyRule {
 Every wallet created through the MCP server receives a default devnet safety policy — it cannot be skipped:
 
 - **Max 2 SOL per transaction** — no single call can drain the wallet
-- **Max 10 transactions per hour** — limits velocity
-- **Max 50 transactions per day** — limits volume
+- **Max 30 transactions per hour** — limits velocity
+- **Max 200 transactions per day** — limits volume
 - **2-second cooldown** between transactions — prevents rapid-fire loops
 - **Max 10 SOL daily spend** — hard cap on 24-hour exposure
 
@@ -367,18 +367,18 @@ Every swap still goes through the `PolicyEngine`. A runaway strategy cannot exce
 
 Building for autonomous agents means thinking about threats that human-wallet systems don't consider:
 
-| Threat                             | Mitigation                                                                                   |
-| ---------------------------------- | -------------------------------------------------------------------------------------------- |
-| **Prompt injection**               | PolicyEngine blocks out-of-limit transactions regardless of what the agent was told to do    |
-| **Runaway agent loop**             | Rate limits (10 tx/hr, 50 tx/day) and cooldown (2s) halt execution before significant damage |
-| **Large single transaction**       | Per-tx cap (2 SOL) prevents draining in one call                                             |
-| **Gradual drain over time**        | Daily spend cap (10 SOL) bounds 24h exposure                                                 |
-| **Agent closing wallets**          | Compile-time `HumanOnlyOpts` guard + module exclusion — two independent barriers             |
-| **Agent loosening its own policy** | No `update_policy` tool exists; policy changes require code access                           |
-| **Keystore file exfiltration**     | AES-256-GCM encrypted; attacker needs the passphrase                                         |
-| **Passphrase brute force**         | 210,000 PBKDF2 iterations makes brute force computationally expensive                        |
-| **Keystore tampering**             | GCM auth tag detects modification; decryption throws on tampered ciphertext                  |
-| **Devnet vs mainnet confusion**    | Defaults to devnet; mainnet requires explicit opt-in                                         |
+| Threat                             | Mitigation                                                                                    |
+| ---------------------------------- | --------------------------------------------------------------------------------------------- |
+| **Prompt injection**               | PolicyEngine blocks out-of-limit transactions regardless of what the agent was told to do     |
+| **Runaway agent loop**             | Rate limits (30 tx/hr, 200 tx/day) and cooldown (2s) halt execution before significant damage |
+| **Large single transaction**       | Per-tx cap (2 SOL) prevents draining in one call                                              |
+| **Gradual drain over time**        | Daily spend cap (10 SOL) bounds 24h exposure                                                  |
+| **Agent closing wallets**          | Compile-time `HumanOnlyOpts` guard + module exclusion — two independent barriers              |
+| **Agent loosening its own policy** | No `update_policy` tool exists; policy changes require code access                            |
+| **Keystore file exfiltration**     | AES-256-GCM encrypted; attacker needs the passphrase                                          |
+| **Passphrase brute force**         | 210,000 PBKDF2 iterations makes brute force computationally expensive                         |
+| **Keystore tampering**             | GCM auth tag detects modification; decryption throws on tampered ciphertext                   |
+| **Devnet vs mainnet confusion**    | Defaults to devnet; mainnet requires explicit opt-in                                          |
 
 Is this perfect? No. A determined attacker with process-level access could dump memory during signing. An operator who sets a weak passphrase undermines the entire key derivation scheme. But the goal isn't perfection — it's **defense in depth** where every layer independently limits the blast radius.
 

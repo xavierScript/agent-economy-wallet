@@ -31,7 +31,7 @@ Creates a new Solana wallet with AES-256-GCM encrypted key storage.
 
 - Generates an Ed25519 keypair
 - Encrypts the private key with PBKDF2 (210,000 iterations, SHA-512) + AES-256-GCM
-- Attaches the devnet safety policy (2 SOL/tx, 10 tx/hr, 10 SOL/day)
+- Attaches the devnet safety policy (2 SOL/tx, 30 tx/hr, 10 SOL/day)
 - If a master wallet is configured, auto-funds the new wallet with seed SOL
 - Logs `wallet:created` to the audit trail
 
@@ -612,7 +612,7 @@ Step 3: get_balance(wallet_id)
         → If balance is 0 and on devnet: tell user to airdrop SOL to the public key
 
 Step 4: get_policy(wallet_id)
-        → Understand: max 2 SOL/tx, 10 tx/hr, 10 SOL/day
+        → Understand: max 2 SOL/tx, 30 tx/hr, 10 SOL/day
 ```
 
 ### Playbook 2: Safe SOL Transfer
@@ -709,7 +709,7 @@ Each Tick:
   Step 6: get_audit_logs(count: 5, wallet_id)
           → Confirm audit trail is clean
 
-  Step 7: Wait (respect rate limits: ≤10 tx/hr)
+  Step 7: Wait (respect rate limits: ≤30 tx/hr)
           → Repeat from Step 1
 
 Note for sma-crossover: first ~20 ticks will return HOLD until enough price
@@ -771,7 +771,7 @@ Error mentions "insufficient" or "balance"?
   → Need more SOL: tell the user to fund it
 
 Error mentions "rate" or "cooldown"?
-  → Wait at least the cooldown period (default: 1 second)
+  → Wait at least the cooldown period (default: 2 seconds)
   → Check hourly count via get_policy
 
 Error mentions "program" or "allowlist"?

@@ -69,13 +69,13 @@ interface PolicyRule {
 
 ### Default Devnet Policy Values
 
-| Rule                    | Value          | Human-Readable                |
-| ----------------------- | -------------- | ----------------------------- |
-| `maxLamportsPerTx`      | 2,000,000,000  | 2 SOL per transaction         |
-| `maxTxPerHour`          | 10             | 10 transactions per hour      |
-| `maxTxPerDay`           | 50             | 50 transactions per day       |
-| `cooldownMs`            | 1,000          | 1 second between transactions |
-| `maxDailySpendLamports` | 10,000,000,000 | 10 SOL per day total          |
+| Rule                    | Value          | Human-Readable                 |
+| ----------------------- | -------------- | ------------------------------ |
+| `maxLamportsPerTx`      | 2,000,000,000  | 2 SOL per transaction          |
+| `maxTxPerHour`          | 30             | 30 transactions per hour       |
+| `maxTxPerDay`           | 200            | 200 transactions per day       |
+| `cooldownMs`            | 2,000          | 2 seconds between transactions |
+| `maxDailySpendLamports` | 10,000,000,000 | 10 SOL per day total           |
 
 ### Policy Checking Flow
 

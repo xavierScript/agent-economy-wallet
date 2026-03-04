@@ -140,8 +140,8 @@ Each wallet can have one policy with multiple rules. All rules must pass.
 Every wallet created through the MCP server receives this policy automatically — it cannot be skipped:
 
 - Max 2 SOL per transaction
-- Max 10 transactions per hour
-- Max 50 transactions per day
+- Max 30 transactions per hour
+- Max 200 transactions per day
 - 2-second cooldown between transactions
 - Max 10 SOL daily spend
 
@@ -472,7 +472,7 @@ The SMA strategy maintains per-wallet state across `evaluate_strategy` calls wit
 | Threat                                   | Mitigation                                                                                                                       |
 | ---------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------- |
 | **Compromised agent / prompt injection** | Policy engine blocks out-of-limit transactions regardless of what the agent was instructed to do                                 |
-| **Runaway agent loop**                   | Rate limits (10 tx/hr, 50 tx/day) and cooldown (2s) halt runaway execution before significant damage                             |
+| **Runaway agent loop**                   | Rate limits (30 tx/hr, 200 tx/day) and cooldown (2s) halt runaway execution before significant damage                             |
 | **Large single transaction**             | Per-tx cap (2 SOL default) prevents draining in one call                                                                         |
 | **Gradual drain over time**              | Daily spend cap (10 SOL default) bounds 24h exposure                                                                             |
 | **Agent closing wallets**                | Compile-time `HumanOnlyOpts` guard; `close_wallet` not registered on MCP server                                                  |
