@@ -44,7 +44,7 @@
 
 ## What's Built
 
-A **production-grade autonomous wallet system** for Solana AI agents — not a toy prototype.
+A **production-grade autonomous wallet system** for Solana AI agents.
 
 **Core wallet**
 
