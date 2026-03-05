@@ -28,16 +28,16 @@
   </tr>
   <tr>
     <td align="center"><em>TUI — live wallet state and audit log</em></td>
-    <td align="center"><em>Claude Desktop connected via MCP</em></td>
+    <td align="center"><em>Gemini CLI connected via MCP</em></td>
   </tr>
-  <tr>
+  <!-- <tr>
     <td><img src="images/screenshot-audit.png" alt="Append-only audit trail" /></td>
     <td><img src="images/screenshot-policy.png" alt="Policy engine blocking an over-limit transfer" /></td>
   </tr>
   <tr>
     <td align="center"><em>Append-only audit trail</em></td>
     <td align="center"><em>Policy engine blocking an over-limit transfer</em></td>
-  </tr>
+  </tr> -->
 </table>
 
 ---
