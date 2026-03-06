@@ -33,19 +33,6 @@ Everything is exposed as standard MCP tools, resources, and prompts — no custo
 
 ---
 
-## Recommended Demo Sequence
-
-**1 → 2 → 5 → 7 → 13 → 20 → 21**
-
-This sequence tells a complete story:
-_System online → agent wallet created and auto-funded → policy inspected → agent blocked by guardrail → audit trail reviewed → security audit run → operator report generated_
-
-**Gasless extension: 1 → 2 → 26 → 27 → 28 → 13**
-
-_System online → wallet created → gasless SOL transfer via Kora → gasless memo → audit trail confirms Kora fee payer_
-
----
-
 ## 1. System Health Check
 
 > **Demonstrates:** MCP resource layer (`system://status`, `system://config`), live cluster detection, master wallet configuration status.
@@ -225,6 +212,7 @@ initial auto-funding event from the master wallet.
 > **Demonstrates:** `probe_x402` tool, payment-free cost discovery — an agent can inspect pricing before committing any funds.
 >
 > **⚠️ Prerequisite:** `https://x402.org/protected` is a Coinbase Base/EVM server — it won't work with this Solana implementation. Run a local Solana x402 server first:
+>
 > ```bash
 > git clone https://github.com/Woody4618/x402-solana-examples
 > cd x402-solana-examples && npm install
