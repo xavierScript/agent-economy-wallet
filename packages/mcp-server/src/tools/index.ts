@@ -20,7 +20,6 @@ import { registerGetPolicyTool } from "./wallet/get-policy.js";
 import { registerSendSolTool } from "./transfers/send-sol.js";
 import { registerSendTokenTool } from "./transfers/send-token.js";
 import { registerWriteMemoTool } from "./transfers/write-memo.js";
-import { registerSwapTokensTool } from "./tokens/swap-tokens.js";
 import { registerMintTokenTool } from "./tokens/mint-token.js";
 
 // payments/
@@ -29,7 +28,6 @@ import { registerProbeX402Tool } from "./payments/probe-x402.js";
 
 // trading/
 import { registerFetchPricesTool } from "./trading/fetch-prices.js";
-import { registerEvaluateStrategyTool } from "./trading/evaluate-strategy.js";
 
 /**
  * Register all wallet tools on the given MCP server instance.
@@ -44,7 +42,6 @@ export function registerAllTools(
   // registerCloseWalletTool is deliberately omitted — human-only via CLI.
   registerSendSolTool(server, services);
   registerSendTokenTool(server, services);
-  registerSwapTokensTool(server, services);
   registerWriteMemoTool(server, services);
   registerMintTokenTool(server, services);
   registerGetAuditLogsTool(server, services);
@@ -55,7 +52,6 @@ export function registerAllTools(
   registerPayX402Tool(server, services);
   registerProbeX402Tool(server, services);
 
-  // trading/ — price feeds and strategy evaluation
+  // trading/ — price feeds
   registerFetchPricesTool(server, services);
-  registerEvaluateStrategyTool(server, services);
 }

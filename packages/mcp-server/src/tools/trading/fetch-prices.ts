@@ -2,8 +2,7 @@
  * tools/trading/fetch-prices.ts
  *
  * MCP tool — fetch real-time token prices.
- * Primary source: Jupiter Price API v2.
- * Fallback source: CoinGecko free API (no key required).
+ * Source: CoinGecko free API (no key required).
  * This gives AI agents the market data they need to make autonomous trading decisions.
  */
 
@@ -12,7 +11,6 @@ import { WELL_KNOWN_TOKENS } from "@agentic-wallet/core";
 import type { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import type { WalletServices } from "../../services.js";
 
-const JUPITER_PRICE_API = "https://api.jup.ag/price/v2";
 const COINGECKO_PRICE_API = "https://api.coingecko.com/api/v3/simple/price";
 
 /** Maps mint address → CoinGecko coin ID */
@@ -52,7 +50,7 @@ export function registerFetchPricesTool(
       title: "Fetch Token Prices",
       description:
         "Fetch real-time USD prices for one or more Solana tokens from the " +
-        "Jupiter Price API v2. Accepts token symbols (SOL, USDC, USDT, BONK, JUP) " +
+        "CoinGecko API. Accepts token symbols (SOL, USDC, USDT, BONK, JUP) " +
         "or mint addresses. Use this before evaluating a trading strategy.",
       inputSchema: {
         tokens: z
@@ -98,115 +96,70 @@ export function registerFetchPricesTool(
         };
       }
 
-      // ── Attempt 1: Jupiter Price API ────────────────────────────────────────
-      let jupiterOk = false;
+      const geckoIds = mints
+        .map((m) => MINT_TO_COINGECKO_ID[m])
+        .filter(Boolean);
+
+      if (geckoIds.length === 0) {
+        return {
+          content: [
+            {
+              type: "text" as const,
+              text: "None of the requested tokens have a known CoinGecko mapping. Cannot fetch prices.",
+            },
+          ],
+          isError: true,
+        };
+      }
+
       let prices: Array<{ symbol: string; mint: string; priceUsd: number }> =
         [];
-      let source = "";
+      let source = "CoinGecko API";
       const now = new Date().toISOString();
 
       try {
-        const params = new URLSearchParams();
-        params.set("ids", mints.join(","));
-        const url = `${JUPITER_PRICE_API}?${params.toString()}`;
+        const params = new URLSearchParams({
+          ids: geckoIds.join(","),
+          vs_currencies: "usd",
+        });
+        const url = `${COINGECKO_PRICE_API}?${params.toString()}`;
         const response = await fetch(url);
 
-        if (response.ok) {
-          const json = (await response.json()) as {
-            data: Record<
-              string,
-              { id: string; type: string; price: string } | null
-            >;
-            timeTaken: number;
-          };
-
-          for (const mint of mints) {
-            const entry = json.data[mint];
-            if (!entry) continue;
-            const known = WELL_KNOWN_TOKENS[mint];
-            prices.push({
-              symbol: known?.symbol ?? mint.slice(0, 8),
-              mint,
-              priceUsd: parseFloat(entry.price),
-            });
-          }
-          source = "Jupiter Price API v2";
-          jupiterOk = true;
-        }
-      } catch {
-        // fall through to CoinGecko
-      }
-
-      // ── Attempt 2: CoinGecko free API (fallback) ─────────────────────────
-      if (!jupiterOk) {
-        const geckoIds = mints
-          .map((m) => MINT_TO_COINGECKO_ID[m])
-          .filter(Boolean);
-
-        if (geckoIds.length === 0) {
+        if (!response.ok) {
+          const body = await response.text();
           return {
             content: [
               {
                 type: "text" as const,
-                text:
-                  "Jupiter Price API is unavailable and none of the requested tokens " +
-                  "have a known CoinGecko mapping. Cannot fetch prices.",
+                text: `CoinGecko API failed (${response.status}): ${body}`,
               },
             ],
             isError: true,
           };
         }
 
-        try {
-          const params = new URLSearchParams({
-            ids: geckoIds.join(","),
-            vs_currencies: "usd",
+        const json = (await response.json()) as Record<string, { usd: number }>;
+
+        for (const mint of mints) {
+          const geckoId = MINT_TO_COINGECKO_ID[mint];
+          if (!geckoId || !json[geckoId]) continue;
+          const known = WELL_KNOWN_TOKENS[mint];
+          prices.push({
+            symbol: known?.symbol ?? mint.slice(0, 8),
+            mint,
+            priceUsd: json[geckoId].usd,
           });
-          const url = `${COINGECKO_PRICE_API}?${params.toString()}`;
-          const response = await fetch(url);
-
-          if (!response.ok) {
-            const body = await response.text();
-            return {
-              content: [
-                {
-                  type: "text" as const,
-                  text:
-                    `Jupiter Price API unavailable. CoinGecko fallback also failed ` +
-                    `(${response.status}): ${body}`,
-                },
-              ],
-              isError: true,
-            };
-          }
-
-          const json = (await response.json()) as Record<
-            string,
-            { usd: number }
-          >;
-
-          for (const mint of mints) {
-            const geckoId = MINT_TO_COINGECKO_ID[mint];
-            if (!geckoId || !json[geckoId]) continue;
-            const known = WELL_KNOWN_TOKENS[mint];
-            prices.push({
-              symbol: known?.symbol ?? mint.slice(0, 8),
-              mint,
-              priceUsd: json[geckoId].usd,
-            });
-          }
-          source = "CoinGecko API (Jupiter unavailable)";
-        } catch (err: any) {
-          return {
-            content: [
-              {
-                type: "text" as const,
-                text: `Both Jupiter and CoinGecko are unreachable: ${err.message}`,
-              },
-            ],
-            isError: true,
-          };
         }
+      } catch (err: any) {
+        return {
+          content: [
+            {
+              type: "text" as const,
+              text: `CoinGecko is unreachable: ${err.message}`,
+            },
+          ],
+          isError: true,
+        };
       }
 
       return {

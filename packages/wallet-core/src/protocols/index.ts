@@ -8,15 +8,7 @@
 
 export { SplTokenService, type TokenAccountInfo } from "./spl-token.js";
 export { TransactionBuilder } from "./transaction-builder.js";
-export {
-  JupiterService,
-  type JupiterQuote,
-  type SwapResult,
-  type SimulatedSwapResult,
-  type JupiterTokenInfo,
-  type JupiterServiceConfig,
-  WELL_KNOWN_TOKENS,
-} from "./jupiter-service.js";
+export { WELL_KNOWN_TOKENS } from "./well-known-tokens.js";
 export {
   X402Client,
   type PaymentRequirements,
