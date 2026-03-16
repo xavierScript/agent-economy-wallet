@@ -27,6 +27,7 @@ import { createServices } from "./services.js";
 import { registerAllTools } from "./tools/index.js";
 import { registerAllResources } from "./resources/index.js";
 import { registerAllPrompts } from "./prompts/index.js";
+import { createExpressApp } from "./api/server.js";
 
 // ---------------------------------------------------------------------------
 // Bootstrap
@@ -53,6 +54,13 @@ registerAllPrompts(server, services);
 async function main() {
   const transport = new StdioServerTransport();
   await server.connect(transport);
+  console.error("Agentic Wallet MCP Server running on stdio");
+
+  const port = process.env.PORT || 3000;
+  const expressApp = createExpressApp(services);
+  expressApp.listen(port, () => {
+    console.error(`Hybrid Merchant API running concurrently on port ${port}`);
+  });
 }
 
 main().catch((err) => {

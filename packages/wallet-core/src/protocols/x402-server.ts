@@ -15,62 +15,65 @@ export class X402ServerService {
     requiredMint: string,
     merchantAddress: string,
   ): Promise<boolean> {
-    try {
-      const merchantPubkey = new PublicKey(merchantAddress);
-      const mintPubkey = new PublicKey(requiredMint);
+    const merchantPubkey = new PublicKey(merchantAddress);
+    const mintPubkey = new PublicKey(requiredMint);
 
-      // Derive the expected merchant token account
-      const merchantTokenAccount = await getAssociatedTokenAddress(
-        mintPubkey,
-        merchantPubkey,
-      );
+    // Derive the expected merchant token account
+    const merchantTokenAccount = await getAssociatedTokenAddress(
+      mintPubkey,
+      merchantPubkey,
+    );
 
-      // Fetch the transaction to verify payment details
-      const confirmedTx = await this.connection.getParsedTransaction(
-        signature,
-        {
-          commitment: "confirmed",
-          maxSupportedTransactionVersion: 0,
-        },
-      );
+    // Fetch the transaction to verify payment details
+    const confirmedTx = await this.connection.getParsedTransaction(signature, {
+      commitment: "confirmed",
+      maxSupportedTransactionVersion: 0,
+    });
 
-      if (!confirmedTx || !confirmedTx.meta || confirmedTx.meta.err) {
-        return false;
-      }
-
-      const postTokenBalances = confirmedTx.meta.postTokenBalances ?? [];
-      const preTokenBalances = confirmedTx.meta.preTokenBalances ?? [];
-
-      // Find the recipient's token account in the balance changes
-      let amountReceived = 0;
-      for (const postBal of postTokenBalances) {
-        // Compare the account string or index
-        const accountKey =
-          confirmedTx.transaction.message.accountKeys[postBal.accountIndex]
-            ?.pubkey;
-        if (
-          postBal.mint === requiredMint &&
-          accountKey &&
-          accountKey.equals(merchantTokenAccount)
-        ) {
-          const preBal = preTokenBalances.find(
-            (pre) => pre.accountIndex === postBal.accountIndex,
-          );
-          const postAmount = Number(postBal.uiTokenAmount.amount);
-          const preAmount = Number(preBal?.uiTokenAmount.amount ?? "0");
-          amountReceived = postAmount - preAmount;
-          break;
-        }
-      }
-
-      if (amountReceived >= requiredAmount) {
-        return true;
-      }
-      return false;
-    } catch (error) {
-      console.error("X402 payment verification failed:", error);
-      return false;
+    if (!confirmedTx) {
+      throw new Error(`Transaction ${signature} not found or unconfirmed`);
     }
+
+    if (confirmedTx.meta?.err) {
+      throw new Error(`Transaction ${signature} failed on-chain`);
+    }
+
+    if (!confirmedTx.meta) {
+      throw new Error(`Transaction metadata not available for ${signature}`);
+    }
+
+    const postTokenBalances = confirmedTx.meta.postTokenBalances ?? [];
+    const preTokenBalances = confirmedTx.meta.preTokenBalances ?? [];
+
+    // Find the recipient's token account in the balance changes
+    let amountReceived = 0;
+    for (const postBal of postTokenBalances) {
+      // Compare the account string or index
+      const accountKey =
+        confirmedTx.transaction.message.accountKeys[postBal.accountIndex]
+          ?.pubkey;
+      if (
+        postBal.mint === requiredMint &&
+        accountKey &&
+        accountKey.equals(merchantTokenAccount)
+      ) {
+        const preBal = preTokenBalances.find(
+          (pre) => pre.accountIndex === postBal.accountIndex,
+        );
+        const postAmount = Number(postBal.uiTokenAmount.amount);
+        const preAmount = Number(preBal?.uiTokenAmount.amount ?? "0");
+        amountReceived = postAmount - preAmount;
+        break;
+      }
+    }
+
+    if (amountReceived < requiredAmount) {
+      throw new Error(
+        `Insufficient payment: received ${amountReceived}, expected ${requiredAmount}`,
+      );
+    }
+
+    return true;
   }
 }
 
@@ -112,19 +115,21 @@ export function withX402Paywall<
       );
     }
 
-    const isValid = await serverService.verifyPayment(
-      args.receipt_signature,
-      priceRaw,
-      mintAddress,
-      merchantAddress,
-    );
-
-    if (!isValid) {
+    try {
+      await serverService.verifyPayment(
+        args.receipt_signature,
+        priceRaw,
+        mintAddress,
+        merchantAddress,
+      );
+    } catch (e: any) {
       throw new McpError(
         ErrorCode.InvalidRequest,
         JSON.stringify({
           error: "Payment verification failed",
-          details: `Signature ${args.receipt_signature} is invalid, unconfirmed, or does not satisfy the required ${priceStr} payment to ${merchantAddress}`,
+          details:
+            e.message ||
+            `Signature ${args.receipt_signature} is invalid, unconfirmed, or does not satisfy the required ${priceStr} payment to ${merchantAddress}`,
         }),
       );
     }
