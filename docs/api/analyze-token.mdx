@@ -1,0 +1,47 @@
+---
+title: Analyze Token
+api: "GET /api/v1/analyze-token"
+description: "Get security analysis for a specific Solana SPL Token."
+---
+
+This endpoint provides a deep security audit of an SPL token (mint authority status, freeze authority, holder distribution, and smart contract risks).
+
+### Authentication
+
+This endpoint requires an **x402 Payment Signature** in the header.
+
+**Cost:** `0.1 USDC` per request.
+
+### Header Parameters
+
+<ParamField header="x-payment-signature" type="string" required>
+  A valid base64 encoded Solana transaction signature transferring 0.1 USDC to
+  the merchant's vault address.
+</ParamField>
+
+<ParamField header="x-payment-wallet" type="string" required>
+  The public key of the wallet making the payment.
+</ParamField>
+
+### Query Parameters
+
+<ParamField query="mint_address" type="string" required>
+  The public address of the SPL token mint to analyze.
+</ParamField>
+
+### Response
+
+<ResponseField name="risk_score" type="number">
+  Scale of 1-100 indicating token risk (100 being highest risk).
+</ResponseField>
+
+<ResponseField name="authorities" type="object">
+  <Expandable title="properties">
+    <ResponseField name="mint_authority_disabled" type="boolean" />
+    <ResponseField name="freeze_authority_disabled" type="boolean" />
+  </Expandable>
+</ResponseField>
+
+<ResponseField name="summary" type="string">
+  AI-generated summary of the token's safety profile.
+</ResponseField>

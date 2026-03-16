@@ -1,0 +1,53 @@
+---
+title: Quickstart
+description: "Start using Agentic Wallet locally in minutes"
+---
+
+## Prerequisites
+
+Before starting, make sure you have the following installed:
+
+- [Node.js](https://nodejs.org/en/) (v18 or higher)
+- [pnpm](https://pnpm.io/installation) (Workspace package manager)
+- [Rust / Cargo](https://rustup.rs/) (for the Kora components)
+- [Docker](https://www.docker.com/) (Optional, for easy daemon orchestration)
+
+## Installation
+
+**1. Clone the repository**
+
+```bash
+git clone https://github.com/example/agentic_wallet.git
+cd agentic_wallet
+```
+
+**2. Install dependencies**
+
+```bash
+pnpm install
+```
+
+**3. Build the workspace**
+
+```bash
+pnpm build
+```
+
+**4. Set up environment variables**
+Copy the sample env files:
+
+```bash
+cp .env.example .env
+```
+
+Fill in your Solana RPC URL and other necessary configurations.
+
+**5. Start the core services**
+
+```bash
+pnpm start
+```
+
+## Next Steps
+
+Navigate to the [Demo Guide](/demo) to run the two-agent local economy simulation.

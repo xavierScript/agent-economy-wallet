@@ -1,0 +1,52 @@
+---
+title: Agent Economy Demo
+description: "Run two agents concurrently to simulate an autonomous economy"
+---
+
+To demonstrate the full capability of the Agentic Wallet x402 system, we'll run two agents (a **Buyer** and a **Merchant**) interacting concurrently.
+
+## 1. Configure Environments
+
+Create two separate environment configuration files:
+
+**Buyer Configuration (`.env.buyer`)**
+
+```env
+AGENT_ROLE="buyer"
+SOLANA_NETWORK="devnet"
+WALLET_KEYSTORE_PATH="./buyer_keystore.json"
+MERCHANT_API_URL="http://localhost:4000"
+```
+
+**Merchant Configuration (`.env.merchant`)**
+
+```env
+AGENT_ROLE="merchant"
+SOLANA_NETWORK="devnet"
+WALLET_KEYSTORE_PATH="./merchant_keystore.json"
+PORT=4000
+```
+
+## 2. Fund the Buyer
+
+Ensure the Buyer wallet has a devnet balance for testing (or an appropriate SPL token balance such as USDC). Keep the Merchant unfunded and watch the funds flow.
+
+## 3. Run the Agents Concurrently
+
+Open two separate terminal windows.
+
+**Terminal 1 (Merchant Agent):**
+
+```bash
+env $(cat .env.merchant | xargs) pnpm start:merchant
+```
+
+**Terminal 2 (Buyer Agent):**
+
+```bash
+env $(cat .env.buyer | xargs) pnpm start:buyer
+```
+
+## 4. Observe the Interaction
+
+The Buyer agent will discover the Merchant's service (e.g., Token Security Analysis), receive an x402 Payment Required challenge, automatically sign the micro-transaction via its wallet manager, and successfully consume the paid API. The Merchant agent will verify the payment and serve the request.

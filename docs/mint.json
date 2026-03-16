@@ -1,0 +1,51 @@
+{
+  "name": "Agentic Wallet",
+  "logo": {
+    "dark": "/logo/dark.svg",
+    "light": "/logo/light.svg"
+  },
+  "favicon": "/favicon.svg",
+  "colors": {
+    "primary": "#14B8A6",
+    "light": "#2DD4BF",
+    "dark": "#0F766E"
+  },
+  "topbarLinks": [
+    {
+      "name": "GitHub",
+      "url": "https://github.com/example/agentic_wallet"
+    }
+  ],
+  "navigation": [
+    {
+      "group": "Getting Started",
+      "pages": ["introduction", "quickstart", "demo", "security"]
+    },
+    {
+      "group": "API",
+      "pages": ["api/analyze-token", "api/fetch-price"]
+    },
+    {
+      "group": "MCP Tools",
+      "pages": [
+        "mcp-tools/merchant",
+        "mcp-tools/payments",
+        "mcp-tools/tokens",
+        "mcp-tools/transfers",
+        "mcp-tools/wallet"
+      ]
+    },
+    {
+      "group": "MCP Resources",
+      "pages": ["mcp-resources/audit-logs", "mcp-resources/system-status"]
+    },
+    {
+      "group": "MCP Prompts",
+      "pages": ["mcp-prompts/daily-report", "mcp-prompts/risk-assessment"]
+    },
+    {
+      "group": "Core Components",
+      "pages": ["cli/overview", "wallet-core/overview", "kora/overview"]
+    }
+  ]
+}

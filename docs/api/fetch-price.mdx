@@ -1,0 +1,46 @@
+---
+title: Fetch Price
+api: "GET /api/v1/fetch-price"
+description: "Fetch real-time aggregated token prices via Jupiter API."
+---
+
+Provides real-time, low-latency pricing and liquidity data for any SPL token by querying the Jupiter aggregator natively.
+
+### Authentication
+
+This endpoint requires an **x402 Payment Signature** in the header.
+
+**Cost:** `0.05 USDC` per request.
+
+### Header Parameters
+
+<ParamField header="x-payment-signature" type="string" required>
+  A valid base64 encoded Solana transaction signature transferring 0.05 USDC to
+  the merchant's vault address.
+</ParamField>
+
+<ParamField header="x-payment-wallet" type="string" required>
+  The public key of the wallet making the payment.
+</ParamField>
+
+### Query Parameters
+
+<ParamField query="id" type="string" required>
+  The token symbol or mint address.
+</ParamField>
+
+<ParamField query="vs_token" type="string" default="USDC">
+  The token to price against (defaults to USDC).
+</ParamField>
+
+### Response
+
+<ResponseField name="data" type="object">
+  <Expandable title="properties">
+    <ResponseField name="id" type="string" />
+    <ResponseField name="mintSymbol" type="string" />
+    <ResponseField name="vsToken" type="string" />
+    <ResponseField name="vsTokenSymbol" type="string" />
+    <ResponseField name="price" type="number" />
+  </Expandable>
+</ResponseField>

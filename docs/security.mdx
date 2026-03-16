@@ -1,0 +1,25 @@
+---
+title: Security Architecture
+description: "Robust protection for autonomous agent operations"
+---
+
+Agentic Wallet implements multiple layers of security so your AI agent can manage funds autonomously without severe risk of drain or unauthorized API exposure.
+
+## AES-GCM Keystore Isolation
+
+Private keys are never exposed in plaintext to the LLM or standard application state.
+
+- Encrypted at rest using **AES-256-GCM**.
+- Decrypted in memory only when a discrete, authorized signing operation is triggered.
+- Agents only receive public keys and signing references, never the raw seed phrases.
+
+## Spending Policy Engine
+
+Agents shouldn't go rogue. The robust Policy Engine enforces algorithmic guardrails:
+
+- **Daily Limits:** Set maximum spending per 24 hours (e.g., max 10 USDC).
+- **Per-Transaction Caps:** Prevent single massive transfers.
+- **Whitelist Only:** Restrict interactions to known program addresses or trusted merchant public keys.
+- **Human-in-the-Loop Required:** Specific high-value thresholds require cryptographic approval from a human admin (`human-only.ts` guardrail).
+
+All rejected attempts are logged directly into the `wallet-audit-logs` MCP resource.
