@@ -1,6 +1,6 @@
 # Agent Skill Reference — Detailed Instructions
 
-> This document provides step-by-step instructions for every tool, executable script, resource, and workflow available to AI agents operating the Solana Agentic Wallet system. It covers both the MCP server interface and standalone bash scripts — use whichever access path is available to you.
+> This document provides step-by-step instructions for every tool, executable script, resource, and workflow available to AI agents operating the Solana Agent Economy Wallet system. It covers both the MCP server interface and standalone bash scripts — use whichever access path is available to you.
 
 ---
 
@@ -432,7 +432,7 @@ Parse the local audit log files and produce a summarized JSON report for a given
 | ------------- | ------------------------------------------------------------------------- |
 | **Script**    | `bash {baseDir}/skills/scripts/audit-summary.sh [YYYY-MM-DD] [wallet_id]` |
 | **Read-only** | Yes                                                                       |
-| **Requires**  | Local filesystem access to `~/.agentic-wallet/logs/`                      |
+| **Requires**  | Local filesystem access to `~/.agent-economy-wallet/logs/`                      |
 
 **How to use:**
 
@@ -463,7 +463,7 @@ Parse the local audit log files and produce a summarized JSON report for a given
     "walletsClosed": 0
   },
   "walletFilter": null,
-  "logFile": "/home/user/.agentic-wallet/logs/audit-2025-01-15.jsonl"
+  "logFile": "/home/user/.agent-economy-wallet/logs/audit-2025-01-15.jsonl"
 }
 ```
 
@@ -476,7 +476,7 @@ Parse the local audit log files and produce a summarized JSON report for a given
 **Rules:**
 
 - Read-only. Only reads local JSONL files.
-- Requires the agentic wallet to have been used (logs directory must exist).
+- Requires the agent economy wallet to have been used (logs directory must exist).
 - If asked for "yesterday" or "last week", compute the date and pass it as argument.
 
 ---
@@ -529,13 +529,13 @@ Fetch details for a Solana transaction by its signature.
 
 ### `health-check.sh` — Wallet Health Check
 
-Scan all local agentic wallets, fetch live balances, and flag issues (low balance, missing policies).
+Scan all local agent economy wallets, fetch live balances, and flag issues (low balance, missing policies).
 
 | Property      | Value                                                                 |
 | ------------- | --------------------------------------------------------------------- |
 | **Script**    | `bash {baseDir}/skills/scripts/health-check.sh [rpc_url]`             |
 | **Read-only** | Yes                                                                   |
-| **Requires**  | `curl`, `bc`, `find`, local filesystem access to `~/.agentic-wallet/` |
+| **Requires**  | `curl`, `bc`, `find`, local filesystem access to `~/.agent-economy-wallet/` |
 
 **How to use:**
 

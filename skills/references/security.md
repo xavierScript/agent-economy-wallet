@@ -1,6 +1,6 @@
 # Security Reference
 
-> How the Solana Agentic Wallet protects private keys, enforces policies, and prevents agent misuse.
+> How the Solana Agent Economy Wallet protects private keys, enforces policies, and prevents agent misuse.
 
 ---
 
@@ -22,7 +22,7 @@ Every wallet's private key is encrypted at rest. The system never stores plainte
 
 ### Keystore File Format
 
-Each wallet is stored as `~/.agentic-wallet/keys/<uuid>.json`:
+Each wallet is stored as `~/.agent-economy-wallet/keys/<uuid>.json`:
 
 ```json
 {
@@ -115,7 +115,7 @@ This means:
 
 ## Audit Trail
 
-Every operation is logged to `~/.agentic-wallet/logs/audit-YYYY-MM-DD.jsonl`:
+Every operation is logged to `~/.agent-economy-wallet/logs/audit-YYYY-MM-DD.jsonl`:
 
 ```json
 {

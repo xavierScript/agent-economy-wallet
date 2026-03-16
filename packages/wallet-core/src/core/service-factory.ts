@@ -50,7 +50,7 @@ export function createCoreServices(): CoreServices {
   const keyManager = new KeyManager(config.keystoreDir, config.passphrase);
 
   const home = process.env.HOME || process.env.USERPROFILE || ".";
-  const policyEngine = new PolicyEngine(`${home}/.agentic-wallet/policies`);
+  const policyEngine = new PolicyEngine(`${home}/.agent-economy-wallet/policies`);
 
   const auditLogger = new AuditLogger(config.logDir);
 

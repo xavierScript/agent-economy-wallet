@@ -7,8 +7,8 @@ services:
       context: .
       dockerfile: Dockerfile
       target: runner
-    image: agentic-wallet:latest
-    container_name: agentic-wallet-cli
+    image: agent-economy-wallet:latest
+    container_name: agent-economy-wallet-cli
 
     # Required for Ink/React TUI to render correctly
     stdin_open: true
@@ -20,7 +20,7 @@ services:
     # Persist keystores, audit logs, and policy state across restarts.
     # All agent wallets survive container rebuilds.
     volumes:
-      - wallet-data:/root/.agentic-wallet
+      - wallet-data:/root/.agent-economy-wallet
 
     # Devnet — no network restrictions needed.
     # Remove this block if you need a custom RPC behind a VPN/proxy.
@@ -32,8 +32,8 @@ services:
   # For connecting Claude Desktop / VS Code Copilot / Cursor, use the stdio
   # command shown in the README instead (docker run --rm -i ...).
   mcp:
-    image: agentic-wallet:latest # reuses the image built by the cli service
-    container_name: agentic-wallet-mcp
+    image: agent-economy-wallet:latest # reuses the image built by the cli service
+    container_name: agent-economy-wallet-mcp
     depends_on:
       - cli # ensures the image is built before mcp tries to use it
     command: ["node", "packages/mcp-server/dist/index.js"]
@@ -46,7 +46,7 @@ services:
       - .env
 
     volumes:
-      - wallet-data:/root/.agentic-wallet # shared wallet state with cli
+      - wallet-data:/root/.agent-economy-wallet # shared wallet state with cli
 
     networks:
       - solana
@@ -58,7 +58,7 @@ services:
 
 # ── Shared wallet data volume ─────────────────────────────────────────────────
 # Named volume so data persists between `docker compose down` and `up`.
-# Inspect with: docker volume inspect agentic-wallet_wallet-data
+# Inspect with: docker volume inspect agent-economy-wallet_wallet-data
 volumes:
   wallet-data:
     driver: local

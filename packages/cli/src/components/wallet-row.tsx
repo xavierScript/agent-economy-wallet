@@ -6,7 +6,7 @@
  */
 
 import { Box, Text } from "ink";
-import type { WalletInfo } from "@agentic-wallet/core";
+import type { WalletInfo } from "@agent-economy-wallet/core";
 
 interface WalletRowProps {
   wallet: WalletInfo;

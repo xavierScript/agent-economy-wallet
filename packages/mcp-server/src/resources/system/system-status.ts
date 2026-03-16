@@ -22,7 +22,7 @@ export function registerSystemStatusResource(
       description:
         "Overall system health: Solana cluster, RPC endpoint, total wallet count, " +
         "aggregate balances, and recent activity summary. Read this first to " +
-        "understand the current state of the agentic wallet system.",
+        "understand the current state of the agent economy wallet system.",
       mimeType: "application/json",
     },
     async () => {

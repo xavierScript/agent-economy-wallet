@@ -15,7 +15,7 @@ node_modules
 !.env.example
 
 # Wallet data — mounted as a Docker volume, not baked in
-.agentic-wallet
+.agent-economy-wallet
 
 # Kora keypair and config (sensitive)
 kora/kora-signer.json

@@ -2,7 +2,7 @@ import express, { Request, Response, NextFunction } from "express";
 import { PublicKey } from "@solana/web3.js";
 import { getMint } from "@solana/spl-token";
 import type { WalletServices } from "../services.js";
-import { WELL_KNOWN_TOKENS } from "@agentic-wallet/core";
+import { WELL_KNOWN_TOKENS } from "@agent-economy-wallet/core";
 
 export function createExpressApp(services: WalletServices): express.Express {
   const app = express();

@@ -1,15 +1,15 @@
 {
-  "name": "agentic-wallet",
+  "name": "agent-economy-wallet",
   "version": "1.0.0",
   "description": "Programmatic Solana wallets — create, sign, hold tokens, and interact with on-chain programs",
   "private": true,
   "type": "module",
   "scripts": {
-    "build": "pnpm --filter @agentic-wallet/core build && pnpm --filter @agentic-wallet/cli build && pnpm --filter @agentic-wallet/mcp-server build",
+    "build": "pnpm --filter @agent-economy-wallet/core build && pnpm --filter @agent-economy-wallet/cli build && pnpm --filter @agent-economy-wallet/mcp-server build",
     "dev": "pnpm -r --parallel dev",
     "start": "pnpm build && pnpm cli",
-    "cli": "pnpm --filter @agentic-wallet/cli build && node packages/cli/dist/index.js",
-    "key:import": "pnpm --filter @agentic-wallet/core build && node packages/wallet-core/dist/scripts/import-system-keys.js",
+    "cli": "pnpm --filter @agent-economy-wallet/cli build && node packages/cli/dist/index.js",
+    "key:import": "pnpm --filter @agent-economy-wallet/core build && node packages/wallet-core/dist/scripts/import-system-keys.js",
     "test": "pnpm -r test",
     "lint": "pnpm -r lint",
     "clean": "pnpm -r clean"

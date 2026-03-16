@@ -28,7 +28,7 @@ export interface AuditLogEntry {
  * Provides an immutable audit trail for all agent wallet actions.
  *
  * Log format: one JSON object per line (JSONL)
- * Location: ~/.agentic-wallet/logs/audit-YYYY-MM-DD.jsonl
+ * Location: ~/.agent-economy-wallet/logs/audit-YYYY-MM-DD.jsonl
  */
 export class AuditLogger {
   private logDir: string;

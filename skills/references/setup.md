@@ -1,6 +1,6 @@
 # Setup Reference
 
-> Environment configuration, prerequisites, and connection options for the Agentic Wallet system.
+> Environment configuration, prerequisites, and connection options for the Agent Economy Wallet system.
 
 ---
 
@@ -86,7 +86,7 @@ Config location:
 ```json
 {
   "mcpServers": {
-    "agentic-wallet": {
+    "agent-economy-wallet": {
       "command": "node",
       "args": ["<absolute-path>/packages/mcp-server/dist/index.js"],
       "env": {
@@ -105,7 +105,7 @@ Add `.vscode/mcp.json` to your workspace:
 ```json
 {
   "servers": {
-    "agentic-wallet": {
+    "agent-economy-wallet": {
       "type": "stdio",
       "command": "node",
       "args": ["${workspaceFolder}/packages/mcp-server/dist/index.js"],
@@ -142,9 +142,9 @@ pnpm cli logs               # non-interactive: recent audit logs
 
 | Directory                                  | Purpose                                   |
 | ------------------------------------------ | ----------------------------------------- |
-| `~/.agentic-wallet/keys/`                  | Encrypted keystore files (one per wallet) |
-| `~/.agentic-wallet/logs/`                  | Audit log files (JSONL, one per day)      |
-| `~/.agentic-wallet/keys/policy-state.json` | Policy engine state (rate limit counters) |
+| `~/.agent-economy-wallet/keys/`                  | Encrypted keystore files (one per wallet) |
+| `~/.agent-economy-wallet/logs/`                  | Audit log files (JSONL, one per day)      |
+| `~/.agent-economy-wallet/keys/policy-state.json` | Policy engine state (rate limit counters) |
 
 On Windows, `~` = `%USERPROFILE%` (e.g., `C:\Users\YourName`).
 

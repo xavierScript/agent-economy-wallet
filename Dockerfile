@@ -21,9 +21,9 @@ RUN pnpm install --frozen-lockfile
 COPY packages/ packages/
 
 # Build in dependency order: core → cli → mcp-server
-RUN pnpm --filter @agentic-wallet/core build && \
-    pnpm --filter @agentic-wallet/cli build && \
-    pnpm --filter @agentic-wallet/mcp-server build
+RUN pnpm --filter @agent-economy-wallet/core build && \
+    pnpm --filter @agent-economy-wallet/cli build && \
+    pnpm --filter @agent-economy-wallet/mcp-server build
 
 
 # ── Stage 2: runner ───────────────────────────────────────────────────────────
@@ -52,7 +52,7 @@ RUN pnpm install --frozen-lockfile --prod
 
 # Wallet keystores, audit logs, and policy state are stored here.
 # Mount a named or host volume to persist data between container restarts.
-VOLUME ["/root/.agentic-wallet"]
+VOLUME ["/root/.agent-economy-wallet"]
 
 # ── Sensible devnet defaults (override via .env or docker-compose env_file) ──
 ENV SOLANA_RPC_URL=https://api.devnet.solana.com

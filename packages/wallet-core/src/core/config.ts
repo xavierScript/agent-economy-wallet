@@ -98,8 +98,8 @@ export function getDefaultConfig(): AgentWalletConfig {
   return {
     cluster: (process.env.SOLANA_CLUSTER as Cluster) || "devnet",
     rpcUrl: process.env.SOLANA_RPC_URL || "https://api.devnet.solana.com",
-    keystoreDir: `${home}/.agentic-wallet/keys`,
-    logDir: `${home}/.agentic-wallet/logs`,
+    keystoreDir: `${home}/.agent-economy-wallet/keys`,
+    logDir: `${home}/.agent-economy-wallet/logs`,
     passphrase: getPassphrase(),
     logLevel:
       (process.env.LOG_LEVEL as AgentWalletConfig["logLevel"]) || "info",

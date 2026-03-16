@@ -5,7 +5,7 @@
  */
 
 import { z } from "zod";
-import { PolicyEngine } from "@agentic-wallet/core";
+import { PolicyEngine } from "@agent-economy-wallet/core";
 import type { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import type { WalletServices } from "../../services.js";
 

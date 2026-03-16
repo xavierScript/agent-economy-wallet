@@ -1,6 +1,6 @@
 # Transactions Reference
 
-> How transactions are built, signed, sent, and verified in the Agentic Wallet system.
+> How transactions are built, signed, sent, and verified in the Agent Economy Wallet system.
 
 ---
 

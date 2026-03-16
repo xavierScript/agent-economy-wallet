@@ -12,7 +12,7 @@ import { Section } from "../components/section.js";
 import { Spinner } from "../components/spinner.js";
 import { WalletRow } from "../components/wallet-row.js";
 import type { WalletServices } from "../services.js";
-import { HUMAN_ONLY } from "@agentic-wallet/core";
+import { HUMAN_ONLY } from "@agent-economy-wallet/core";
 
 interface WalletsViewProps {
   services: WalletServices;

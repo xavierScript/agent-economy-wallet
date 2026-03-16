@@ -10,7 +10,7 @@
 import { z } from "zod";
 import type { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import type { WalletServices } from "../../services.js";
-import { X402Client } from "@agentic-wallet/core";
+import { X402Client } from "@agent-economy-wallet/core";
 
 export function registerProbeX402Tool(
   server: McpServer,

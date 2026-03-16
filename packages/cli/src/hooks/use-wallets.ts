@@ -6,7 +6,7 @@
  */
 
 import { useState, useEffect } from "react";
-import type { WalletInfo } from "@agentic-wallet/core";
+import type { WalletInfo } from "@agent-economy-wallet/core";
 import type { WalletServices } from "../services.js";
 
 export interface UseWalletsOptions {

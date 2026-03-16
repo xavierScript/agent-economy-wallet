@@ -1,6 +1,6 @@
-# Agentic Wallet — Capability Demo Prompts
+# Agent Economy Wallet — Capability Demo Prompts
 
-This document provides a complete set of prompts that demonstrate every capability of the Agentic Wallet system. Each prompt can be sent directly to any MCP-compatible AI agent (Claude Desktop, VS Code Copilot, Cursor, etc.) once the MCP server is connected.
+This document provides a complete set of prompts that demonstrate every capability of the Agent Economy Wallet system. Each prompt can be sent directly to any MCP-compatible AI agent (Claude Desktop, VS Code Copilot, Cursor, etc.) once the MCP server is connected.
 
 The prompts are **copy-paste ready**. Replace `[WALLET_ID]`, `[RECIPIENT_ADDRESS]`, and `[MINT_ADDRESS]` with values returned by earlier steps — a wallet ID from prompt 2 carries through to all subsequent prompts.
 
@@ -8,7 +8,7 @@ The prompts are **copy-paste ready**. Replace `[WALLET_ID]`, `[RECIPIENT_ADDRESS
 
 ## What This System Does
 
-The Agentic Wallet is an MCP server that gives AI agents the ability to:
+The Agent Economy Wallet is an MCP server that gives AI agents the ability to:
 
 - Create and manage custodial Solana wallets with AES-256-GCM encrypted key storage
 - Execute on-chain actions: SOL transfers, SPL token transfers, token swap pricing via Jupiter, on-chain memos
@@ -38,7 +38,7 @@ Everything is exposed as standard MCP tools, resources, and prompts — no custo
 > **Demonstrates:** MCP resource layer (`system://status`, `system://config`), live cluster detection, master wallet configuration status.
 
 ```
-Check the current system status of the Agentic Wallet MCP server and report:
+Check the current system status of the Agent Economy Wallet MCP server and report:
 - Which Solana cluster is active
 - Whether a master funding wallet is configured and its public key
 - How many agent wallets are currently registered
@@ -128,7 +128,7 @@ the transaction is blocked before it reaches the network and what error is retur
 ```
 Write the following memo on-chain using wallet [WALLET_ID]:
 
-"Agentic Wallet — autonomous on-chain action verified"
+"Agent Economy Wallet — autonomous on-chain action verified"
 
 Return the transaction signature and Solana Explorer link.
 ```
@@ -285,7 +285,7 @@ the current balances, calculate the required trade, and execute it.
 > **Demonstrates:** `security_audit` MCP prompt — a compliance-style review of all wallets, audit logs, and transaction patterns.
 
 ```
-Run a full security audit of this Agentic Wallet deployment using the
+Run a full security audit of this Agent Economy Wallet deployment using the
 security_audit prompt. The audit should cover:
 - Policy violations recorded in the audit logs
 - Wallets exhibiting unusual transaction patterns

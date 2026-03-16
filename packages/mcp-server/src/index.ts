@@ -1,9 +1,9 @@
 #!/usr/bin/env node
 
 /**
- * @agentic-wallet/mcp-server
+ * @agent-economy-wallet/mcp-server
  *
- * MCP (Model Context Protocol) server that exposes Solana agentic wallet
+ * MCP (Model Context Protocol) server that exposes Solana agent economy wallet
  * operations as tools for AI agents. Run this server and connect any
  * MCP-compatible client (Claude Desktop, VS Code, Cursor, etc.) to give
  * AI agents the ability to create wallets, send transactions, swap tokens,
@@ -35,7 +35,7 @@ import { createExpressApp } from "./api/server.js";
 const services = createServices();
 
 const server = new McpServer({
-  name: "agentic-wallet",
+  name: "agent-economy-wallet",
   version: "1.0.0",
 });
 
@@ -54,7 +54,7 @@ registerAllPrompts(server, services);
 async function main() {
   const transport = new StdioServerTransport();
   await server.connect(transport);
-  console.error("Agentic Wallet MCP Server running on stdio");
+  console.error("Agent Economy Wallet MCP Server running on stdio");
 
   const port = process.env.PORT || 3000;
   const expressApp = createExpressApp(services);

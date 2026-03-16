@@ -1,4 +1,4 @@
-# Kora Node Setup for Agentic Wallet
+# Kora Node Setup for Agent Economy Wallet
 
 ## Quick Start (Devnet)
 
@@ -58,7 +58,7 @@ curl -s -X POST http://localhost:8080 \
   -d '{"jsonrpc":"2.0","id":1,"method":"getConfig","params":[]}' | jq .
 ```
 
-### 7. Run the agentic wallet
+### 7. Run the agent economy wallet
 
 In another terminal, start your MCP server / CLI as usual. The codebase auto-detects
 `KORA_RPC_URL` in `.env` and routes all five legacy transaction tools through Kora gaslessly:

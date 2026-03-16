@@ -1,13 +1,13 @@
 #!/bin/bash
-# Wallet Health Check — scan all local agentic wallets for balance and status
+# Wallet Health Check — scan all local agent economy wallets for balance and status
 # Usage: bash health-check.sh [rpc_url]
 
 set -euo pipefail
 
 RPC_URL="${1:-${SOLANA_RPC_URL:-https://api.devnet.solana.com}}"
 HOME_DIR="${HOME:-${USERPROFILE:-$HOME}}"
-KEYS_DIR="$HOME_DIR/.agentic-wallet/keys"
-LOG_DIR="$HOME_DIR/.agentic-wallet/logs"
+KEYS_DIR="$HOME_DIR/.agent-economy-wallet/keys"
+LOG_DIR="$HOME_DIR/.agent-economy-wallet/logs"
 
 if [ ! -d "$KEYS_DIR" ]; then
   echo '{"error": "No wallet directory found. No wallets have been created yet.", "keysDir": "'"$KEYS_DIR"'"}'

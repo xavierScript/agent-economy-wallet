@@ -8,7 +8,7 @@
  * What it does:
  *   1. Reads MASTER_WALLET_SECRET_KEY (base58) from the environment.
  *   2. Encrypts it with WALLET_PASSPHRASE via AES-256-GCM + PBKDF2 and
- *      stores it under the label "master-funder" in ~/.agentic-wallet/keys/.
+ *      stores it under the label "master-funder" in ~/.agent-economy-wallet/keys/.
  *   3. Prints the public key and the replacement env var to add to .env.
  *   4. The raw secret key is NEVER written to disk — only the encrypted form.
  *
@@ -65,7 +65,7 @@ function heading(msg: string) {
 // ── Main ──────────────────────────────────────────────────────────────────────
 
 async function main() {
-  heading("Agentic Wallet — System Key Import");
+  heading("Agent Economy Wallet — System Key Import");
   console.log(
     "Migrates raw base58 private keys from .env into the encrypted keystore.\n",
   );

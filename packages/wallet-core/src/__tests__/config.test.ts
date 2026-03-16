@@ -24,13 +24,13 @@ describe("getDefaultConfig", () => {
 
   it("should use home directory for keystore", () => {
     const config = getDefaultConfig();
-    expect(config.keystoreDir).toContain(".agentic-wallet");
+    expect(config.keystoreDir).toContain(".agent-economy-wallet");
     expect(config.keystoreDir).toContain("keys");
   });
 
   it("should use home directory for logs", () => {
     const config = getDefaultConfig();
-    expect(config.logDir).toContain(".agentic-wallet");
+    expect(config.logDir).toContain(".agent-economy-wallet");
     expect(config.logDir).toContain("logs");
   });
 });

@@ -1,8 +1,8 @@
-# Building an Agentic Wallet: Wallet Design and Security for AI Agents on Solana
+# Building an Agent Economy Wallet: Wallet Design and Security for AI Agents on Solana
 
 AI agents are becoming first-class participants on Solana. They execute trades, manage liquidity, mint tokens, and interact with dApps — all without a human clicking "Approve" in Phantom. But for an agent to do any of this, it needs a wallet. Not a human wallet. A wallet designed from the ground up for autonomous software that doesn't confirm anything visually, doesn't notice when something goes wrong, and will happily drain itself to zero if nothing stops it.
 
-This article covers the wallet design and security model we built to solve this problem. The [full source is on GitHub](https://github.com/xavierScript/agentic_wallet), running on Solana devnet today.
+This article covers the wallet design and security model we built to solve this problem. The [full source is on GitHub](https://github.com/xavierScript/agent_economy_wallet), running on Solana devnet today.
 
 ---
 
@@ -71,7 +71,7 @@ The design principle was simple: **keys exist in plaintext only in memory, only 
 
 ### The Keystore Format
 
-Each wallet is a JSON file at `~/.agentic-wallet/keys/<uuid>.json`. The format borrows from Ethereum's Web3 Secret Storage Definition, adapted for Solana's Ed25519 keys:
+Each wallet is a JSON file at `~/.agent-economy-wallet/keys/<uuid>.json`. The format borrows from Ethereum's Web3 Secret Storage Definition, adapted for Solana's Ed25519 keys:
 
 ```json
 {
@@ -188,7 +188,7 @@ If any rule fails, the transaction is rejected, the violation is logged to the a
 
 ### State Persistence
 
-Here's a detail that bit us early: policy state is persisted to `~/.agentic-wallet/policy-state.json`. Rate limit counters survive server restarts. Our first version kept rate counts in memory only, which meant a restart was a free reset — an agent (or attacker) could blow through the hourly limit just by crashing the server. Simple fix, but it would have been a real hole.
+Here's a detail that bit us early: policy state is persisted to `~/.agent-economy-wallet/policy-state.json`. Rate limit counters survive server restarts. Our first version kept rate counts in memory only, which meant a restart was a free reset — an agent (or attacker) could blow through the hourly limit just by crashing the server. Simple fix, but it would have been a real hole.
 
 The policy engine handles the broad strokes — capping spend, limiting velocity, restricting programs. But some operations are so dangerous that they shouldn't just be rate-limited. They should be completely off-limits to agents, full stop.
 
@@ -219,13 +219,13 @@ Here's what makes this work: MCP tool handlers receive arguments from Zod schema
 The CLI (the human operator view) passes `HUMAN_ONLY` as an explicit constant:
 
 ```typescript
-import { HUMAN_ONLY } from "@agentic-wallet/core";
+import { HUMAN_ONLY } from "@agent-economy-wallet/core";
 walletService.closeWallet(id, ownerAddress, HUMAN_ONLY);
 ```
 
 On top of the type guard, the `close_wallet` tool file exists in the repo (with a prominent warning header explaining why it must never be registered), but it is **not imported** in the MCP server's tool index. Two independent barriers — compile-time type guard and module exclusion — both have to fail before an agent could reach wallet deletion.
 
-The `HumanOnlyOpts` pattern is exported from `@agentic-wallet/core` so it can be applied to any future operation that needs the same protection. The obvious candidate is a hypothetical `update_policy` tool — you really don't want an agent loosening its own spending limits.
+The `HumanOnlyOpts` pattern is exported from `@agent-economy-wallet/core` so it can be applied to any future operation that needs the same protection. The obvious candidate is a hypothetical `update_policy` tool — you really don't want an agent loosening its own spending limits.
 
 So far we've covered how keys are protected, how transactions are bounded, and how destructive actions are blocked. But all of these defenses would be worth much less without a record of what actually happened. That brings us to the audit trail.
 
@@ -236,7 +236,7 @@ So far we've covered how keys are protected, how transactions are bounded, and h
 Every operation — success or failure — is written to an append-only JSONL file:
 
 ```
-~/.agentic-wallet/logs/audit-2026-03-04.jsonl
+~/.agent-economy-wallet/logs/audit-2026-03-04.jsonl
 ```
 
 Each entry is a single JSON line:

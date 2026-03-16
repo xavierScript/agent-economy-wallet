@@ -1,4 +1,4 @@
-# Solana Agentic Wallet
+# Solana Agent Economy Wallet
 
 > **Autonomous AI agents with secure Solana wallets** — encrypted key management, policy-enforced transaction signing, a full MCP server, and agent skill scripts any AI can use.
 >
@@ -24,16 +24,16 @@
 
 <table>
   <tr>
-    <td><img src="images/screenshot-tui.png" alt="TUI — operator dashboard" /></td>
-    <td><img src="images/screenshot-agent.png" alt="AI agent creating a wallet via MCP" /></td>
+    <td><img src="assets/screenshot-tui.png" alt="TUI — operator dashboard" /></td>
+    <td><img src="assets/screenshot-agent.png" alt="AI agent creating a wallet via MCP" /></td>
   </tr>
   <tr>
     <td align="center"><em>TUI — live wallet state and audit log</em></td>
     <td align="center"><em>Gemini CLI Agent connected via MCP, creating wallets</em></td>
   </tr>
   <tr>
-    <td><img src="images/screenshot-cursor.png" alt="cursor agent creating a wallet" /></td>
-    <td><img src="images/screenshot-claude.png" alt="claude agent viewing created wallets" /></td>
+    <td><img src="assets/screenshot-cursor.png" alt="cursor agent creating a wallet" /></td>
+    <td><img src="assets/screenshot-claude.png" alt="claude agent viewing created wallets" /></td>
   </tr>
   <tr>
     <td align="center"><em>Cursor Agent connected via MCP, creating wallets</em></td>
@@ -71,7 +71,7 @@ The next section shows how these pieces fit together.
 
 ## Architecture
 
-![Agentic Wallet Architecture](images/agentic-wallet-arch-diagram.png)
+![Agent Economy Wallet Architecture](images/agent-economy-wallet-arch-diagram.png)
 
 With the architecture in mind, let's get the system running.
 
@@ -84,8 +84,8 @@ With the architecture in mind, let's get the system running.
 Requires [Docker Desktop](https://www.docker.com/products/docker-desktop/) (or Docker Engine + Compose).
 
 ```bash
-git clone https://github.com/xavierScript/agentic_wallet.git
-cd agentic_wallet
+git clone https://github.com/xavierScript/agent_economy_wallet.git
+cd agent_economy_wallet
 
 # 1. Create your .env — only WALLET_PASSPHRASE is required
 cp .env.example .env
@@ -96,7 +96,7 @@ docker compose up cli
 
 The first run compiles the full monorepo inside the builder stage (~60 s). Subsequent runs reuse the cached image.
 
-**Wallet data** (keystores, audit logs, policy state) is stored in a named Docker volume (`agentic-wallet_wallet-data`) and persists between `docker compose down` / `up` cycles.
+**Wallet data** (keystores, audit logs, policy state) is stored in a named Docker volume (`agent-economy-wallet_wallet-data`) and persists between `docker compose down` / `up` cycles.
 
 #### Connect an MCP client to the Docker container
 
@@ -105,17 +105,17 @@ Claude Desktop, VS Code Copilot, Cursor, and any other MCP client can connect to
 ```json
 {
   "mcpServers": {
-    "agentic-wallet": {
+    "agent-economy-wallet": {
       "command": "docker",
       "args": [
         "run",
         "--rm",
         "-i",
         "-v",
-        "agentic-wallet_wallet-data:/root/.agentic-wallet",
+        "agent-economy-wallet_wallet-data:/root/.agent-economy-wallet",
         "--env-file",
         "/absolute/path/to/.env",
-        "agentic-wallet:latest",
+        "agent-economy-wallet:latest",
         "node",
         "packages/mcp-server/dist/index.js"
       ]
@@ -138,8 +138,8 @@ Claude Desktop, VS Code Copilot, Cursor, and any other MCP client can connect to
 ### 1. Install and build
 
 ```bash
-git clone https://github.com/xavierScript/agentic_wallet.git
-cd agentic_wallet
+git clone https://github.com/xavierScript/agent_economy_wallet.git
+cd agent_economy_wallet
 
 pnpm install
 pnpm build          # builds core → cli → mcp-server in dependency order
@@ -214,7 +214,7 @@ Add to `~/Library/Application Support/Claude/claude_desktop_config.json` (macOS)
 ```json
 {
   "mcpServers": {
-    "agentic-wallet": {
+    "agent-economy-wallet": {
       "command": "node",
       "args": ["<absolute-path-to-repo>/packages/mcp-server/dist/index.js"]
     }
@@ -437,13 +437,13 @@ pnpm key:import
 Sample output:
 
 ```
-Agentic Wallet — System Key Import
+Agent Economy Wallet — System Key Import
 
 1. Master Funder Wallet (MASTER_WALLET_SECRET_KEY)
 ✔  Encrypted and stored as "master-funder"
    Keystore ID : 4a7f1c3e-…
    Public key  : 55czFRi1…
-   Stored at   : ~/.agentic-wallet/keys/4a7f1c3e-….json
+   Stored at   : ~/.agent-economy-wallet/keys/4a7f1c3e-….json
 
 Done
 ✔  1 key(s) imported into the encrypted keystore.
@@ -494,7 +494,7 @@ cd kora
 kora --config kora.toml --rpc-url https://api.devnet.solana.com rpc start --signers-config signers.toml
 ```
 
-You should see `RPC server started on 0.0.0.0:8080`. The agentic wallet auto-detects `KORA_RPC_URL` on startup.
+You should see `RPC server started on 0.0.0.0:8080`. The agent economy wallet auto-detects `KORA_RPC_URL` on startup.
 
 ### Which tools are covered
 
@@ -579,9 +579,9 @@ Agent: Let me check if this requires payment...
 ## Project Structure
 
 ```
-agentic-wallet/
+agent-economy-wallet/
 ├── packages/
-│   ├── wallet-core/               # Core SDK — published as @agentic-wallet/core
+│   ├── wallet-core/               # Core SDK — published as @agent-economy-wallet/core
 │   │   └── src/
 │   │       ├── key-manager.ts          # AES-256-GCM encrypted keystore
 │   │       ├── wallet-service.ts       # Sign, send, balance operations

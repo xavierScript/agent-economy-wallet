@@ -21,7 +21,7 @@ export function Header({ cluster }: HeaderProps) {
     >
       <Box justifyContent="center" width="100%">
         <Text bold color="cyan">
-          {"  ◈  AGENTIC WALLET  ◈  "}
+          {"  ◈  agent economy wallet  ◈  "}
         </Text>
       </Box>
       <Box justifyContent="center" width="100%">

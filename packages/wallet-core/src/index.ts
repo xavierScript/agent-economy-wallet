@@ -1,5 +1,5 @@
 /**
- * @agentic-wallet/core
+ * @agent-economy-wallet/core
  * Solana wallet SDK for autonomous AI agents.
  * Provides keypair generation, encrypted storage, transaction signing,
  * policy enforcement, and audit logging.

@@ -1,5 +1,5 @@
 {
-  "name": "@agentic-wallet/core",
+  "name": "@agent-economy-wallet/core",
   "version": "1.0.0",
   "description": "Solana wallet SDK for autonomous AI agents — keypair generation, encrypted storage, transaction signing, policy enforcement",
   "type": "module",

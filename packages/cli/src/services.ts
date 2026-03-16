@@ -1,12 +1,12 @@
 /**
  * services.ts
  *
- * Re-exports the shared service factory from @agentic-wallet/core.
+ * Re-exports the shared service factory from @agent-economy-wallet/core.
  * All TUI views and hooks import WalletServices from this local barrel
  * so internal imports stay short (e.g. "../services.js").
  */
 
-import { createCoreServices, type CoreServices } from "@agentic-wallet/core";
+import { createCoreServices, type CoreServices } from "@agent-economy-wallet/core";
 
 /** CLI-visible service bag — identical to CoreServices. */
 export type WalletServices = CoreServices;

@@ -5,7 +5,7 @@ import { join } from "node:path";
 import { tmpdir } from "node:os";
 import bs58 from "bs58";
 
-const TEST_DIR = join(tmpdir(), `agentic-wallet-test-${Date.now()}`);
+const TEST_DIR = join(tmpdir(), `agent-economy-wallet-test-${Date.now()}`);
 const PASSPHRASE = "test-secure-passphrase-123";
 
 describe("KeyManager", () => {

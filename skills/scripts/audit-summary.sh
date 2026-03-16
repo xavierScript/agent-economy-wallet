@@ -10,7 +10,7 @@ WALLET_FILTER="${2:-}"
 
 # Resolve home directory
 HOME_DIR="${HOME:-${USERPROFILE:-$HOME}}"
-LOG_DIR="$HOME_DIR/.agentic-wallet/logs"
+LOG_DIR="$HOME_DIR/.agent-economy-wallet/logs"
 LOG_FILE="$LOG_DIR/audit-$DATE.jsonl"
 
 if [ ! -d "$LOG_DIR" ]; then

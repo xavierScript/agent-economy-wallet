@@ -5,7 +5,7 @@
  */
 
 import { Box, Text } from "ink";
-import type { AuditLogEntry } from "@agentic-wallet/core";
+import type { AuditLogEntry } from "@agent-economy-wallet/core";
 
 interface LogEntryProps {
   log: AuditLogEntry;

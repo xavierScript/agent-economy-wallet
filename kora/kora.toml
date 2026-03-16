@@ -1,4 +1,4 @@
-# Kora Paymaster Configuration for Agentic Wallet
+# Kora Paymaster Configuration for Agent Economy Wallet
 # This config makes Kora fully sponsor gas fees (free pricing).
 # Agent wallets never need SOL — Kora's signer pays all network fees.
 

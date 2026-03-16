@@ -1,10 +1,10 @@
 {
-  "name": "@agentic-wallet/mcp-server",
+  "name": "@agent-economy-wallet/mcp-server",
   "version": "1.0.0",
-  "description": "MCP server exposing Solana agentic wallet tools for AI agents",
+  "description": "MCP server exposing Solana agent economy wallet tools for AI agents",
   "type": "module",
   "bin": {
-    "agentic-wallet-mcp": "./dist/index.js"
+    "agent-economy-wallet-mcp": "./dist/index.js"
   },
   "scripts": {
     "build": "tsc",
@@ -13,7 +13,7 @@
     "clean": "rimraf dist"
   },
   "dependencies": {
-    "@agentic-wallet/core": "workspace:*",
+    "@agent-economy-wallet/core": "workspace:*",
     "@modelcontextprotocol/sdk": "^1.12.1",
     "@solana/spl-token": "^0.4.14",
     "@solana/web3.js": "^1.95.0",

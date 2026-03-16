@@ -1,4 +1,4 @@
-# Kora Signers Configuration for Agentic Wallet
+# Kora Signers Configuration for Agent Economy Wallet
 #
 # This defines the keypair(s) the Kora node uses to sign transactions
 # as the fee payer. The signer's SOL balance pays all network fees.

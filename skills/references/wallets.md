@@ -23,7 +23,7 @@ create_wallet() → Active (policy attached, auto-funded)
 When `create_wallet` is called:
 
 1. An Ed25519 keypair is generated
-2. The private key is encrypted (AES-256-GCM + PBKDF2) and saved to `~/.agentic-wallet/keys/<uuid>.json`
+2. The private key is encrypted (AES-256-GCM + PBKDF2) and saved to `~/.agent-economy-wallet/keys/<uuid>.json`
 3. The devnet safety policy is attached (mandatory, cannot be skipped)
 4. If `MASTER_WALLET_SECRET_KEY` is configured, the wallet receives `AGENT_SEED_SOL` (default: 0.05 SOL) automatically
 5. `wallet:created` is logged to the audit trail
@@ -104,7 +104,7 @@ Is there a policy attached?
 - **Daily:** Rolling 24-hour window from current time
 - **Cooldown:** Time since the most recent transaction
 
-Rate limit state is tracked in memory and persisted to `~/.agentic-wallet/keys/policy-state.json` so it survives process restarts.
+Rate limit state is tracked in memory and persisted to `~/.agent-economy-wallet/keys/policy-state.json` so it survives process restarts.
 
 ---
 
@@ -148,8 +148,8 @@ For wallets over-allocated: send_sol to under-allocated wallets
 
 | Data                | Location                                        |
 | ------------------- | ----------------------------------------------- |
-| Encrypted keystores | `~/.agentic-wallet/keys/<uuid>.json`            |
-| Policy state        | `~/.agentic-wallet/keys/policy-state.json`      |
-| Audit logs          | `~/.agentic-wallet/logs/audit-YYYY-MM-DD.jsonl` |
+| Encrypted keystores | `~/.agent-economy-wallet/keys/<uuid>.json`            |
+| Policy state        | `~/.agent-economy-wallet/keys/policy-state.json`      |
+| Audit logs          | `~/.agent-economy-wallet/logs/audit-YYYY-MM-DD.jsonl` |
 
 All paths are relative to the user's home directory. On Windows, `~` resolves to `%USERPROFILE%`.

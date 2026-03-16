@@ -18,7 +18,7 @@ export function registerListWalletsTool(
     {
       title: "List Wallets",
       description:
-        "List all wallets managed by the agentic wallet system, " +
+        "List all wallets managed by the agent economy wallet system, " +
         "including their IDs, labels, public keys, and current SOL balances.",
       annotations: {
         title: "List Wallets",

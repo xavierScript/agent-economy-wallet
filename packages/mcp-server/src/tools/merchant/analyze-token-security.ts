@@ -3,7 +3,7 @@ import type { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { PublicKey } from "@solana/web3.js";
 import { getMint } from "@solana/spl-token";
 import type { WalletServices } from "../../services.js";
-import { withX402Paywall } from "@agentic-wallet/core";
+import { withX402Paywall } from "@agent-economy-wallet/core";
 
 // Price: 0.1 USDC. (USDC has 6 decimals, so 100,000 minimal units)
 const USDC_MINT = "EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v"; // Mainnet USDC by default. Devnet one can be passed via config if needed.

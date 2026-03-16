@@ -6,7 +6,7 @@
  */
 
 import { useState, useEffect } from "react";
-import type { AuditLogEntry } from "@agentic-wallet/core";
+import type { AuditLogEntry } from "@agent-economy-wallet/core";
 import type { WalletServices } from "../services.js";
 
 export interface UseLogsOptions {

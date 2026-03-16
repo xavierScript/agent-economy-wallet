@@ -28,7 +28,7 @@ export function registerX402ConfigResource(
     },
     async () => {
       const networkId = (
-        await import("@agentic-wallet/core")
+        await import("@agent-economy-wallet/core")
       ).X402Client.getNetworkId(config.cluster);
 
       return {

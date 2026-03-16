@@ -17,7 +17,7 @@ export function registerSecurityAuditPrompt(
     {
       title: "Security Audit",
       description:
-        "Full security review of the agentic wallet system. Checks all wallets for " +
+        "Full security review of the agent economy wallet system. Checks all wallets for " +
         "missing policies, unusual activity, and configuration best practices.",
     },
     async () => {
@@ -28,7 +28,7 @@ export function registerSecurityAuditPrompt(
             content: {
               type: "text" as const,
               text: [
-                `Perform a comprehensive security audit of the agentic wallet system.`,
+                `Perform a comprehensive security audit of the agent economy wallet system.`,
                 ``,
                 `## Data Collection`,
                 ``,

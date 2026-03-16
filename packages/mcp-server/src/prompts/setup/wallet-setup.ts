@@ -18,7 +18,7 @@ export function registerWalletSetupPrompt(
     {
       title: "Wallet Setup",
       description:
-        "Step-by-step guide for creating a new agentic wallet with security policies. " +
+        "Step-by-step guide for creating a new agent economy wallet with security policies. " +
         "Walks through wallet creation, policy configuration, and automatic funding " +
         "from the master wallet.",
       argsSchema: {
@@ -57,7 +57,7 @@ export function registerWalletSetupPrompt(
             content: {
               type: "text" as const,
               text: [
-                `I need to set up a new agentic wallet with the following configuration:`,
+                `I need to set up a new agent economy wallet with the following configuration:`,
                 ``,
                 `- **Label**: ${label}`,
                 `- **Risk Level**: ${risk}`,

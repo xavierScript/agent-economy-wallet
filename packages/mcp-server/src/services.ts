@@ -9,7 +9,7 @@ import {
   createCoreServices,
   type CoreServices,
   X402Client,
-} from "@agentic-wallet/core";
+} from "@agent-economy-wallet/core";
 
 // ── Types ────────────────────────────────────────────────────────────────────
 

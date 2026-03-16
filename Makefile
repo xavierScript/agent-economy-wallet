@@ -8,7 +8,7 @@ MCP_DIST  := packages/mcp-server/dist/index.js
 .PHONY: help
 help:
 	@echo.
-	@echo  agentic-wallet — available targets
+	@echo  agent-economy-wallet — available targets
 	@echo  ────────────────────────────────────────────────────────────
 	@echo  make install        Install all dependencies (pnpm install)
 	@echo.
@@ -53,21 +53,21 @@ install:
 # ── Build ────────────────────────────────────────────────────────────────────
 .PHONY: build
 build:
-	pnpm --filter @agentic-wallet/core build
-	pnpm --filter @agentic-wallet/cli build
-	pnpm --filter @agentic-wallet/mcp-server build
+	pnpm --filter @agent-economy-wallet/core build
+	pnpm --filter @agent-economy-wallet/cli build
+	pnpm --filter @agent-economy-wallet/mcp-server build
 
 .PHONY: build-core
 build-core:
-	pnpm --filter @agentic-wallet/core build
+	pnpm --filter @agent-economy-wallet/core build
 
 .PHONY: build-cli
 build-cli:
-	pnpm --filter @agentic-wallet/cli build
+	pnpm --filter @agent-economy-wallet/cli build
 
 .PHONY: build-mcp
 build-mcp:
-	pnpm --filter @agentic-wallet/mcp-server build
+	pnpm --filter @agent-economy-wallet/mcp-server build
 
 # ── Dev (watch) ──────────────────────────────────────────────────────────────
 .PHONY: dev
@@ -76,15 +76,15 @@ dev:
 
 .PHONY: dev-core
 dev-core:
-	pnpm --filter @agentic-wallet/core dev
+	pnpm --filter @agent-economy-wallet/core dev
 
 .PHONY: dev-cli
 dev-cli:
-	pnpm --filter @agentic-wallet/cli dev
+	pnpm --filter @agent-economy-wallet/cli dev
 
 .PHONY: dev-mcp
 dev-mcp:
-	pnpm --filter @agentic-wallet/mcp-server dev
+	pnpm --filter @agent-economy-wallet/mcp-server dev
 
 # ── Test ─────────────────────────────────────────────────────────────────────
 .PHONY: test
@@ -93,7 +93,7 @@ test:
 
 .PHONY: test-watch
 test-watch:
-	pnpm --filter @agentic-wallet/core exec vitest
+	pnpm --filter @agent-economy-wallet/core exec vitest
 
 # ── Run ──────────────────────────────────────────────────────────────────────
 .PHONY: start
@@ -115,15 +115,15 @@ clean:
 
 .PHONY: clean-core
 clean-core:
-	pnpm --filter @agentic-wallet/core clean
+	pnpm --filter @agent-economy-wallet/core clean
 
 .PHONY: clean-cli
 clean-cli:
-	pnpm --filter @agentic-wallet/cli clean
+	pnpm --filter @agent-economy-wallet/cli clean
 
 .PHONY: clean-mcp
 clean-mcp:
-	pnpm --filter @agentic-wallet/mcp-server clean
+	pnpm --filter @agent-economy-wallet/mcp-server clean
 
 # ── Rebuild ──────────────────────────────────────────────────────────────────
 .PHONY: rebuild
@@ -132,7 +132,7 @@ rebuild: clean build
 # ── Docker ───────────────────────────────────────────────────────────────────
 .PHONY: docker-build
 docker-build:
-	docker build --no-cache -t agentic-wallet:latest .
+	docker build --no-cache -t agent-economy-wallet:latest .
 
 .PHONY: docker-up
 docker-up:

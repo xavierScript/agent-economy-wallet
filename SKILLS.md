@@ -1,4 +1,4 @@
-# Solana Agentic Wallet — Agent Skills Index
+# Solana Agent Economy Wallet — Agent Skills Index
 
 > **Read this file first.** It tells you what you can do, what you cannot do, and how to do it safely.
 
