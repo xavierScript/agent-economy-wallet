@@ -1,0 +1,135 @@
+import { Connection, PublicKey } from "@solana/web3.js";
+import { getAssociatedTokenAddress } from "@solana/spl-token";
+import { McpError, ErrorCode } from "@modelcontextprotocol/sdk/types.js";
+
+export class X402ServerService {
+  constructor(private connection: Connection) {}
+
+  /**
+   * Verifies that a transaction signature corresponds to a successful transfer
+   * of a specific SPL token amount to the expected merchant address.
+   */
+  async verifyPayment(
+    signature: string,
+    requiredAmount: number,
+    requiredMint: string,
+    merchantAddress: string,
+  ): Promise<boolean> {
+    try {
+      const merchantPubkey = new PublicKey(merchantAddress);
+      const mintPubkey = new PublicKey(requiredMint);
+
+      // Derive the expected merchant token account
+      const merchantTokenAccount = await getAssociatedTokenAddress(
+        mintPubkey,
+        merchantPubkey,
+      );
+
+      // Fetch the transaction to verify payment details
+      const confirmedTx = await this.connection.getParsedTransaction(
+        signature,
+        {
+          commitment: "confirmed",
+          maxSupportedTransactionVersion: 0,
+        },
+      );
+
+      if (!confirmedTx || !confirmedTx.meta || confirmedTx.meta.err) {
+        return false;
+      }
+
+      const postTokenBalances = confirmedTx.meta.postTokenBalances ?? [];
+      const preTokenBalances = confirmedTx.meta.preTokenBalances ?? [];
+
+      // Find the recipient's token account in the balance changes
+      let amountReceived = 0;
+      for (const postBal of postTokenBalances) {
+        // Compare the account string or index
+        const accountKey =
+          confirmedTx.transaction.message.accountKeys[postBal.accountIndex]
+            ?.pubkey;
+        if (
+          postBal.mint === requiredMint &&
+          accountKey &&
+          accountKey.equals(merchantTokenAccount)
+        ) {
+          const preBal = preTokenBalances.find(
+            (pre) => pre.accountIndex === postBal.accountIndex,
+          );
+          const postAmount = Number(postBal.uiTokenAmount.amount);
+          const preAmount = Number(preBal?.uiTokenAmount.amount ?? "0");
+          amountReceived = postAmount - preAmount;
+          break;
+        }
+      }
+
+      if (amountReceived >= requiredAmount) {
+        return true;
+      }
+      return false;
+    } catch (error) {
+      console.error("X402 payment verification failed:", error);
+      return false;
+    }
+  }
+}
+
+/**
+ * Middleware for MCP tools to require an x402 payment via Solana.
+ */
+export function withX402Paywall<
+  TArgs extends { receipt_signature?: string },
+  TResult,
+>(
+  serverService: X402ServerService,
+  priceStr: string,
+  priceRaw: number,
+  mintAddress: string,
+  merchantAddress: string | undefined,
+  handler: (args: TArgs) => Promise<TResult>,
+) {
+  return async (args: TArgs): Promise<TResult> => {
+    if (!merchantAddress) {
+      throw new McpError(
+        ErrorCode.InternalError,
+        "Merchant address is not configured for x402 payments.",
+      );
+    }
+
+    if (!args.receipt_signature) {
+      throw new McpError(
+        ErrorCode.InvalidRequest,
+        JSON.stringify({
+          error: "402 Payment Required",
+          payment: {
+            recipientWallet: merchantAddress,
+            mint: mintAddress,
+            amount: priceRaw,
+            amountStr: priceStr,
+            message: `Please provide a transaction signature in 'receipt_signature' proving payment of ${priceStr} to ${merchantAddress}`,
+          },
+        }),
+      );
+    }
+
+    const isValid = await serverService.verifyPayment(
+      args.receipt_signature,
+      priceRaw,
+      mintAddress,
+      merchantAddress,
+    );
+
+    if (!isValid) {
+      throw new McpError(
+        ErrorCode.InvalidRequest,
+        JSON.stringify({
+          error: "Payment verification failed",
+          details: `Signature ${args.receipt_signature} is invalid, unconfirmed, or does not satisfy the required ${priceStr} payment to ${merchantAddress}`,
+        }),
+      );
+    }
+
+    // Payment is valid, invoke the original handler
+    return handler(args);
+  };
+}

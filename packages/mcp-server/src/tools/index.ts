@@ -26,8 +26,9 @@ import { registerMintTokenTool } from "./tokens/mint-token.js";
 import { registerPayX402Tool } from "./payments/pay-x402.js";
 import { registerProbeX402Tool } from "./payments/probe-x402.js";
 
-// trading/
-import { registerFetchPricesTool } from "./trading/fetch-prices.js";
+// merchant/
+import { registerFetchPricesTool } from "./merchant/fetch-prices.js";
+import { registerAnalyzeTokenSecurityTool } from "./merchant/analyze-token-security.js";
 
 /**
  * Register all wallet tools on the given MCP server instance.
@@ -52,6 +53,7 @@ export function registerAllTools(
   registerPayX402Tool(server, services);
   registerProbeX402Tool(server, services);
 
-  // trading/ — price feeds
+  // merchant/ — premium tools
   registerFetchPricesTool(server, services);
+  registerAnalyzeTokenSecurityTool(server, services);
 }

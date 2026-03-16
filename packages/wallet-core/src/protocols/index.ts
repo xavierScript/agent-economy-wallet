@@ -9,6 +9,7 @@
 export { SplTokenService, type TokenAccountInfo } from "./spl-token.js";
 export { TransactionBuilder } from "./transaction-builder.js";
 export { WELL_KNOWN_TOKENS } from "./well-known-tokens.js";
+export { X402ServerService, withX402Paywall } from "./x402-server.js";
 export {
   X402Client,
   type PaymentRequirements,

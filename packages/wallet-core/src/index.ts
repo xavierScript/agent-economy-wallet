@@ -31,6 +31,8 @@ export {
   type SettlementResponse,
   type X402PaymentResult,
   type X402ClientConfig,
+  X402ServerService,
+  withX402Paywall,
 } from "./protocols/index.js";
 export { SolanaConnection } from "./core/connection.js";
 export { type AgentWalletConfig, getDefaultConfig } from "./core/config.js";

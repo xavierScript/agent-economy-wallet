@@ -28,6 +28,12 @@ export interface AgentWalletConfig {
    */
   ownerAddress?: string;
   /**
+   * Merchant receiver wallet address (base58 public key).
+   * Used as the default destination for x402 payments.
+   * Set via MERCHANT_RECEIVER_ADDRESS env var, falls back to OWNER_ADDRESS.
+   */
+  merchantReceiverAddress?: string;
+  /**
    * Base58-encoded secret key of the master (funding) wallet.
    * When set, newly created agent wallets are automatically funded
    * from this wallet instead of relying on devnet faucets.
@@ -98,6 +104,10 @@ export function getDefaultConfig(): AgentWalletConfig {
     logLevel:
       (process.env.LOG_LEVEL as AgentWalletConfig["logLevel"]) || "info",
     ownerAddress: process.env.OWNER_ADDRESS || undefined,
+    merchantReceiverAddress:
+      process.env.MERCHANT_RECEIVER_ADDRESS ||
+      process.env.OWNER_ADDRESS ||
+      undefined,
     masterWalletSecretKey: process.env.MASTER_WALLET_SECRET_KEY || undefined,
     masterWalletKeyLabel: process.env.MASTER_WALLET_KEY_LABEL || undefined,
     agentSeedSol: Number(process.env.AGENT_SEED_SOL) || 0.05,

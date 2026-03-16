@@ -14,6 +14,7 @@ import { TransactionBuilder } from "../protocols/transaction-builder.js";
 import { SplTokenService } from "../protocols/spl-token.js";
 import { MasterFunder } from "./master-funder.js";
 import { KoraService } from "../protocols/kora-service.js";
+import { X402ServerService } from "../protocols/x402-server.js";
 import { getDefaultConfig, type AgentWalletConfig } from "./config.js";
 
 // ── Types ────────────────────────────────────────────────────────────────────
@@ -34,6 +35,7 @@ export interface CoreServices {
   masterFunder: MasterFunder | null;
   /** null when KORA_RPC_URL is not set */
   koraService: KoraService | null;
+  x402Server: X402ServerService;
 }
 
 // ── Factory ──────────────────────────────────────────────────────────────────
@@ -95,6 +97,7 @@ export function createCoreServices(): CoreServices {
 
   const txBuilder = new TransactionBuilder(connection);
   const splTokenService = new SplTokenService(connection);
+  const x402Server = new X402ServerService(connection.getConnection());
 
   return {
     config,
@@ -107,5 +110,6 @@ export function createCoreServices(): CoreServices {
     splTokenService,
     masterFunder,
     koraService,
+    x402Server,
   };
 }
