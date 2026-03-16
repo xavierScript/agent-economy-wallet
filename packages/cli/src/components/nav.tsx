@@ -21,17 +21,26 @@ interface NavProps {
 
 export function Nav({ active }: NavProps) {
   return (
-    <Box marginTop={1} marginBottom={1}>
+    <Box
+      marginTop={1}
+      marginBottom={1}
+      borderStyle="round"
+      borderColor="green"
+      paddingX={2}
+      justifyContent="center"
+    >
       {tabs.map((tab) => {
         const isActive = active === tab.view;
         return (
-          <Box key={tab.view} marginRight={2}>
+          <Box key={tab.view} marginX={2}>
             {isActive ? (
-              <Text backgroundColor="cyan" color="black" bold>
-                {" " + tab.key + "  " + tab.label.toUpperCase() + " "}
+              <Text backgroundColor="green" color="black" bold>
+                {"  [ " + tab.key + " ] " + tab.label.toUpperCase() + "  "}
               </Text>
             ) : (
-              <Text color="gray">{"[" + tab.key + "] " + tab.label}</Text>
+              <Text dimColor color="white">
+                {"  " + tab.key + " : " + tab.label + "  "}
+              </Text>
             )}
           </Box>
         );

@@ -16,6 +16,27 @@ import { createElement } from "react";
 import { App } from "./app.js";
 import { createServices } from "./services.js";
 
+const enterAltScreen = () => process.stdout.write("\x1b[?1049h");
+const leaveAltScreen = () => process.stdout.write("\x1b[?1049l");
+
+enterAltScreen();
 const services = createServices();
 
-render(createElement(App, { services }));
+const { waitUntilExit } = render(createElement(App, { services }));
+
+waitUntilExit()
+  .then(() => {
+    leaveAltScreen();
+  })
+  .catch(() => {
+    leaveAltScreen();
+  });
+
+process.on("SIGINT", () => {
+  leaveAltScreen();
+  process.exit(0);
+});
+process.on("SIGTERM", () => {
+  leaveAltScreen();
+  process.exit(0);
+});

@@ -29,6 +29,9 @@ importers:
         specifier: ^18.3.1
         version: 18.3.1
     devDependencies:
+      '@types/ink-text-animation':
+        specifier: ^0.1.5
+        version: 0.1.5
       '@types/node':
         specifier: ^20.14.0
         version: 20.19.33
@@ -549,6 +552,9 @@ packages:
 
   '@types/http-errors@2.0.5':
     resolution: {integrity: sha512-r8Tayk8HJnX0FztbZN7oVqGccWgw98T/0neJphO91KkmOzug1KkofZURD4UaD5uH8AqcFLfdPErnBod0u71/qg==}
+
+  '@types/ink-text-animation@0.1.5':
+    resolution: {integrity: sha512-JXNlty7UEsOjLgsPkHm0PadO4yXUDQ9iRivlEXOOapxBN+lyKNwZ9DfoJomZH1U+aaxqsGGF9f1ZcaelZQHdDQ==}
 
   '@types/node@12.20.55':
     resolution: {integrity: sha512-J8xLz7q2OFulZ2cyGTLE1TbbZcjpno7FaN6zdJNrgAdrJ+DZzh/uFR6YrTb4C+nXakvud8Q4+rbhoIWlYQbUFQ==}
@@ -2042,6 +2048,10 @@ snapshots:
       '@types/serve-static': 2.2.0
 
   '@types/http-errors@2.0.5': {}
+
+  '@types/ink-text-animation@0.1.5':
+    dependencies:
+      '@types/react': 18.3.28
 
   '@types/node@12.20.55': {}
 

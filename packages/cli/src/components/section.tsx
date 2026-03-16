@@ -14,16 +14,17 @@ interface SectionProps {
 
 export function Section({ title, children }: SectionProps) {
   return (
-    <Box flexDirection="column" marginBottom={1}>
-      <Box>
-        <Text bold color="white">
-          {"  " + title.toUpperCase() + " "}
-        </Text>
-        <Text color="cyan" dimColor>
-          {"─────────────────────────────────────────────"}
-        </Text>
-      </Box>
-      <Box flexDirection="column" marginLeft={2} marginTop={1}>
+    <Box flexDirection="column" marginBottom={0}>
+      <Text bold color="white">
+        {" ◈ " + title.toUpperCase()}
+      </Text>
+      <Box
+        borderStyle="round"
+        borderColor="cyan"
+        flexDirection="column"
+        paddingX={2}
+        paddingY={0}
+      >
         {children}
       </Box>
     </Box>

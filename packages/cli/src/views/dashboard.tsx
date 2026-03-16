@@ -32,64 +32,46 @@ export function DashboardView({ services, refreshKey }: DashboardViewProps) {
   const funderActive = services.masterFunder !== null;
 
   return (
-    <Box flexDirection="column">
+    <Box flexDirection="column" paddingX={1} flexGrow={1}>
       {/* ── Stat cards ─────────────────────────── */}
-      <Box marginBottom={1} marginLeft={2}>
-        <Box
-          borderStyle="round"
-          borderColor="cyan"
-          paddingX={2}
-          marginRight={3}
-          flexDirection="column"
-        >
-          <Text dimColor>WALLETS</Text>
+      <Box
+        marginBottom={1}
+        justifyContent="space-around"
+        width="100%"
+        borderStyle="round"
+        borderColor="gray"
+        paddingX={1}
+      >
+        <Box>
+          <Text dimColor>WALLETS: </Text>
           <Text bold color="white">
             {wLoading ? "…" : String(wallets.length)}
           </Text>
         </Box>
-        <Box
-          borderStyle="round"
-          borderColor="green"
-          paddingX={2}
-          marginRight={3}
-          flexDirection="column"
-        >
-          <Text dimColor>TOTAL SOL</Text>
+        <Text dimColor> │ </Text>
+        <Box>
+          <Text dimColor>TOTAL SOL: </Text>
           <Text bold color="green">
             {wLoading ? "…" : totalSol.toFixed(4)}
           </Text>
         </Box>
-        <Box
-          borderStyle="round"
-          borderColor="cyan"
-          paddingX={2}
-          marginRight={3}
-          flexDirection="column"
-        >
-          <Text dimColor>CLUSTER</Text>
+        <Text dimColor> │ </Text>
+        <Box>
+          <Text dimColor>CLUSTER: </Text>
           <Text bold color="cyan">
             {services.config.cluster.toUpperCase()}
           </Text>
         </Box>
-        <Box
-          borderStyle="round"
-          borderColor={koraActive ? "green" : "gray"}
-          paddingX={2}
-          marginRight={3}
-          flexDirection="column"
-        >
-          <Text dimColor>KORA</Text>
+        <Text dimColor> │ </Text>
+        <Box>
+          <Text dimColor>KORA: </Text>
           <Text bold color={koraActive ? "green" : "gray"}>
             {koraActive ? "gasless" : "off"}
           </Text>
         </Box>
-        <Box
-          borderStyle="round"
-          borderColor={funderActive ? "green" : "gray"}
-          paddingX={2}
-          flexDirection="column"
-        >
-          <Text dimColor>FUNDER</Text>
+        <Text dimColor> │ </Text>
+        <Box>
+          <Text dimColor>FUNDER: </Text>
           <Text bold color={funderActive ? "green" : "gray"}>
             {funderActive ? "ready" : "off"}
           </Text>
@@ -97,33 +79,54 @@ export function DashboardView({ services, refreshKey }: DashboardViewProps) {
       </Box>
 
       {/* ── Wallet list ────────────────────────── */}
-      <Section title="Wallets">
-        {wLoading ? (
-          <Spinner label="Loading wallets…" />
-        ) : wallets.length === 0 ? (
-          <Text dimColor>No wallets yet — create one via the MCP server.</Text>
-        ) : (
-          wallets.map((w) => <WalletRow key={w.id} wallet={w} />)
-        )}
-      </Section>
+      <Box flexDirection="column" marginRight={2} marginBottom={1}>
+        <Section title="Wallets">
+          {wLoading ? (
+            <Spinner label="Loading wallets…" />
+          ) : wallets.length === 0 ? (
+            <Text dimColor italic>
+              No wallets yet — create one via the MCP server.
+            </Text>
+          ) : (
+            <Box flexDirection="column">
+              {wallets.slice(0, 5).map((w) => (
+                <WalletRow key={w.id} wallet={w} />
+              ))}
+              {wallets.length > 5 && (
+                <Text dimColor>
+                  {"  … and " +
+                    (wallets.length - 5) +
+                    " more (see Wallets tab)"}
+                </Text>
+              )}
+            </Box>
+          )}
+        </Section>
+      </Box>
 
       {/* ── Recent activity ────────────────────── */}
-      <Section
-        title={
-          "Recent Activity" +
-          (logs.length > 0
-            ? "  " + successCount + "/" + logs.length + " ok"
-            : "")
-        }
-      >
-        {lLoading ? (
-          <Spinner label="Loading logs…" />
-        ) : logs.length === 0 ? (
-          <Text dimColor>No activity recorded yet.</Text>
-        ) : (
-          logs.map((log, i) => <LogEntry key={i} log={log} />)
-        )}
-      </Section>
+      <Box flexDirection="column" marginRight={2} marginBottom={1}>
+        <Section
+          title={
+            "Recent Activity" +
+            (logs.length > 0
+              ? "  " + successCount + "/" + logs.length + " ok"
+              : "")
+          }
+        >
+          {lLoading ? (
+            <Spinner label="Loading logs…" />
+          ) : logs.length === 0 ? (
+            <Text dimColor>No activity recorded yet.</Text>
+          ) : (
+            <Box flexDirection="column">
+              {logs.slice(0, 4).map((log, i) => (
+                <LogEntry key={i} log={log} />
+              ))}
+            </Box>
+          )}
+        </Section>
+      </Box>
     </Box>
   );
 }

@@ -12,15 +12,25 @@ interface HeaderProps {
 
 export function Header({ cluster }: HeaderProps) {
   return (
-    <Box flexDirection="column">
-      <Box>
+    <Box
+      flexDirection="column"
+      borderStyle="round"
+      borderColor="cyan"
+      paddingX={1}
+      width="100%"
+    >
+      <Box justifyContent="center" width="100%">
         <Text bold color="cyan">
-          {"  ◈  AGENTIC WALLET  "}
+          {"  ◈  AGENTIC WALLET  ◈  "}
         </Text>
-        <Text color="cyan" dimColor>
-          {"━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"}
+      </Box>
+      <Box justifyContent="center" width="100%">
+        <Text italic dimColor>
+          Autonomous Solana Operations Engine |{" "}
+          <Text color="cyan" bold>
+            ◈ {cluster.toUpperCase()}
+          </Text>
         </Text>
-        <Text dimColor>{"  " + cluster.toUpperCase()}</Text>
       </Box>
     </Box>
   );

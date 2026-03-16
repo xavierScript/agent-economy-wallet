@@ -97,8 +97,18 @@ export function WalletsView({ services, refreshKey }: WalletsViewProps) {
   const totalSol = wallets.reduce((s, w) => s + w.balanceSol, 0);
   const walletCount = wallets.length;
 
+  const PAGE_SIZE = 8;
+  const startIndex = Math.max(
+    0,
+    Math.min(
+      cursor - Math.floor(PAGE_SIZE / 2),
+      Math.max(0, wallets.length - PAGE_SIZE),
+    ),
+  );
+  const visibleWallets = wallets.slice(startIndex, startIndex + PAGE_SIZE);
+
   return (
-    <Box flexDirection="column">
+    <Box flexDirection="column" flexGrow={1} overflow="hidden">
       <Section
         title={`Wallets${walletCount > 0 ? " (" + walletCount + ")" : ""}`}
       >
@@ -107,11 +117,28 @@ export function WalletsView({ services, refreshKey }: WalletsViewProps) {
         ) : error ? (
           <Text color="red">Error: {error}</Text>
         ) : wallets.length === 0 ? (
-          <Text dimColor>No wallets found. Create one via the MCP server.</Text>
+          <Text dimColor italic>
+            No wallets found. Create one via the MCP server.
+          </Text>
         ) : (
-          wallets.map((w, i) => (
-            <WalletRow key={w.id} wallet={w} selected={i === cursor} />
-          ))
+          <Box flexDirection="column">
+            {startIndex > 0 && (
+              <Text dimColor> ↑ {startIndex} more before</Text>
+            )}
+            {visibleWallets.map((w, i) => (
+              <WalletRow
+                key={w.id}
+                wallet={w}
+                selected={startIndex + i === cursor}
+              />
+            ))}
+            {startIndex + PAGE_SIZE < wallets.length && (
+              <Text dimColor>
+                {" "}
+                ↓ {wallets.length - (startIndex + PAGE_SIZE)} more after
+              </Text>
+            )}
+          </Box>
         )}
       </Section>
 

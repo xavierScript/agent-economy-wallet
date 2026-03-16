@@ -23,11 +23,22 @@ interface FooterProps {
 export function Footer({ services, view }: FooterProps) {
   const { config } = services;
   return (
-    <Box marginTop={1}>
-      <Text backgroundColor="cyan" color="black" bold>
-        {" ◈ " + config.cluster.toUpperCase() + " "}
-      </Text>
-      <Text dimColor>{"  " + config.rpcUrl + "  │  " + HINTS[view]}</Text>
+    <Box
+      marginTop={1}
+      borderStyle="round"
+      borderColor="blue"
+      paddingX={1}
+      justifyContent="space-between"
+    >
+      <Box>
+        <Text backgroundColor="cyan" color="black" bold>
+          {" ◈ " + config.cluster.toUpperCase() + " "}
+        </Text>
+        <Text dimColor>{"  " + config.rpcUrl}</Text>
+      </Box>
+      <Box>
+        <Text color="yellow">⌨ {HINTS[view]}</Text>
+      </Box>
     </Box>
   );
 }

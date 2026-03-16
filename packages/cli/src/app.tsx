@@ -4,8 +4,8 @@
  * Root component — manages view state and global keyboard shortcuts.
  */
 
-import { useState } from "react";
-import { Box, useInput, useApp } from "ink";
+import { useState, useEffect } from "react";
+import { Box, useInput, useApp, useStdout } from "ink";
 import { Header } from "./components/header.js";
 import { Nav, type ViewName } from "./components/nav.js";
 import { Footer } from "./components/footer.js";
@@ -20,8 +20,24 @@ interface AppProps {
 
 export function App({ services }: AppProps) {
   const { exit } = useApp();
+  const { stdout } = useStdout();
   const [view, setView] = useState<ViewName>("dashboard");
   const [refreshKey, setRefreshKey] = useState(0);
+
+  const [size, setSize] = useState({
+    columns: stdout?.columns ?? 80,
+    rows: stdout?.rows ?? 24,
+  });
+
+  useEffect(() => {
+    if (!stdout || !("on" in stdout)) return;
+    const onResize = () =>
+      setSize({ columns: stdout.columns, rows: stdout.rows });
+    stdout.on("resize", onResize);
+    return () => {
+      stdout.off("resize", onResize);
+    };
+  }, [stdout]);
 
   useInput((input) => {
     if (input === "q") exit();
@@ -32,11 +48,24 @@ export function App({ services }: AppProps) {
   });
 
   return (
-    <Box flexDirection="column" padding={1}>
-      <Header cluster={services.config.cluster} />
-      <Nav active={view} />
+    <Box
+      flexDirection="column"
+      paddingX={1}
+      width={size.columns}
+      height={size.rows}
+    >
+      <Box flexShrink={0} flexDirection="column">
+        <Header cluster={services.config.cluster} />
+        <Nav active={view} />
+      </Box>
 
-      <Box flexDirection="column">
+      <Box
+        flexDirection="column"
+        flexGrow={1}
+        flexShrink={1}
+        flexBasis={0}
+        overflow="hidden"
+      >
         {view === "dashboard" && (
           <DashboardView services={services} refreshKey={refreshKey} />
         )}
@@ -48,7 +77,9 @@ export function App({ services }: AppProps) {
         )}
       </Box>
 
-      <Footer services={services} view={view} />
+      <Box flexShrink={0}>
+        <Footer services={services} view={view} />
+      </Box>
     </Box>
   );
 }

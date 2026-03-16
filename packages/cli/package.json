@@ -15,15 +15,20 @@
   "dependencies": {
     "@agentic-wallet/core": "workspace:*",
     "@solana/web3.js": "^1.95.0",
+    "dotenv": "^16.4.5",
     "ink": "^5.1.0",
+    "ink-big-text": "^2.0.0",
+    "ink-gradient": "^4.0.0",
     "ink-spinner": "^5.0.0",
-    "react": "^18.3.1",
-    "dotenv": "^16.4.5"
+    "react": "^18.3.1"
   },
   "devDependencies": {
-    "typescript": "^5.4.0",
+    "@types/ink-big-text": "^1.2.4",
+    "@types/ink-gradient": "^2.0.4",
+    "@types/ink-text-animation": "^0.1.5",
     "@types/node": "^20.14.0",
     "@types/react": "^18.3.0",
-    "rimraf": "^5.0.0"
+    "rimraf": "^5.0.0",
+    "typescript": "^5.4.0"
   }
 }
