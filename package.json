@@ -18,5 +18,11 @@
     "node": ">=18.0.0"
   },
   "author": "xavierScript",
-  "license": "MIT"
+  "license": "MIT",
+  "devDependencies": {
+    "@types/dotenv": "^8.2.3",
+    "@types/node": "^20.19.33",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.9.3"
+  }
 }
