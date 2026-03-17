@@ -49,7 +49,7 @@
     },
     {
       "group": "Core Components",
-      "pages": ["cli/cli", "wallet-core/wallet-core", "kora/kora"]
+      "pages": ["core/cli", "core/wallet-core", "core/kora"]
     }
   ]
 }
