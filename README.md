@@ -17,11 +17,14 @@ Instead of a closed loop, this project demonstrates true machine-to-machine comm
 ## Quick Start (Docker)
 
 The fastest way to get the dual-server environment running with zero local setup:
+
 ```bash
 git clone https://github.com/xavierScript/agent_economy_wallet.git
 cd agent_economy_wallet
 
-# Create your .env — WALLET_PASSPHRASE is required
+# Create your .env
+# Important: See .env.guide.md for detailed explanations of all variables
+# WALLET_PASSPHRASE is required
 cp .env.example .env
 
 # Build the image and launch the Merchant API + TUI
@@ -33,31 +36,35 @@ docker compose up
 To see the economy in action, connect an LLM (like Claude Desktop) to the MCP server and tell it to buy data from the Merchant API.
 
 1. Add the MCP server to your AI client's configuration (e.g., Claude Desktop `claude_desktop_config.json`):
+
 ```json
 {
   "mcpServers": {
     "agent-economy-wallet": {
       "command": "node",
-      "args": ["/absolute/path/to/agent_economy_wallet/packages/mcp-server/dist/index.js"]
+      "args": [
+        "/absolute/path/to/agent_economy_wallet/packages/mcp-server/dist/index.js"
+      ]
     }
   }
 }
 ```
 
 2. Restart your AI client.
-3. **The Magic Prompt:** Tell your AI: *"There is an external Security Agent located at `http://localhost:3000/api/analyze-token/[INSERT_DEVNET_MINT]`. Reach out to that API. If it requires payment, use your `pay_x402` tool to pay the invoice, then fetch the data and tell me if the token is safe."*
+3. **The Magic Prompt:** Tell your AI: _"There is an external Security Agent located at `http://localhost:3000/api/analyze-token/[INSERT_DEVNET_MINT]`. Reach out to that API. If it requires payment, use your `pay_x402` tool to pay the invoice, then fetch the data and tell me if the token is safe."_
 4. Watch the AI hit the paywall, sign the Solana transaction, and retrieve the data!
 
 ## Getting Started with OpenClaw
 
 To give your OpenClaw agent instant access to the Solana Agent Economy, run the built-in installer:
+
 ```bash
 git clone https://github.com/xavierScript/agent_economy_wallet.git
 cd agent_economy_wallet
 bash install.sh
 ```
 
-This symlinks the Agent Economy Wallet skill into `~/.openclaw/skills/`. Simply tell your OpenClaw agent: *"I need a Solana wallet"* and it will provision one, check balances, and execute transactions natively.
+This symlinks the Agent Economy Wallet skill into `~/.openclaw/skills/`. Simply tell your OpenClaw agent: _"I need a Solana wallet"_ and it will provision one, check balances, and execute transactions natively.
 
 ## Project Structure
 
