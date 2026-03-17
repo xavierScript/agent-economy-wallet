@@ -5,10 +5,20 @@ description: "Model Context Protocol Tools for Agentic Wallets"
 
 The MCP Tools provide AI agents with a standardized interface to interact directly with the wallet core. Agents connected to the MCP Server can parse the tool descriptions and schemas to execute complex financial behaviors.
 
-## Available Tool Categories
+## Supported Merchant Tools
 
-- **Merchant Tools**: Tools for operating as a paid service provider (validating x402 receipts, issuing challenges).
-- **Payment Tools**: Tools for fulfilling x402 challenges and sending micro-transactions.
-- **Token Tools**: Spl token interactions, mint data lookups.
-- **Transfer Tools**: Sending SOL or tokens.
-- **Wallet Tools**: Key management details, balance checks, simulated transactions.
+The Merchant tools simulate premium data feeds that another agent might access behind an x402 paywall. When a client agent invokes these tools without providing a `receipt_signature`, the tool will reject the execution and return the required cost, signaling to the client agent that it must first invoke its payment tools to settle the charge on-chain.
+
+### `analyze_token_security`
+
+**PREMIUM:** Analyzes an SPL token's mint account to check for active `mintAuthority` and `freezeAuthority`.
+
+- **Input Parameters:** `mintAddress`, `receipt_signature` (optional)
+- **Cost:** 0.1 USDC
+
+### `fetch_token_price`
+
+**PREMIUM:** Provides real-time pricing data for SPL tokens by querying the CoinGecko aggregator natively.
+
+- **Input Parameters:** `mintAddress`, `vsCurrency` (default usdc), `receipt_signature` (optional)
+- **Cost:** 0.05 USDC

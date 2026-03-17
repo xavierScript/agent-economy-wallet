@@ -1,0 +1,30 @@
+---
+title: CLI
+description: "CLI application for the Agentic Wallet"
+---
+
+The CLI application (`packages/cli`) provides a powerful terminal-based dashboard for human operators to monitor their agents, view real-time log entries, configure active wallets, and update policy engine parameters on the fly.
+
+Built using a modern terminal UI framework (`ink` / React for the CLI), the application bridges the gap between the headless agent operations and the physical owner of the funds.
+
+## Key Features
+
+### Agent Dashboard
+
+Live, auto-refreshing interface displaying the agent's current task, recently called Model Context Protocol tools, and overall financial velocity (money spent vs. money earned).
+
+### Wallet & Key Generation Setup
+
+Operators can initiate the wallet creation process seamlessly from the terminal. The CLI wraps the Kora rust component to generate new seed phrases, encrypting them to disk using the operator's provided password.
+
+### Live Audit Logs
+
+A streaming tabular view of the `wallet-audit-logs`, color-coded to highlight successful transfers (green), rejected policy engine attempts (red), and incoming x402 API payments (blue).
+
+### Policy Configuration Interface
+
+Operators can interactively adjust the Spending Policy Engine variables:
+
+- Modify the total 24-hour spending limits.
+- Add or remove addresses from the whitelisted interactions list.
+- Toggle the `human-only` threshold limit, requiring local terminal confirmation for oversized transfers.

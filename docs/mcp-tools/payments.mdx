@@ -3,4 +3,21 @@ title: Payments Tools
 description: Documenting the Payments Tool
 ---
 
-Documents the token tools.
+The Payments toolset provides AI agents with the ability to programmatically handle monetary requests and execute micro-transactions using the x402 protocol.
+
+## Supported Tools
+
+### `probe_x402_endpoint`
+
+When an agent wants to discover the cost and requirements of a protected resource, it uses this tool.
+
+- **Input Parameters:** `url`
+- **Execution:** Makes an HTTP GET request to the target URL to extract the `402 Payment Required` headers (`x-payment-amount`, `x-payment-mint`, `x-payment-address`).
+
+### `pay_x402_invoice`
+
+When an agent actually agrees to the required payment, it signs a Solana transaction to fulfill the x402 cost.
+
+- **Input Parameters:** `wallet_id`, `url`, `method` (default POST), `body` (optional data payload)
+- **Execution:** Automatically queries the exact cost, securely transfers funds to the merchant via `TransactionBuilder`/`MasterFunder`, and finally executes the HTTP request passing the derived transaction signature in the `x-payment-signature` header.
+- **Returns:** The resulting HTTP response from the merchant.

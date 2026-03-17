@@ -5,5 +5,12 @@ description: "Model Context Protocol Resources"
 
 MCP Resources act as read-only documents and data streams the AI agent can subscribe to or read dynamically.
 
-- **Audit Logs**: The real-time stream of wallet actions, approvals, and rejections.
-- **System Status**: Telemetry on the RPC nodes, balance snapshots, and policy enforcer health.
+## Supported Resources
+
+### `wallet://audit-logs`
+
+Provides the most recent 50 audit log entries across all wallets. Includes timestamps, actions, success/failure status, and transaction signatures.
+
+### `wallet://audit-logs/{wallet_id}`
+
+Dynamically generated resource to retrieve logs for a specific configured wallet. Agents read this to understand their historical performance, confirm whether recent transactions cleared the blockchain safely, or view what actions the Policy Engine has rejected.

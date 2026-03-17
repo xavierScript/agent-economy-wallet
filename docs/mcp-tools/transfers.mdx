@@ -3,4 +3,27 @@ title: Transfers Tools
 description: Documenting the Transfers Tool
 ---
 
-Documents the transfers tools.
+The Transfers toolset encapsulates the logic for moving assets on the Solana network. Every transfer invoked by the agent must pass through the **Policy Engine** before it is finally signed by the core wallet.
+
+## Supported Tools
+
+### `send_sol`
+
+Sends native SOL to a recipient.
+
+- **Input Parameters:** `wallet_id`, `to` (recipient), `amount` (SOL)
+- **Guardrails:** Evaluates daily SOL spending limit. Handled by `MasterFunder` underlying logic.
+
+### `send_token`
+
+Sends an SPL token (e.g., USDC, custom utility tokens) to a recipient.
+
+- **Input Parameters:** `wallet_id`, `mint` (address or well-known token symbol), `to` (recipient), `amount`
+- **Guardrails:** Evaluates daily SPL token limits, validates target associated token account (ATA) exists, and constructs the ATA creation instruction if necessary.
+
+### `write_memo`
+
+Publishes an on-chain message via the SPL Memo program.
+
+- **Input Parameters:** `wallet_id`, `message`
+- **Returns:** The transaction signature of the published memo.

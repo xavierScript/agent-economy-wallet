@@ -3,4 +3,15 @@ title: Risk Assessment
 description: MCP Prompts - Risk Assessment
 ---
 
-Assess the risk.
+The `risk-assessment` prompt is a fundamental safety mechanism that guides you (the LLM agent) to evaluate the safety of an impending on-chain action before requesting the tool execution.
+
+## Prompt Usage
+
+When asked to transfer an amount larger than the standard threshold, the system prepends this prompt to your context window:
+
+> **System Prompt:** "You are evaluating a transaction. Review the provided `target_address`, `amount`, and `token_type` against the `wallet-audit-logs` resource. Ensure the requested amount does not violate the active Policy Engine limits. State your justification clearly before invoking a transfer tool."
+
+### Benefits
+
+- **Explainability:** Before the wallet signs the transaction, the agent produces a text-based trail of logic.
+- **Anomaly Detection:** If another agent tries to extract funds maliciously via a conversational exploit, the AI is prompted to pause, review the policy parameters, and deny the request if it seems suspect.

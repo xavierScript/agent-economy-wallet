@@ -1,0 +1,93 @@
+---
+title: Kora
+description: "Kora Rust Components"
+---
+
+# Kora Signer Architecture
+
+The Agent Economy Wallet delegates actual transaction signing to an independent signing architecture known as Kora. The `/kora` folder contains the specific configuration files (`kora.toml`, `signers.toml`) required to run and connect testing agents to a Kora instance.
+
+## What is Kora?
+
+Kora provides high-performance, secure signer delegation. By extracting the raw private-key operations out of your Node/TypeScript application memory and passing the cryptographic signing duties to Kora, you drastically minimize the surface area for a leaked API key or a malicious LLM prompt exploit.
+Furthermore, Kora acts as a central fee-payer. With Kora paying the network "gas" fees, the dynamically generated AI agent wallets never need to be funded with native SOL just to interact with the broader ecosystem, making agent onboarding perfectly frictionless.
+
+## Node Setup & Quickstart (Devnet)
+
+### 1. Install Kora CLI
+
+First, you'll need the Rust-based Kora CLI installed directly:
+
+```bash
+cargo install kora-cli
+```
+
+### 2. Generate a Kora signer keypair
+
+You can generate a local filesystem keypair using the standard Solana tools:
+
+```bash
+solana-keygen new --outfile kora/kora-signer.json --no-bip39-passphrase
+```
+
+Take note of the public key output — this is the central address that will pay the gas fees on behalf of your agents.
+
+### 3. Fund the signer
+
+To allow Kora to pay gas on devnet, ensure it has a balance. You can either use `solana airdrop` or visit [faucet.solana.com](https://faucet.solana.com/).
+
+```bash
+solana airdrop 2 $(solana-keygen pubkey kora/kora-signer.json) --url devnet
+```
+
+_(Every agent transaction costs roughly ~0.000005 SOL. A quick 2 SOL airdrop gives you enough runway for ~400,000 transactions)._
+
+### 4. Update the core Environment Variables
+
+Inside your central `.env` file, point the system toward the newly minted Kora signer.
+
+```bash
+# Option A: Local file path
+KORA_SIGNER_PRIVATE_KEY=kora/kora-signer.json
+
+# Option B: Raw base58 string
+# KORA_SIGNER_PRIVATE_KEY=5KKsLVU6TcbVDK4BS...
+```
+
+### 5. Start the Kora RPC Node
+
+Boot the delegated signer in the background:
+
+```bash
+cd kora
+kora --config kora.toml --rpc-url https://api.devnet.solana.com rpc start --signers-config signers.toml
+```
+
+You should see: `INFO kora_lib::rpc_server::server: RPC server started on 0.0.0.0:8080`
+
+### 6. Verify Connectivity
+
+Test that the Kora node is ready to accept HTTP signature requests from your Agentic server:
+
+```bash
+curl -s -X POST http://localhost:8080 \
+  -H "Content-Type: application/json" \
+  -d '{"jsonrpc":"2.0","id":1,"method":"getConfig","params":[]}'
+```
+
+## Funding Breakdown
+
+Understanding who pays for what is critical in the Agentic Wallet architecture.
+
+| Account                                        | What it pays                                                                                                              | How to fund                                         |
+| ---------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------- |
+| **Kora signer** (`kora-signer.json`)           | SOL network fees for every single agent transaction.                                                                      | `solana airdrop` (devnet) or transfer SOL (mainnet) |
+| **Agent wallets**                              | Nothing! Completely gasless.                                                                                              | No SOL needed — Kora pays gas.                      |
+| **Master wallet** (`MASTER_WALLET_SECRET_KEY`) | Provides SOL directly to agent wallets strictly for account rent (e.g., standardizing a new SPL Token ATA at ~0.002 SOL). | Configured securely in `.env`.                      |
+
+**\*Note:** With Kora acting as the gas sponsor, your agent wallets will only require upfront SOL from the Master Wallet if they need to create new accounts on-chain.\*
+
+## Configurations
+
+- **`kora.toml`**: Points the system to the correct Kora nodes/endpoints.
+- **`signers.toml`**: Outlines the accepted signing permissions, limits, and addresses that a delegated agent is globally allowed to use when requesting signatures.

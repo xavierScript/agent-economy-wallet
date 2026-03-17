@@ -3,4 +3,30 @@ title: Wallet Tools
 description: Documenting the Wallet Tool
 ---
 
-Documents the wallet tools.
+The Wallet toolset gives the AI agent self-awareness regarding its cryptographic identity and capabilities.
+
+## Supported Tools
+
+### `create_wallet`
+
+Generates a new Solana keypair stored in the local AES-encrypted keystore. Returns the public key and standard UUID for reference.
+
+### `list_wallets`
+
+Returns the IDs and public keys of all wallets loaded into the current agent's KeyManager.
+
+### `get_balance`
+
+Fetches the agent's SOL balance and known SPL token balances (e.g. USDC).
+
+### `get_audit_logs`
+
+Pulls recent transaction attempts, signatures, and policy engine decisions.
+
+### `get_policy`
+
+Retrieves the active global policy rules constraining the agent (e.g. daily spending limits, blocked addresses).
+
+### `get_status`
+
+Returns agent system telemetry (e.g. underlying RPC network endpoint, kora RPC availability).

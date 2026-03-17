@@ -3,4 +3,13 @@ title: System Status
 description: MCP Resources - System Status
 ---
 
-Status of the systems.
+The `system-status` resource provides the agent with a real-time snapshot of the underlying infrastructure it is running on. This is exposed as an active JSON stream that the LLM context can query to diagnose its own operational health.
+
+## Resource Data Points
+
+Agents subscribing to `wallet://system/status` will observe:
+
+1. **Network Connectivity:** Current Solana RPC cluster (e.g. devnet, mainnet-beta), and RPC URL in use.
+2. **Policy Engine Configuration:** Information on the active restrictions preventing malicious code from sending out high-velocity asset transfers.
+3. **Master Funder:** Whether the Master Funder is available (can act as a fee-payer for automated gasless deployments).
+4. **Agent Balance Summary:** A snapshot of total managed wallets, recent activity levels, and basic health metrics across the ecosystem.

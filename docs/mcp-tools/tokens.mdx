@@ -3,4 +3,20 @@ title: Tokens Tools
 description: Documenting the Tokens Tool
 ---
 
-Documents the token tools.
+The Token toolset allows agents to create and mint Solana SPL tokens. Information retrieved from these tools can be used to bootstrap new economies and tokens on development networks.
+
+## Supported Tools
+
+### `create_token_mint`
+
+Create a new SPL token mint on devnet. The wallet becomes the mint authority, able to mint new tokens. Returns the mint address. Use `mint_tokens` to mint supply after creation.
+
+- **Input Parameters:** `wallet_id`, `decimals` (optional, default 9)
+- **Returns:** The mint address, authority, and transaction signature.
+
+### `mint_tokens`
+
+Mint SPL tokens to a wallet's token account. The signing wallet must be the mint authority. Automatically creates the recipient's Associated Token Account if it doesn't exist.
+
+- **Input Parameters:** `wallet_id`, `mint`, `to` (optional), `amount`
+- **Returns:** The transaction signature and minted amount.

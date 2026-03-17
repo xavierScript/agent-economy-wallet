@@ -1,5 +1,5 @@
 {
-  "name": "Agentic Wallet",
+  "name": "Agent Economy Wallet",
   "logo": {
     "dark": "/logo/dark.svg",
     "light": "/logo/light.svg"
@@ -13,7 +13,7 @@
   "topbarLinks": [
     {
       "name": "GitHub",
-      "url": "https://github.com/example/agentic_wallet"
+      "url": "https://github.com/xavierScript/agent-economy-wallet"
     }
   ],
   "navigation": [
@@ -41,11 +41,15 @@
     },
     {
       "group": "MCP Prompts",
-      "pages": ["mcp-prompts/daily-report", "mcp-prompts/risk-assessment"]
+      "pages": [
+        "mcp-prompts/daily-report",
+        "mcp-prompts/risk-assessment",
+        "mcp-prompts/security-audit"
+      ]
     },
     {
       "group": "Core Components",
-      "pages": ["cli/overview", "wallet-core/overview", "kora/overview"]
+      "pages": ["cli/cli", "wallet-core/wallet-core", "kora/kora"]
     }
   ]
 }
