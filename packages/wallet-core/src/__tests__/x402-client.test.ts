@@ -132,7 +132,7 @@ describe("X402Client", () => {
         payment: {
           recipientWallet: "11111111111111111111111111111111",
           tokenAccount: "22222222222222222222222222222222",
-          mint: "EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v",
+          mint: "4zMMC9srt5Ri5X14GAgXhaHii3GnPAEERYPJgZJDncDU",
           amount: 100,
           amountUSDC: 0.0001,
           cluster: "devnet",
@@ -165,7 +165,7 @@ describe("X402Client", () => {
             scheme: "exact",
             network: "solana-devnet", // shorthand used by Coinbase/native servers
             amount: "500",
-            asset: "EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v",
+            asset: "4zMMC9srt5Ri5X14GAgXhaHii3GnPAEERYPJgZJDncDU",
             payTo: "11111111111111111111111111111111",
             maxTimeoutSeconds: 60,
             extra: { feePayer: "" },
@@ -255,7 +255,7 @@ describe("X402Client", () => {
         scheme: "exact",
         network: "solana:EtWTRABZaYq6iMfeYKouRu166VU2xqa1",
         amount: "1000000",
-        asset: "EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v", // USDC
+        asset: "4zMMC9srt5Ri5X14GAgXhaHii3GnPAEERYPJgZJDncDU", // USDC
         payTo: "11111111111111111111111111111111",
         maxTimeoutSeconds: 60,
         extra: {
@@ -311,7 +311,7 @@ describe("X402Client", () => {
         scheme: "exact",
         network: "solana-devnet",
         amount: "100",
-        asset: "EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v",
+        asset: "4zMMC9srt5Ri5X14GAgXhaHii3GnPAEERYPJgZJDncDU",
         payTo: "11111111111111111111111111111111",
         maxTimeoutSeconds: 60,
         extra: { feePayer: "" },
@@ -339,7 +339,7 @@ describe("X402Client", () => {
     it("formatAmount should format token amounts", () => {
       const result = X402Client.formatAmount(
         "1000000",
-        "EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v",
+        "4zMMC9srt5Ri5X14GAgXhaHii3GnPAEERYPJgZJDncDU",
       );
       expect(result).toBe("1.000000 tokens");
     });

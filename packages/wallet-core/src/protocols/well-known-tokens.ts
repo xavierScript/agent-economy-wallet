@@ -7,7 +7,7 @@ export const WELL_KNOWN_TOKENS: Record<
     name: "Wrapped SOL",
     decimals: 9,
   },
-  EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v: {
+  "4zMMC9srt5Ri5X14GAgXhaHii3GnPAEERYPJgZJDncDU": {
     symbol: "USDC",
     name: "USD Coin",
     decimals: 6,

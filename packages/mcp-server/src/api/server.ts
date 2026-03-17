@@ -47,7 +47,7 @@ export function createExpressApp(services: WalletServices): express.Express {
     };
   };
 
-  const USDC_MINT = "EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v";
+  const USDC_MINT = "4zMMC9srt5Ri5X14GAgXhaHii3GnPAEERYPJgZJDncDU";
 
   // Endpoint 1: GET /api/analyze-token/:mint
   app.get(
@@ -94,7 +94,7 @@ export function createExpressApp(services: WalletServices): express.Express {
   const COINGECKO_PRICE_API = "https://api.coingecko.com/api/v3/simple/price";
   const MINT_TO_COINGECKO_ID: Record<string, string> = {
     So11111111111111111111111111111111111111112: "solana",
-    EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v: "usd-coin",
+    "4zMMC9srt5Ri5X14GAgXhaHii3GnPAEERYPJgZJDncDU": "usd-coin",
     Es9vMFrzaCERmJfrF4H2FYD4KCoNkY11McCe8BenwNYB: "tether",
     DezXAZ8z7PnrnRJjz3wXBoRgixCa6xjnB7YaB1pPB263: "bonk",
     JUPyiwrYJFskUPiHa7hkeR8VUtAeFoSYbKedZNsDvCN: "jupiter-exchange-solana",
