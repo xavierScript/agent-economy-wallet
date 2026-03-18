@@ -28,7 +28,7 @@ cd agent_economy_wallet
 cp .env.example .env
 
 # Build the image and launch the Merchant API + TUI
-docker compose up
+docker compose up, pnpm build 
 ```
 
 ## Running the 2-Agent Demo

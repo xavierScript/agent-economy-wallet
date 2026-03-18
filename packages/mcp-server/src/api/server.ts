@@ -6,6 +6,7 @@ import { WELL_KNOWN_TOKENS } from "@agent-economy-wallet/core";
 
 export function createExpressApp(services: WalletServices): express.Express {
   const app = express();
+
   app.use(express.json());
 
   // Helper middleware to check for X-Receipt-Signature and verify payment
@@ -22,11 +23,34 @@ export function createExpressApp(services: WalletServices): express.Express {
       const receiptSignature = req.header("x-receipt-signature");
 
       if (!receiptSignature) {
+        const paymentRequired = {
+          x402Version: 1,
+          accepts: [
+            {
+              scheme: "exact",
+              network: "solana-devnet",
+              amount: priceRaw.toString(),
+              asset: mintAddress,
+              payTo: merchantAddress,
+              maxTimeoutSeconds: 3600,
+              extra: { feePayer: "" },
+            },
+          ],
+        };
+
+        res.setHeader(
+          "X-PAYMENT-REQUIRED",
+          Buffer.from(JSON.stringify(paymentRequired)).toString("base64"),
+        );
+
         return res.status(402).json({
           error: "Payment Required",
-          amount: priceRaw,
-          mint: mintAddress,
-          merchantAddress,
+          payment: {
+            cluster: "devnet",
+            mint: mintAddress,
+            amount: priceRaw,
+            recipient: merchantAddress,
+          },
         });
       }
 
