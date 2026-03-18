@@ -1,6 +1,6 @@
 # Agent Economy Wallet & Server
 
-**The infrastructure for an autonomous Agent-to-Agent economy on Solana.** Built for the **Solana AI Hackathon: Agent Talent Show**, this repository provides a complete Hybrid Server architecture. It equips AI agents with secure, policy-enforced wallets (The Buyer) AND spins up an x402-gated HTTP server (The Merchant) so agents can trustlessly buy and sell premium data from one another.
+**The infrastructure for an autonomous Agent-to-Agent economy on Solana.** This repository provides a complete Hybrid Server architecture. It equips AI agents with secure, policy-enforced wallets (The Buyer) AND spins up an x402-gated HTTP server (The Merchant) so agents can trustlessly buy and sell premium data from one another.
 
 [![Solana](https://img.shields.io/badge/Solana-black?logo=solana)](https://solana.com)
 [![TypeScript](https://img.shields.io/badge/TypeScript-blue?logo=typescript)](https://typescriptlang.org)
