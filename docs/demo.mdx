@@ -1,52 +1,228 @@
 ---
-title: Agent Economy Demo
-description: "Run two agents concurrently to simulate an autonomous economy"
+title: "Agent Economy Demo"
+description: "Run two agents over a network to simulate a true autonomous machine-to-machine economy."
 ---
 
-To demonstrate the full capability of the Agent Economy Wallet x402 system, we'll run two agents (a **Buyer** and a **Merchant**) interacting concurrently.
+To demonstrate the full capability of the Agent Economy Wallet x402 system, we'll run a true distributed architecture. We will deploy the **Merchant API** on one machine (or host it publicly) and connect our **AI Buyer** from a completely separate client.
 
-## 1. Configure Environments
+<Note>
+  **Network Requirement:** Because the AI Buyer needs to send real HTTP requests
+  to the Merchant, the Merchant's `localhost:3000` must be accessible. You can
+  do this by using two computers on the same local Wi-Fi, using a tunneling
+  service like ngrok, Cloudflared, or deploying the Merchant to a cloud provider
+  like Render.
+</Note>
 
-Create two separate environment configuration files:
+---
 
-**Buyer Configuration (`.env.buyer`)**
+## 1. Setting up the Merchant (The Seller)
 
-```env
-AGENT_ROLE="buyer"
-SOLANA_NETWORK="devnet"
-WALLET_KEYSTORE_PATH="./buyer_keystore.json"
-MERCHANT_API_URL="http://localhost:4000"
-```
+The Merchant server acts as the HTTP data provider, guarding its premium endpoints using the `x402Paywall` middleware.
 
-**Merchant Configuration (`.env.merchant`)**
+<Steps>
+  <Step title="Clone & Build">
+    ```bash git clone
+    [https://github.com/xavierScript/agent_economy_wallet.git](https://github.com/xavierScript/agent_economy_wallet.git)
+    cd agent_economy_wallet pnpm install pnpm build ```
+  </Step>
+  <Step title="Configure the Environment">
+    Create a `.env` file and set the wallet address where the Merchant will
+    collect its USDC earnings. ```env .env
+    WALLET_PASSPHRASE="your_secure_passphrase"
+    MERCHANT_RECEIVER_ADDRESS="Your_Solana_Public_Key_Here" ```
+  </Step>
+  <Step title="Start the Server & Expose it">
+    Start the hybrid MCP/Express server: ```bash node
+    packages/mcp-server/dist/index.js ``` *If your Buyer agent is on a different
+    network, expose your local port 3000 publicly:* ```bash ngrok http 3000 ```
+    *(Copy the resulting Ngrok URL or your Local IP to use in the prompts
+    below).*
+  </Step>
+</Steps>
 
-```env
-AGENT_ROLE="merchant"
-SOLANA_NETWORK="devnet"
-WALLET_KEYSTORE_PATH="./merchant_keystore.json"
-PORT=4000
-```
+---
 
-## 2. Fund the Buyer
+## 2. Setting up the AI Buyer (The Client)
 
-Ensure the Buyer wallet has a devnet balance for testing (or an appropriate SPL token balance such as USDC). Keep the Merchant unfunded and watch the funds flow.
+The Buyer is your local AI Assistant (e.g., Claude Desktop) connected to its own separate instance of the Agent Economy Wallet, giving it the ability to hold funds and autonomously sign transactions.
 
-## 3. Run the Agents Concurrently
+<Steps>
+  <Step title="Fund the Agent">
+    Ensure the Buyer's wallet has Devnet SOL (for gas) and **Devnet USDC** to pay the Merchant's invoices.
+  </Step>
+  <Step title="Configure the MCP Client">
+    Open your AI client's configuration file (e.g., `claude_desktop_config.json`) and point it to your local build:
+    ```json
+    {
+      "mcpServers": {
+        "agent-economy-wallet": {
+          "command": "node",
+          "args": ["/absolute/path/to/your/packages/mcp-server/dist/index.js"]
+        }
+      }
+    }
+    ```
+  </Step>
+  <Step title="Restart your Client">
+    Restart Claude/Cursor so it loads the new payment and wallet tools.
+  </Step>
+</Steps>
 
-Open two separate terminal windows.
+---
 
-**Terminal 1 (Merchant Agent):**
+## 3. The 2-Agent Magic Prompts
 
-```bash
-env $(cat .env.merchant | xargs) pnpm start:merchant
-```
+With the Merchant listening remotely and your AI Buyer fully funded, paste either of these exact prompts into your AI chat to watch the autonomous economy in action.
 
-**Terminal 2 (Buyer Agent):**
+_Make sure to replace `<MERCHANT_URL>` with your Ngrok URL or Computer B's IP address (e.g., `http://192.168.1.100:3000`)._
 
-```bash
-env $(cat .env.buyer | xargs) pnpm start:buyer
-```
+### Scenario A: Buying Token Pricing Data
 
-## 4. Observe the Interaction
+> "There is an external data provider running at `<MERCHANT_URL>/api/fetch-price/SOL`. Please send a GET request to that endpoint to securely get the Solana price.
+>
+> If the API returns a 402 Payment Required response, parse the invoice details from the error response. Use your `pay_x402` tool to fulfill the invoice payment of Devnet USDC to the provided merchant address, and obtain the transaction signature.
+>
+> Once paid, immediately retry your HTTP request appending the signature in the `x-receipt-signature` header, and tell me the price."
 
-The Buyer agent will discover the Merchant's service (e.g., Token Security Analysis), receive an x402 Payment Required challenge, automatically sign the micro-transaction via its wallet manager, and successfully consume the paid API. The Merchant agent will verify the payment and serve the request.
+### Scenario B: Buying a Security Rug-Check
+
+> "There is an external data provider running at `<MERCHANT_URL>/api/analyze-token/EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v`. Please send a GET request to that endpoint to perform a security assessment on this token.
+>
+> If the API returns a 402 Payment Required response, parse the invoice details from the error response. Use your `pay_x402` tool to fulfill the invoice payment of Devnet USDC to the provided merchant address, and obtain the transaction signature.
+>
+> Once paid, immediately retry your HTTP request appending the signature in the `x-receipt-signature` header, and summarize the security assessment."
+
+---
+
+## Agentic Wallet — Capability Demo Prompts
+
+Beyond x402 payments, the Agentic Wallet is a fully-featured on-chain infrastructure. Below is a complete set of prompts that demonstrate every capability of the system.
+
+_Replace `[WALLET_ID]`, `[RECIPIENT_ADDRESS]`, and `[MINT_ADDRESS]` with values returned by your agent._
+
+### System & Wallet Management
+
+**1. System Health Check**
+
+> Check the current system status of the Agentic Wallet MCP server and report: Which Solana cluster is active, whether a master funding wallet is configured, how many agent wallets are registered, and the full system configuration.
+
+**2. Create a Funded Agent Wallet**
+
+> Create a new agent wallet with the label "demo-agent" and report: The wallet ID and public key, whether it was automatically funded from the master wallet (and amount), the Solana Explorer link, and confirmation that a spending policy was attached.
+
+**3. List All Managed Wallets**
+
+> List all wallets currently managed by this system. For each wallet, display its ID, label, public key, current SOL balance, and creation date.
+
+**4. Inspect a Wallet Balance**
+
+> Retrieve the full balance breakdown for wallet `[WALLET_ID]`. Include the SOL balance and every SPL token the wallet holds, with mint addresses and human-readable amounts.
+
+**5. Inspect Wallet Policy and Usage**
+
+> Read the full details and active spending policy for wallet `[WALLET_ID]` and display: The per-transaction SOL limit, the hourly transaction rate limit, the daily SOL spending cap, and how many of today's allowances have been consumed.
+
+### On-Chain Execution & Guardrails
+
+**6. Send SOL**
+
+> Send 0.01 SOL from wallet `[WALLET_ID]` to address `[RECIPIENT_ADDRESS]`. Return the transaction signature and Solana Explorer link for verification.
+
+**7. Guardrail Enforcement — Agent Blocked by Policy**
+
+> Attempt to send 5 SOL from wallet `[WALLET_ID]` to address `[RECIPIENT_ADDRESS]`. The wallet's policy enforces a 2 SOL per-transaction limit. Demonstrate whether the transaction is blocked before it reaches the network and what error is returned.
+
+**8. Write an On-Chain Memo**
+
+> Write the following memo on-chain using wallet `[WALLET_ID]`: "Agentic Wallet — autonomous on-chain action verified". Return the transaction signature and Solana Explorer link.
+
+**9. Create an SPL Token Mint**
+
+> Using wallet `[WALLET_ID]`, create a new SPL token mint with 9 decimal places. The wallet should be set as the mint authority. Return the mint address.
+
+**10. Mint Tokens**
+
+> Mint 1,000,000 tokens from mint `[MINT_ADDRESS]` into wallet `[WALLET_ID]`. Retrieve the updated balance afterward and confirm the tokens were received.
+
+**11. Transfer SPL Tokens**
+
+> Transfer 100 tokens of mint `[MINT_ADDRESS]` from wallet `[WALLET_ID]` to address `[RECIPIENT_ADDRESS]`, using 9 decimals. Return the transaction signature.
+
+### Auditing & Reporting
+
+**12. Global Audit Log**
+
+> Retrieve the 20 most recent entries from the global audit log. For each entry, display the timestamp, action type, wallet ID, and outcome. Highlight any policy violations or blocked transactions.
+
+**13. Per-Wallet Audit History**
+
+> Read the full audit history for wallet `[WALLET_ID]`. List every action it has taken — SOL transfers, policy checks, failed attempts, and the initial auto-funding event.
+
+**14. Security Audit (MCP Prompt)**
+
+> Run a full security audit of this Agentic Wallet deployment using the `security_audit` prompt. Cover policy violations, unusual transaction patterns, blocked transactions, and an overall security posture assessment.
+
+**15. Daily Operations Report (MCP Prompt)**
+
+> Generate a full daily operations report using the `daily_report` prompt. Include total transactions, total SOL moved, blocked policy violations, and any anomalies requiring operator review.
+
+**16. Risk Assessment (MCP Prompt)**
+
+> Run a risk assessment on wallet `[WALLET_ID]` using the `risk_assessment` prompt. Evaluate current balances against active policy limits, calculate remaining daily headroom, and recommend adjustments.
+
+### Data & x402 Payments
+
+**17. Probe an x402 Resource**
+
+> Check whether `http://localhost:3000/api/analyze-token/SOL` requires x402 payment. If a payment is required, report the price, accepted payment token, and target network. Do not submit any payment at this stage.
+
+**18. Autonomous x402 Payment**
+
+> Access `http://localhost:3000/api/analyze-token/SOL` using wallet `[WALLET_ID]`. Handle the full x402 payment flow autonomously — discover the price, execute the payment, and return the resource content along with the payment transaction signature.
+
+**19. Fetch Live Token Prices**
+
+> Fetch the current USD prices for SOL, USDC, USDT, BONK, and JUP using the `fetch_prices` tool. Report each token's price and the data source.
+
+### Gasless Kora Integration
+
+**20. Gasless SOL Transfer via Kora**
+
+> Send 0.005 SOL from wallet `[WALLET_ID]` to address `[RECIPIENT_ADDRESS]`. This transfer should be gasless via the Kora paymaster node. Confirm the transaction landed and report: The signature, whether the agent wallet's SOL balance decreased by exactly 0.005 SOL (proving it did not pay gas), and the audit log entry showing `gasless: true`.
+
+**21. Gasless On-Chain Memo via Kora**
+
+> Write the following memo on-chain using wallet `[WALLET_ID]`: "Gasless memo — Kora paymaster sponsoring network fees". Confirm the transaction was gasless (agent paid no SOL for gas) and return the transaction signature.
+
+**22. Verify Kora Gasless Audit Trail**
+
+> Retrieve the most recent audit log entries for wallet `[WALLET_ID]`. Identify all entries where `gasless` is true and `feePayer` is "kora". Summarize the total SOL moved gaslessly vs self-paid.
+
+---
+
+### Quick Reference
+
+| #   | Capability            | MCP Tool / Resource                    | What It Proves                            |
+| --- | --------------------- | -------------------------------------- | ----------------------------------------- |
+| 1   | System health check   | `system://status`, `system://config`   | Resource layer, server liveness           |
+| 2   | Create funded wallet  | `create_wallet`                        | Auto-funding, policy-at-creation          |
+| 3   | List all wallets      | `list_wallets`, `wallet://all-wallets` | Multi-wallet management                   |
+| 4   | Inspect balance       | `get_balance`                          | SOL + SPL multi-asset balances            |
+| 5   | Wallet policy + usage | `wallet://detail`, `wallet://policy`   | Policy visibility, live counters          |
+| 6   | Send SOL              | `send_sol`                             | Policy-enforced SOL transfer              |
+| 7   | Blocked by guardrail  | `send_sol` (rejected)                  | Hard enforcement — no override            |
+| 8   | On-chain memo         | `write_memo`                           | SPL Memo, immutable provenance            |
+| 9   | Create token mint     | `create_token_mint`                    | Agent-controlled mint authority           |
+| 10  | Mint tokens           | `mint_tokens`                          | SPL token supply issuance                 |
+| 11  | Transfer SPL tokens   | `send_token`                           | SPL transfer, ATA handling                |
+| 12  | Global audit log      | `get_audit_logs`, `audit://logs`       | Tamper-evident cross-wallet trail         |
+| 13  | Per-wallet audit      | `audit://wallet-logs`                  | Scoped wallet history                     |
+| 14  | Security audit        | `security_audit` prompt                | Compliance-style cross-wallet review      |
+| 15  | Daily report          | `daily_report` prompt                  | Operator reporting and observability      |
+| 16  | Risk assessment       | `risk_assessment` prompt               | Exposure analysis, policy headroom        |
+| 17  | Probe x402            | `probe_x402`                           | Cost discovery without payment            |
+| 18  | Pay x402              | `pay_x402`                             | Autonomous HTTP micropayment loop         |
+| 19  | Fetch live prices     | `fetch_prices`                         | Jupiter Price API, token resolution       |
+| 20  | Gasless SOL transfer  | `send_sol` + Kora                      | Kora pays gas, agent keeps all SOL        |
+| 21  | Gasless memo          | `write_memo` + Kora                    | Any legacy tx is gasless with Kora        |
+| 22  | Gasless audit trail   | `audit://wallet-logs`                  | Forensic gasless vs self-paid distinction |
