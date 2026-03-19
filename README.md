@@ -7,13 +7,6 @@
 [![MCP](https://img.shields.io/badge/MCP-Protocol-green)](https://modelcontextprotocol.io)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow)](LICENSE)
 
-## The Architecture (Hybrid Server)
-
-Instead of a closed loop, this project demonstrates true machine-to-machine commerce by running two isolated systems from a single codebase:
-
-1. **The Merchant API (Agent B):** An Express.js server that exposes premium data endpoints (like Token Security Audits). It uses a custom **x402 Paywall Middleware** that intercepts requests, issues USDC invoices, and verifies Solana transaction signatures on-chain before releasing data.
-2. **The Buyer Wallet (Agent A):** A full Model Context Protocol (MCP) server that gives your LLM a programmatic wallet. It features AES-256-GCM encrypted keystores, a Policy Engine (to prevent the AI from overspending), and a native `pay_x402` tool to autonomously clear paywalls.
-
 ## Quick Start (Docker)
 
 The fastest way to get the dual-server environment running with zero local setup:
@@ -27,13 +20,16 @@ cd agent_economy_wallet
 # WALLET_PASSPHRASE is required
 cp .env.example .env
 
-# Build the image and launch the Merchant API + TUI
-docker compose up, pnpm build 
+# Build the app
+pnpm build
+
+# Start the TUI
+pnpm start
 ```
 
-## Running the 2-Agent Demo
+## Running the Agent
 
-To see the economy in action, connect an LLM (like Claude Desktop) to the MCP server and tell it to buy data from the Merchant API.
+To see the agent in action, connect an LLM (like Claude Desktop) to the MCP server.
 
 1. Add the MCP server to your AI client's configuration (e.g., Claude Desktop `claude_desktop_config.json`):
 
@@ -51,8 +47,8 @@ To see the economy in action, connect an LLM (like Claude Desktop) to the MCP se
 ```
 
 2. Restart your AI client.
-3. **The Magic Prompt:** Tell your AI: _"There is an external Security Agent located at `http://localhost:3000/api/analyze-token/[INSERT_DEVNET_MINT]`. Reach out to that API. If it requires payment, use your `pay_x402` tool to pay the invoice, then fetch the data and tell me if the token is safe."_
-4. Watch the AI hit the paywall, sign the Solana transaction, and retrieve the data!
+3. Tell your AI: _"Create a wallet for yourself"_
+4. Watch the AI create its wallet.
 
 ## Getting Started with OpenClaw
 

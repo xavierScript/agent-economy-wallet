@@ -1,5 +1,5 @@
 ---
-title: "Agent Economy Demo"
+title: "Demo"
 description: "Run two agents over a network to simulate a true autonomous machine-to-machine economy."
 ---
 
@@ -21,22 +21,30 @@ The Merchant server acts as the HTTP data provider, guarding its premium endpoin
 
 <Steps>
   <Step title="Clone & Build">
-    ```bash git clone
-    [https://github.com/xavierScript/agent_economy_wallet.git](https://github.com/xavierScript/agent_economy_wallet.git)
-    cd agent_economy_wallet pnpm install pnpm build ```
+    ```bash
+    git clone https://github.com/xavierScript/agent_economy_wallet.git
+    cd agent_economy_wallet
+    pnpm install
+    pnpm build
+    ```
   </Step>
   <Step title="Configure the Environment">
-    Create a `.env` file and set the wallet address where the Merchant will
-    collect its USDC earnings. ```env .env
+    Create a `.env` file and set the wallet address where the Merchant will collect its USDC earnings.
+    ```env .env
     WALLET_PASSPHRASE="your_secure_passphrase"
-    MERCHANT_RECEIVER_ADDRESS="Your_Solana_Public_Key_Here" ```
+    MERCHANT_RECEIVER_ADDRESS="Your_Solana_Public_Key_Here"
+    ```
   </Step>
   <Step title="Start the Server & Expose it">
-    Start the hybrid MCP/Express server: ```bash node
-    packages/mcp-server/dist/index.js ``` *If your Buyer agent is on a different
-    network, expose your local port 3000 publicly:* ```bash ngrok http 3000 ```
-    *(Copy the resulting Ngrok URL or your Local IP to use in the prompts
-    below).*
+    Start the hybrid MCP/Express server:
+    ```bash
+    node packages/mcp-server/dist/index.js
+    ```
+    *If your Buyer agent is on a different network, expose your local port 3000 publicly:*
+    ```bash
+    ngrok http 3000
+    ```
+    *(Copy the resulting Ngrok URL or your Local IP to use in the prompts below).*
   </Step>
 </Steps>
 
