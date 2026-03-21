@@ -17,8 +17,8 @@ Before starting, make sure you have the following installed:
 **1. Clone the repository**
 
 ```bash
-git clone https://github.com/example/agent_economy_wallet.git
-cd agent_economy_wallet
+git clone https://github.com/xavierScript/agent-economy-wallet.git
+cd agent-economy-wallet
 ```
 
 **2. Install dependencies**
@@ -40,9 +40,17 @@ Copy the sample env files:
 cp .env.example .env
 ```
 
-Fill in your Solana RPC URL and other necessary configurations.
+Fill in your Solana RPC URL and other necessary configurations. For a secure setup of the master wallet that funds your agents, follow these steps:
 
-**5. Start the core services**
+1. Paste your base58 private key into `MASTER_WALLET_SECRET_KEY` in the `.env` file.
+2. Run `pnpm key:import` (The key is encrypted using your `WALLET_PASSPHRASE` and saved to `~/.agent-economy-wallet/keys/`).
+3. Delete or comment out `MASTER_WALLET_SECRET_KEY` from your `.env` file.
+4. Set `MASTER_WALLET_KEY_LABEL` in `.env` to the label you chose during import (default is `master-funder`).
+5. Clear your shell history to ensure the key isn't stored in memory (e.g., `history -c && history -w` on bash).
+
+For full details on all supported environment variables, please refer to the `.env.guide.md` file in the repository root.
+
+**5. Start the CLI**
 
 ```bash
 pnpm start
