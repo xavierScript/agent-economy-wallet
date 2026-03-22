@@ -1,9 +1,13 @@
 import { Connection, PublicKey } from "@solana/web3.js";
 import { getAssociatedTokenAddress } from "@solana/spl-token";
 import { McpError, ErrorCode } from "@modelcontextprotocol/sdk/types.js";
+import type { AuditLogger } from "../core/audit-logger.js";
 
 export class X402ServerService {
-  constructor(private connection: Connection) {}
+  constructor(
+    private connection: Connection,
+    private auditLogger?: AuditLogger,
+  ) {}
 
   /**
    * Verifies that a transaction signature corresponds to a successful transfer
@@ -92,14 +96,33 @@ export function withX402Paywall<
   handler: (args: TArgs) => Promise<TResult>,
 ) {
   return async (args: TArgs): Promise<TResult> => {
+    // ── Guard: no merchant configured ──────────────────────────────
     if (!merchantAddress) {
+      serverService["auditLogger"]?.log({
+        action: "x402:server:misconfigured",
+        success: false,
+        error: "Merchant address is not configured for x402 payments.",
+        details: { mint: mintAddress, price: priceStr },
+      });
       throw new McpError(
         ErrorCode.InternalError,
         "Merchant address is not configured for x402 payments.",
       );
     }
 
+    // ── Guard: no payment receipt provided (agent is told to pay) ──
     if (!args.receipt_signature) {
+      serverService["auditLogger"]?.log({
+        action: "x402:server:payment-required",
+        success: false,
+        error: "402 Payment Required",
+        details: {
+          merchant: merchantAddress,
+          mint: mintAddress,
+          amount: priceRaw,
+          amountStr: priceStr,
+        },
+      });
       throw new McpError(
         ErrorCode.InvalidRequest,
         JSON.stringify({
@@ -115,6 +138,7 @@ export function withX402Paywall<
       );
     }
 
+    // ── Verify payment on-chain ─────────────────────────────────────
     try {
       await serverService.verifyPayment(
         args.receipt_signature,
@@ -123,6 +147,18 @@ export function withX402Paywall<
         merchantAddress,
       );
     } catch (e: any) {
+      serverService["auditLogger"]?.log({
+        action: "x402:server:failed",
+        txSignature: args.receipt_signature,
+        success: false,
+        error: e.message || `Verification failed for signature ${args.receipt_signature}`,
+        details: {
+          merchant: merchantAddress,
+          mint: mintAddress,
+          amount: priceRaw,
+          amountStr: priceStr,
+        },
+      });
       throw new McpError(
         ErrorCode.InvalidRequest,
         JSON.stringify({
@@ -134,7 +170,19 @@ export function withX402Paywall<
       );
     }
 
-    // Payment is valid, invoke the original handler
+    // ── Payment verified — log success and invoke handler ───────────
+    serverService["auditLogger"]?.log({
+      action: "x402:server:verified",
+      txSignature: args.receipt_signature,
+      success: true,
+      details: {
+        merchant: merchantAddress,
+        mint: mintAddress,
+        amount: priceRaw,
+        amountStr: priceStr,
+      },
+    });
+
     return handler(args);
   };
 }

@@ -97,7 +97,7 @@ export function createCoreServices(): CoreServices {
 
   const txBuilder = new TransactionBuilder(connection);
   const splTokenService = new SplTokenService(connection);
-  const x402Server = new X402ServerService(connection.getConnection());
+  const x402Server = new X402ServerService(connection.getConnection(), auditLogger);
 
   return {
     config,

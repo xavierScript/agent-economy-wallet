@@ -21,7 +21,9 @@ function actionStyle(action: string): { icon: string; color: string } {
   if (action.startsWith("memo:")) return { icon: "✎", color: "white" };
   if (action.startsWith("airdrop:")) return { icon: "▼", color: "blue" };
   if (action.startsWith("mint:")) return { icon: "✦", color: "yellow" };
+  if (action.startsWith("x402:server:")) return { icon: "⊛", color: "magenta" };
   if (action.startsWith("x402:")) return { icon: "$", color: "green" };
+  if (action.startsWith("kora:")) return { icon: "⚡", color: "cyan" };
   if (action.startsWith("master-fund:")) return { icon: "▲", color: "blue" };
   return { icon: "●", color: "gray" };
 }
@@ -62,6 +64,12 @@ export function LogEntry({ log, verbose = false }: LogEntryProps) {
             {"tx  "}
           </Text>
           <Text dimColor>{log.txSignature.substring(0, 48) + "…"}</Text>
+        </Box>
+      )}
+
+      {verbose && log.details && (log.details as any).gasless && (
+        <Box marginLeft={4}>
+          <Text color="cyan" dimColor>{"⚡ gasless via Kora"}</Text>
         </Box>
       )}
 
