@@ -9,7 +9,7 @@ To demonstrate the full capability of the Agent Economy Wallet x402 system, we'l
   **Network Requirement:** Because the AI Buyer needs to send real HTTP requests
   to the Merchant, the Merchant's `localhost:3000` must be accessible. You can
   do this by using two computers on the same local Wi-Fi, using a tunneling
-  service like ngrok, Cloudflared, or deploying the Merchant to a cloud provider
+  service like Cloudflared, or deploying the Merchant to a cloud provider
   like Render.
 </Note>
 
@@ -42,9 +42,9 @@ The Merchant server acts as the HTTP data provider, guarding its premium endpoin
     ```
     *If your Buyer agent is on a different network, expose your local port 3000 publicly:*
     ```bash
-    ngrok http 3000
+    cloudflared tunnel --url http://localhost:3000
     ```
-    *(Copy the resulting Ngrok URL or your Local IP to use in the prompts below).*
+    *(Copy the resulting Cloudflared URL or your Local IP to use in the prompts below).*
   </Step>
 </Steps>
 
@@ -82,7 +82,7 @@ The Buyer is your local AI Assistant (e.g., Claude Desktop) connected to its own
 
 With the Merchant listening remotely and your AI Buyer fully funded, paste either of these exact prompts into your AI chat to watch the autonomous economy in action.
 
-_Make sure to replace `<MERCHANT_URL>` with your Ngrok URL or Computer B's IP address (e.g., `http://192.168.1.100:3000`)._
+_Make sure to replace `<MERCHANT_URL>` with your Cloudflared URL._
 
 ### Scenario A: Buying Token Pricing Data
 
