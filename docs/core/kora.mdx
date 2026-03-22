@@ -22,36 +22,45 @@ First, you'll need the Rust-based Kora CLI installed directly:
 cargo install kora-cli
 ```
 
-### 2. Generate a Kora signer keypair
+### 2. Export your keypair from Phantom (or any Solana wallet)
 
-You can generate a local filesystem keypair using the standard Solana tools:
+Instead of generating a throwaway keypair, use a wallet you already control — such as Phantom — so you have full ownership of the Kora signer address.
+
+**Step 1 — Export your private key from Phantom:**
+> Phantom → Settings → Security & Privacy → Export Private Key
+
+Phantom gives you a **base58-encoded private key**. Run the included helper script to convert it to the JSON array format Kora expects (no extra dependencies required):
 
 ```bash
-solana-keygen new --outfile kora/kora-signer.json --no-bip39-passphrase
+node scripts/phantom-to-kora.mjs YOUR_PHANTOM_BASE58_KEY
 ```
 
-Take note of the public key output — this is the central address that will pay the gas fees on behalf of your agents.
+This writes `kora/kora-signer.json` for you.
+
+<Warning>
+  Delete or clear the base58 key from your terminal history after running this
+  command. The `kora/kora-signer.json` file is already `.gitignore`d so it
+  will never be committed to source control.
+</Warning>
+
+Take note of your wallet's public key — this is the central address that will pay the gas fees on behalf of your agents.
 
 ### 3. Fund the signer
 
-To allow Kora to pay gas on devnet, ensure it has a balance. You can either use `solana airdrop` or visit [faucet.solana.com](https://faucet.solana.com/).
+To allow Kora to pay gas on devnet, ensure your wallet has a balance. You can either use `solana airdrop` or visit [faucet.solana.com](https://faucet.solana.com/):
 
 ```bash
-solana airdrop 2 $(solana-keygen pubkey kora/kora-signer.json) --url devnet
+solana airdrop 2 <YOUR_PHANTOM_PUBLIC_KEY> --url devnet
 ```
 
-_(Every agent transaction costs roughly ~0.000005 SOL. A quick 2 SOL airdrop gives you enough runway for ~400,000 transactions)._
+_(Every agent transaction costs roughly ~0.000005 SOL. A 2 SOL airdrop gives you enough runway for ~400,000 transactions)._
 
 ### 4. Update the core Environment Variables
 
-Inside your central `.env` file, point the system toward the newly minted Kora signer.
+Inside your central `.env` file, point the system toward your Kora signer JSON file:
 
-```bash
-# Option A: Local file path
+```env .env
 KORA_SIGNER_PRIVATE_KEY=kora/kora-signer.json
-
-# Option B: Raw base58 string
-# KORA_SIGNER_PRIVATE_KEY=5KKsLVU6TcbVDK4BS...
 ```
 
 ### 5. Start the Kora RPC Node
