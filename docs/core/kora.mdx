@@ -65,11 +65,10 @@ KORA_SIGNER_PRIVATE_KEY=kora/kora-signer.json
 
 ### 5. Start the Kora RPC Node
 
-Boot the delegated signer in the background:
+Run the Kora node from the root of your project so it properly reads your `.env` file and relative key paths:
 
 ```bash
-cd kora
-kora --config kora.toml --rpc-url https://api.devnet.solana.com rpc start --signers-config signers.toml
+kora --config kora/kora.toml --rpc-url https://api.devnet.solana.com rpc start --signers-config kora/signers.toml
 ```
 
 You should see: `INFO kora_lib::rpc_server::server: RPC server started on 0.0.0.0:8080`

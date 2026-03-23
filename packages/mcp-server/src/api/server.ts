@@ -43,6 +43,18 @@ export function createExpressApp(services: WalletServices): express.Express {
           Buffer.from(JSON.stringify(paymentRequired)).toString("base64"),
         );
 
+        services.auditLogger.log({
+          action: "x402:server:payment-required",
+          success: false,
+          error: "402 Payment Required",
+          details: {
+            merchant: merchantAddress,
+            mint: mintAddress,
+            amount: priceRaw,
+            endpoint: req.originalUrl,
+          },
+        });
+
         return res.status(402).json({
           error: "Payment Required",
           payment: {
@@ -61,8 +73,34 @@ export function createExpressApp(services: WalletServices): express.Express {
           mintAddress,
           merchantAddress,
         );
+        
+        services.auditLogger.log({
+          action: "x402:server:verified",
+          txSignature: receiptSignature,
+          success: true,
+          details: {
+            merchant: merchantAddress,
+            mint: mintAddress,
+            amount: priceRaw,
+            endpoint: req.originalUrl,
+          },
+        });
+        
         next();
       } catch (error: any) {
+        services.auditLogger.log({
+          action: "x402:server:failed",
+          txSignature: receiptSignature,
+          success: false,
+          error: error.message || "Payment verification failed",
+          details: {
+            merchant: merchantAddress,
+            mint: mintAddress,
+            amount: priceRaw,
+            endpoint: req.originalUrl,
+          },
+        });
+
         return res.status(400).json({
           error: "Payment verification failed",
           details: error.message,
@@ -110,7 +148,7 @@ export function createExpressApp(services: WalletServices): express.Express {
           },
         });
       } catch (error: any) {
-        return res.status(500).json({ error: error.message });
+        return res.status(400).json({ error: error.message });
       }
     },
   );
@@ -189,7 +227,7 @@ export function createExpressApp(services: WalletServices): express.Express {
           source: "CoinGecko API",
         });
       } catch (error: any) {
-        return res.status(500).json({ error: error.message });
+        return res.status(400).json({ error: error.message });
       }
     },
   );
