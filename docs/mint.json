@@ -48,7 +48,7 @@
       ]
     },
     {
-      "group": "Core Components",
+      "group": "Other Components",
       "pages": ["core/cli", "core/wallet-core", "core/kora"]
     }
   ]
