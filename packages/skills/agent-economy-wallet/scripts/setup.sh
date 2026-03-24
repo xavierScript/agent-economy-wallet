@@ -18,6 +18,7 @@ fi
 echo "→ Checking dependencies..."
 cd "$ROOT_DIR"
 pnpm install --reporter=silent 2>/dev/null || pnpm install
+pnpm build
 
 if [[ -f "${HOME}/.agent_economy_wallet/.env" ]] && grep -q "AGENT_ECONOMY_PUBLIC_KEY" "${HOME}/.agent_economy_wallet/.env" 2>/dev/null; then
   echo "  ✅ Existing wallet configuration found"

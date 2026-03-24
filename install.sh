@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # Agent Economy Wallet — One-command skill installer for OpenClaw VMs
 #
-# Usage (on the VM):
+# Usage:
 #   git clone <repo-url> && cd agent_economy_wallet && bash install.sh
 #
 # What this does:
