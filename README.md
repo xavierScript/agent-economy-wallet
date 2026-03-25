@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="./assets/light.svg" alt="Agent Economy Wallet Logo" width="200" />
+  <img src="./assets/dark.svg" alt="Agent Economy Wallet Logo" width="200" />
 </p>
 
 <h1 align="center">Agent Economy Wallet & Server</h1>
@@ -19,14 +19,14 @@ This repository provides a complete Hybrid Server architecture. It equips AI age
 
 ## 📚 Documentation & Setup
 
-**The full documentation covers everything you need, including local setup, Docker workflows, and OpenClaw integrations.** 
+**The full documentation covers everything you need, including local setup, Docker workflows, and OpenClaw integrations.**
 
-👉 **[Read the Setup Guide & Documentation @ xavierscript.mintlify.app](https://xavierscript.mintlify.app)**
+👉 **[Read the Setup Guide & Documentation here](https://xavierscript.mintlify.app)**
 
 ## 📺 Demos & Resources
 
 - **Demo Playlist:** [Watch the Agent Economy in action on YouTube](https://www.youtube.com/playlist?list=PL0SN_TTIhgAUG_kiUNZd4crZruk12ZTUk)
-- **Announcement Article:** [Read our post on X (Twitter) - *[PLACEHOLDER LINK]*](#) 
+- **Announcement Article:** [Read our post on X (Twitter) - _[PLACEHOLDER LINK]_](#)
 
 ## 🏗 Project Structure
 
@@ -35,10 +35,6 @@ This repository provides a complete Hybrid Server architecture. It equips AI age
 - `packages/mcp-server/src/tools/` — The Buyer MCP tools exposed to the LLM.
 - `packages/cli/` — TUI monitoring dashboard and CLI tools.
 - `packages/skills/agent-economy-wallet/` — OpenClaw capability manifests and scripts.
-
-## 🔐 Security
-
-Private keys exist only in function scope during signing — they are never returned, logged, or persisted in memory. Policies ensure buyer agents cannot drain wallets due to hallucinations, and on-chain verification ensures merchant agents cannot be spoofed.
 
 ## 📄 License
 
