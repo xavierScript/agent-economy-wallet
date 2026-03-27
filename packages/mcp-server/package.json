@@ -3,6 +3,18 @@
   "version": "1.0.0",
   "description": "MCP server exposing Solana agent economy wallet tools for AI agents",
   "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "import": "./dist/index.js",
+      "types": "./dist/index.d.ts"
+    },
+    "./api/server": {
+      "import": "./dist/api/server.js",
+      "types": "./dist/api/server.d.ts"
+    }
+  },
   "bin": {
     "agent-economy-wallet-mcp": "./dist/index.js"
   },

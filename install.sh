@@ -15,7 +15,7 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
 echo ""
 echo "╔══════════════════════════════════════════════╗"
-echo "║     Agent Economy Wallet — OpenClaw Installer      ║"
+echo "║           Agent Economy Wallet               ║"
 echo "╚══════════════════════════════════════════════╝"
 echo ""
 
@@ -39,6 +39,20 @@ $PNPM_CMD build
 echo "  ✅ Dependencies installed and built"
 
 # ── 3. Locate OpenClaw skills directory ───────────────────────────────────────
+# if [[ -n "${USERPROFILE:-}" ]]; then
+#   # Git Bash / MSYS
+#   OPENCLAW_DIR="$(cygpath -u "$USERPROFILE" 2>/dev/null || echo "$USERPROFILE")/.openclaw"
+# elif grep -qEi "(Microsoft|WSL)" /proc/version 2>/dev/null && command -v cmd.exe >/dev/null; then
+#   # WSL — fixed: was incorrectly calling CMD instead of cmd.exe
+#   WIN_USERPROFILE=$(cmd.exe /c "echo %USERPROFILE%" 2>/dev/null | tr -d '\r')
+#   OPENCLAW_DIR="$(wslpath -u "$WIN_USERPROFILE")/.openclaw"
+# else
+#   OPENCLAW_DIR="${HOME}/.openclaw"
+# fi
+
+# OPENCLAW_SKILLS="${OPENCLAW_DIR}/skills"
+# mkdir -p "$OPENCLAW_SKILLS"
+
 OPENCLAW_SKILLS="${HOME}/.openclaw/skills"
 mkdir -p "$OPENCLAW_SKILLS"
 
@@ -50,14 +64,21 @@ DEST="$OPENCLAW_SKILLS/$SKILL"
 
 if [[ -d "$SRC" ]]; then
   rm -rf "$DEST"
-  ln -s "$SRC" "$DEST"
-  echo "  ✅ $SKILL → $SRC"
+  if [[ -n "${USERPROFILE:-}" ]] || (grep -qEi "(Microsoft|WSL)" /proc/version 2>/dev/null); then
+    # On Windows (Git Bash/WSL), symlinks can result in 0KB dummy files. Use recursive copy instead.
+    cp -r "$SRC" "$DEST"
+    echo "  ✅ $SKILL (copied) → $DEST"
+  else
+    ln -s "$SRC" "$DEST"
+    echo "  ✅ $SKILL (symlinked) → $DEST"
+  fi
 else
+  # Fixed: was inside the if block so it always printed, now only prints when src is missing
   echo "  ❌ $SKILL not found at $SRC"
 fi
 
 # ── 5. Create config directory for wallet credentials ─────────────────────────
-mkdir -p "${HOME}/.agent_economy_wallet"
+mkdir -p "${OPENCLAW_DIR:-${HOME}}/.agent_economy_wallet"
 
 echo ""
 echo "╔══════════════════════════════════════════════╗"

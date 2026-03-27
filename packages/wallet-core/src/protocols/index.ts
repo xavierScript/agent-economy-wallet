@@ -27,3 +27,11 @@ export {
   type KoraSignAndSendResult,
   type KoraSignResult,
 } from "./kora-service.js";
+export {
+  discoverRegistry,
+  buildRegistrationTx,
+  getRegistryAddress,
+  type AgentMemo,
+  type DiscoveredAgent,
+} from "./registry-protocol.js";
+

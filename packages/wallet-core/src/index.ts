@@ -49,3 +49,11 @@ export {
   type KoraSignAndSendResult,
   type KoraSignResult,
 } from "./protocols/kora-service.js";
+export {
+  discoverRegistry,
+  buildRegistrationTx,
+  getRegistryAddress,
+  type AgentMemo,
+  type DiscoveredAgent,
+} from "./protocols/registry-protocol.js";
+

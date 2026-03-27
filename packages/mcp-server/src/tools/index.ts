@@ -30,6 +30,11 @@ import { registerProbeX402Tool } from "./payments/probe-x402.js";
 import { registerFetchPricesTool } from "./merchant/fetch-prices.js";
 import { registerAnalyzeTokenSecurityTool } from "./merchant/analyze-token-security.js";
 
+// discovery/ — buyer agent tools for finding and evaluating merchants
+import { registerDiscoverRegistryTool } from "./discovery/discover-registry.js";
+import { registerReadManifestTool } from "./discovery/read-manifest.js";
+import { registerCheckReputationTool } from "./discovery/check-reputation.js";
+
 /**
  * Register all wallet tools on the given MCP server instance.
  */
@@ -56,4 +61,9 @@ export function registerAllTools(
   // merchant/ — premium tools
   registerFetchPricesTool(server, services);
   registerAnalyzeTokenSecurityTool(server, services);
+
+  // discovery/ — buyer agent tools (read-only, no payment)
+  registerDiscoverRegistryTool(server, services);
+  registerReadManifestTool(server, services);
+  registerCheckReputationTool(server, services);
 }
