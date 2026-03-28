@@ -6,7 +6,8 @@
   "scripts": {
     "build": "pnpm --filter @agent-economy-wallet/core build && pnpm --filter @agent-economy-wallet/cli build && pnpm --filter @agent-economy-wallet/mcp-server build && pnpm --filter agent-economy-wallet build",
     "dev": "pnpm -r --parallel dev",
-    "start": "pnpm build && pnpm cli",
+    "start": "pnpm build && pnpm server",
+    "server": "pnpm --filter @agent-economy-wallet/mcp-server build && node packages/mcp-server/dist/index.js",
     "cli": "pnpm --filter @agent-economy-wallet/cli build && node packages/cli/dist/index.js",
     "key:import": "pnpm --filter @agent-economy-wallet/core build && node packages/wallet-core/dist/scripts/import-system-keys.js",
     "test": "pnpm -r test",

@@ -60,6 +60,6 @@ ENV SOLANA_CLUSTER=devnet
 ENV WALLET_PASSPHRASE=change-me-before-use
 ENV LOG_LEVEL=info
 
-# Default command: TUI (human operator view)
-# Override with "node packages/mcp-server/dist/index.js" for the MCP server.
-CMD ["node", "packages/cli/dist/index.js"]
+# Default command: MCP Server (exposing the API and tools)
+# Override with "node packages/cli/dist/index.js" if running locally with a TTY.
+CMD ["node", "packages/mcp-server/dist/index.js"]
