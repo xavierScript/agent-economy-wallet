@@ -15,6 +15,10 @@
   <a href="LICENSE"><img src="https://img.shields.io/badge/License-MIT-yellow" alt="License: MIT" /></a>
 </p>
 
+<p align="center">
+  <a href="https://xavierscript.mintlify.app">Documentation</a> · <a href="https://agent-economy-wallet-explorer.vercel.app">Explorer</a> · <a href="https://www.youtube.com/playlist?list=PL0SN_TTIhgAUG_kiUNZd4crZruk12ZTUk">Demos</a>
+</p>
+
 ---
 
 ## What is this?
@@ -23,57 +27,27 @@ A complete SDK and server for building an **autonomous agent economy** on Solana
 
 - **Sell services** — gate any HTTP endpoint behind x402 micropayments (USDC on Solana)
 - **Buy services** — discover merchants, evaluate trust, and pay autonomously via MCP tools
-- **Register on-chain** — join a decentralised registry (SPL Memo on Solana) with no central gatekeeper
+- **Register on-chain** — join a decentralized registry (SPL Memo) with no central gatekeeper
 
 The registry lives entirely on the blockchain. No database. No central server. If every server goes down, any buyer agent can reconstruct the full registry from a single Solana RPC call.
 
 ## Quick Start
 
-| I want to… | Guide |
-|---|---|
-| **Sell** services as a merchant | [MERCHANT_QUICKSTART.md](./MERCHANT_QUICKSTART.md) |
-| **Buy** services as a buyer agent | [BUYER_QUICKSTART.md](./BUYER_QUICKSTART.md) |
-
-## Architecture
-
+```bash
+git clone https://github.com/xavierScript/agent-economy-wallet.git
+cd agent-economy-wallet
+pnpm install && pnpm build
+cp .env.example .env   # edit with your values
+pnpm start
 ```
-┌─────────────────────────────────────────────────────────────────┐
-│                    Agent Economy Wallet                         │
-├──────────────┬──────────────────┬──────────────┬───────────────┤
-│ wallet-core  │   mcp-server     │     cli      │  SDK (root)   │
-│              │                  │              │               │
-│ KeyManager   │ Express API:     │ Ink TUI:     │ Unified       │
-│ WalletServ.  │  /.well-known/   │  Dashboard   │ npm package   │
-│ PolicyEngine │    agent.json    │  Wallets     │ re-exports    │
-│ AuditLogger  │  /reputation     │  Logs        │ AgentWallet   │
-│ X402Client   │  /registry       │              │ discoverReg.  │
-│ X402Server   │  /api/* (x402)   │              │ x402Paywall   │
-│ TransBuilder │                  │              │               │
-│ Registry     │ MCP Tools:       │              │               │
-│  Protocol    │  discover_reg.   │              │               │
-│              │  read_manifest   │              │               │
-│              │  check_reputa.   │              │               │
-│              │  probe_x402      │              │               │
-│              │  pay_x402        │              │               │
-│              │  create_wallet   │              │               │
-│              │  send_sol, etc.  │              │               │
-└──────────────┴──────────────────┴──────────────┴───────────────┘
-         │                                 │
-         ▼                                 ▼
-    ┌──────────┐                   ┌──────────────┐
-    │  Solana  │                   │ SPL Memo     │
-    │  Devnet  │                   │ On-Chain     │
-    │  (USDC)  │                   │ Registry     │
-    └──────────┘                   └──────────────┘
-```
+
+> **Detailed guides:** [Merchant Setup](https://xavierscript.mintlify.app/sdk/merchant) · [Buyer Agent Setup](https://xavierscript.mintlify.app/sdk/buyer) · [Full Quickstart](https://xavierscript.mintlify.app/quickstart)
 
 ## The Autonomous Buyer Flow
 
-When a judge (or user) pastes this prompt into Claude Desktop:
+Paste this into Claude Desktop and watch the agent economy work:
 
 > *"Query the on-chain agent registry, pick a merchant, check their reputation, read their manifest, then buy the cheapest service they offer."*
-
-Claude autonomously executes:
 
 | Step | MCP Tool | What happens |
 |------|----------|-------------|
@@ -85,113 +59,72 @@ Claude autonomously executes:
 | 6 | `pay_x402_invoice` | USDC payment → Solana tx confirmed |
 | 7 | *(data returned)* | Purchased data returned to user |
 
-**No human touched steps 1–7.** Explorer link printed.
-
-## On-Chain Registry (SPL Memo)
-
-Every other project with a "registry" has a database somewhere. This one doesn't.
-
-**Registration:** A merchant sends a Solana transaction with an SPL Memo containing `{"agent":"name","manifest":"url","v":1}`. Cost: ~$0.001. Permanent. On-chain.
-
-**Discovery:** A buyer queries `getSignaturesForAddress` on the known registry wallet, parses valid memos, and verifies each manifest is still live.
-
-**What makes this different:**
-- No central gatekeeper — anyone can register
-- No single point of failure — the blockchain survives
-- Built-in audit trail — every registration has a wallet, timestamp, and tx signature for free
-- Registration costs fractions of a cent
-
-```bash
-# Register your merchant on-chain
-pnpm register --manifest https://your-server.com/.well-known/agent.json
-```
-
-## 🛠 Two Ways to Use This Repository
-
-This repository serves two distinct purposes depending on what you are trying to build.
-
-### 1. The Reference Merchant Server (`packages/mcp-server`)
-If you want to quickly spin up a standalone "Agent Data Node", you can clone this repository, run it as-is, and add your own monetised routes directly inside `mcp-server/src/api/routes/services/`. This server comes entirely pre-configured to handle `.well-known/agent.json` manifests, reputation dashboards, and X402 payment webhooks.
-*(See: [MERCHANT_QUICKSTART.md](./MERCHANT_QUICKSTART.md))*
-
-### 2. The SDK Library (`packages/sdk`)
-If you **already have an existing Node.js application**, you don't need to clone this repository. You can simply install the core capabilities as a drop-in SDK:
-
-```bash
-npm install agent-economy-wallet
-```
-
-The SDK allows you to embed the agent economy *into your own app*. You can:
-- Import `createX402Paywall` to easily slap Solana micropayments onto your *own* existing Express routes.
-- Import `X402Client` to give your existing AI agent the ability to autonomously buy data.
-- Import `buildRegistrationTx` to register your agent on the Solana blockchain.
-*(See: [SDK README](./packages/sdk/README.md))*
-
----
-
-## SDK Developer Personas
-
-### 1. Merchant — monetise a skill or data source
-
-```typescript
-import { createX402Paywall, createCoreServices } from 'agent-economy-wallet';
-
-const services = createCoreServices();
-app.get('/my-api', createX402Paywall(services, 50_000, USDC_MINT), handler);
-```
-
-### 2. Buyer Agent — consume paid services autonomously
-
-```typescript
-import { AgentWallet, discoverRegistry, X402Client } from 'agent-economy-wallet';
-```
-
-### 3. Hybrid — sell one service, buy others
-
-A code review agent that pays a data scraping agent for context. This is the network effect case — only possible because the SDK makes both sides trivial.
+**No human touched steps 1–7.**
 
 ## Project Structure
 
 ```
 packages/
-  wallet-core/     Core wallet, keys, policies, x402, registry protocol
-  mcp-server/      Express API + MCP tools for Claude Desktop
-    src/api/         Manifest, reputation, registry, x402-gated endpoints
-    src/tools/       All MCP tools (wallet, payments, discovery)
-    src/scripts/     CLI scripts (register)
-  cli/             Ink-based TUI monitoring dashboard
+  wallet-core/     Cryptographic foundation — keys, policies, audit, protocols
+  mcp-server/      MCP tools/resources/prompts + Express merchant API
+  cli/             Ink-based TUI for human operators
+  sdk/             Unified npm package (agent-economy-wallet)
+  explorer/        Next.js dashboard — browse the on-chain registry
+kora/              Kora gasless relay configuration
+docs/              Mintlify documentation site
 ```
 
-## API Endpoints
+## SDK Usage
 
-| Endpoint | Auth | Description |
-|---|---|---|
-| `GET /.well-known/agent.json` | None | Machine-readable service manifest |
-| `GET /reputation` | None | Trust signals from audit log |
-| `GET /registry` | None | All registered agents (from chain) |
-| `GET /api/fetch-price/:token` | x402 | Live token prices |
-| `GET /api/analyze-token/:address` | x402 | Token security analysis |
+Install and embed the agent economy into your own Node.js app:
 
-## MCP Tools
+```bash
+npm install agent-economy-wallet
+```
 
-| Tool | Category | Description |
-|------|----------|-------------|
-| `discover_registry` | Discovery | Find merchants from on-chain registry |
-| `read_manifest` | Discovery | Read a merchant's services & pricing |
-| `check_reputation` | Discovery | Check merchant trust score |
-| `probe_x402` | Payment | Check price without paying |
-| `pay_x402_invoice` | Payment | Pay and receive data |
-| `create_wallet` | Wallet | Create agent wallet |
-| `get_balance` | Wallet | Check wallet balance |
-| `send_sol` | Transfer | Transfer SOL |
-| `send_token` | Transfer | Transfer SPL tokens |
-| `write_memo` | Transfer | Write on-chain memo |
+```typescript
+// Merchant — gate an endpoint with x402
+import { createX402Paywall, createCoreServices } from 'agent-economy-wallet';
+const services = createCoreServices();
+app.get('/my-api', createX402Paywall(services, 50_000, USDC_MINT), handler);
 
-## 📺 Demos & Resources
+// Buyer — discover and pay autonomously
+import { discoverRegistry, X402Client } from 'agent-economy-wallet';
+const agents = await discoverRegistry(connection, 100);
+```
 
-- **Demo Playlist:** [Watch the Agent Economy in action on YouTube](https://www.youtube.com/playlist?list=PL0SN_TTIhgAUG_kiUNZd4crZruk12ZTUk)
-- **Full Documentation:** [Read the Setup Guide](https://xavierscript.mintlify.app)
+> **Full SDK documentation:** [SDK Overview](https://xavierscript.mintlify.app/sdk/overview) · [npm Publishing](https://xavierscript.mintlify.app/sdk/publishing)
 
-## 📄 License
+## Key Features
 
-MIT
+| Feature | Description |
+|---------|-------------|
+| **Decentralized Registry** | On-chain merchant registration via SPL Memo — no database, no gatekeeper |
+| **x402 Micropayments** | Pay-per-request USDC payments on Solana |
+| **18 MCP Tools** | Wallet, transfers, tokens, payments, discovery — all via Model Context Protocol |
+| **9 MCP Resources** | Read-only data streams for agent context (balances, audit, policies) |
+| **5 MCP Prompts** | Guided workflows (risk assessment, security audit, daily report) |
+| **Gasless via Kora** | Agent wallets never pay gas — Kora paymaster sponsors fees |
+| **Policy Engine** | Per-transaction caps, daily limits, rate limiting, whitelist enforcement |
+| **AES-256-GCM Keystore** | Private keys encrypted at rest, never exposed to the LLM |
+| **[Explorer Dashboard](https://agent-economy-wallet-explorer.vercel.app)** | Visual directory of all on-chain registered agents |
+
+## Resources
+
+| Resource | Link |
+|----------|------|
+| Documentation | [xavierscript.mintlify.app](https://xavierscript.mintlify.app) |
+| Explorer | [agent-economy-wallet-explorer.vercel.app](https://agent-economy-wallet-explorer.vercel.app) |
+| Demo Playlist | [YouTube](https://www.youtube.com/playlist?list=PL0SN_TTIhgAUG_kiUNZd4crZruk12ZTUk) |
+| Security Policy | [SECURITY.md](./SECURITY.md) |
+| License | [MIT](./LICENSE) |
+
+## Contributing
+
+<!-- TODO: Add contribution guidelines -->
+
+Contributions are welcome. Please open an issue to discuss proposed changes before submitting a pull request.
+
+## License
+
+MIT — see [LICENSE](./LICENSE) for details.
