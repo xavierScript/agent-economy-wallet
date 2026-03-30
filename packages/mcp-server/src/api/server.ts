@@ -19,6 +19,10 @@ export function createExpressApp(services: WalletServices): express.Express {
 
   app.use(express.json());
 
+  // Health check routes
+  app.get("/", (req, res) => res.json({ status: "ok", service: "agent-economy-wallet" }));
+  app.get("/health", (req, res) => res.json({ status: "ok" }));
+
   // Register all routes
   registerManifestRoute(app, services);
   registerReputationRoute(app, services);
