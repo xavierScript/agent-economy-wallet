@@ -7,6 +7,7 @@
 import { Box, Text } from "ink";
 import { useWallets } from "../hooks/use-wallets.js";
 import { useLogs } from "../hooks/use-logs.js";
+import { useRegistry } from "../hooks/use-registry.js";
 import { Section } from "../components/section.js";
 import { Spinner } from "../components/spinner.js";
 import { WalletRow } from "../components/wallet-row.js";
@@ -24,6 +25,7 @@ export function DashboardView({ services, refreshKey }: DashboardViewProps) {
     count: 8,
     refreshKey,
   });
+  const { agents, loading: rLoading } = useRegistry(services, { refreshKey });
 
   const totalSol = wallets.reduce((s, w) => s + w.balanceSol, 0);
   const successCount = logs.filter((l) => l.success).length;
@@ -74,6 +76,13 @@ export function DashboardView({ services, refreshKey }: DashboardViewProps) {
           <Text dimColor>FUNDER: </Text>
           <Text bold color={funderActive ? "green" : "gray"}>
             {funderActive ? "ready" : "off"}
+          </Text>
+        </Box>
+        <Text dimColor> │ </Text>
+        <Box>
+          <Text dimColor>AGENTS: </Text>
+          <Text bold color="cyan">
+            {rLoading ? "…" : String(agents.length)}
           </Text>
         </Box>
       </Box>

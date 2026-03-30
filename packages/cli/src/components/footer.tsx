@@ -10,9 +10,10 @@ import type { WalletServices } from "../services.js";
 import type { ViewName } from "./nav.js";
 
 const HINTS: Record<ViewName, string> = {
-  dashboard: "[1-3] switch  [r] refresh  [q] quit",
-  wallets: "[j/k] navigate  [x] close wallet  [r] refresh  [q] quit",
-  logs: "[1-3] switch  [r] refresh  [q] quit",
+  dashboard: "[1-4] switch  [r] refresh  [q] quit",
+  wallets: "[j/k] navigate  [x] close wallet  [1-4] switch  [r] refresh  [q] quit",
+  logs: "[1-4] switch  [r] refresh  [q] quit",
+  registry: "[1-4] switch  [r] refresh  [q] quit",
 };
 
 interface FooterProps {

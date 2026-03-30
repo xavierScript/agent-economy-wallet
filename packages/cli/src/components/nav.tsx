@@ -7,12 +7,13 @@
 
 import { Box, Text } from "ink";
 
-export type ViewName = "dashboard" | "wallets" | "logs";
+export type ViewName = "dashboard" | "wallets" | "logs" | "registry";
 
 const tabs: { key: string; label: string; view: ViewName }[] = [
   { key: "1", label: "Dashboard", view: "dashboard" },
   { key: "2", label: "Wallets", view: "wallets" },
   { key: "3", label: "Logs", view: "logs" },
+  { key: "4", label: "Registry", view: "registry" },
 ];
 
 interface NavProps {

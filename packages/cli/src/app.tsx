@@ -12,6 +12,7 @@ import { Footer } from "./components/footer.js";
 import { DashboardView } from "./views/dashboard.js";
 import { WalletsView } from "./views/wallets.js";
 import { LogsView } from "./views/logs.js";
+import { RegistryView } from "./views/registry.js";
 import type { WalletServices } from "./services.js";
 
 interface AppProps {
@@ -44,6 +45,7 @@ export function App({ services }: AppProps) {
     if (input === "1") setView("dashboard");
     if (input === "2") setView("wallets");
     if (input === "3") setView("logs");
+    if (input === "4") setView("registry");
     if (input === "r") setRefreshKey((k) => k + 1);
   });
 
@@ -74,6 +76,9 @@ export function App({ services }: AppProps) {
         )}
         {view === "logs" && (
           <LogsView services={services} refreshKey={refreshKey} />
+        )}
+        {view === "registry" && (
+          <RegistryView services={services} refreshKey={refreshKey} />
         )}
       </Box>
 
