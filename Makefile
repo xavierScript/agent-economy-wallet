@@ -29,6 +29,7 @@ help:
 	@echo  make cli            Build CLI then launch the TUI
 	@echo  make mcp            Build MCP server then run it
 	@echo  make register       Register merchant on-chain (requires manifest=URL)
+	@echo  make explorer       Start the Agent Economy Explorer dashboard
 	@echo.
 	@echo  make clean          Remove all dist/ folders
 	@echo  make clean-core     Remove wallet-core/dist
@@ -115,6 +116,10 @@ ifndef manifest
 	$(error manifest parameter is required. Usage: make register manifest=https://your-server.com/.well-known/agent.json)
 endif
 	pnpm register --manifest $(manifest)
+
+.PHONY: explorer
+explorer:
+	pnpm --filter explorer dev
 
 # ── Clean ────────────────────────────────────────────────────────────────────
 .PHONY: clean
