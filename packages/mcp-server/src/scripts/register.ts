@@ -117,13 +117,17 @@ async function main() {
     );
 
     const cluster = services.config.cluster;
-    const explorerUrl = cluster === "mainnet-beta"
+    const solscanUrl = cluster === "mainnet-beta"
       ? `https://solscan.io/tx/${result.signature}`
       : `https://solscan.io/tx/${result.signature}?cluster=${cluster}`;
+    const officialExplorerUrl = cluster === "mainnet-beta"
+      ? `https://explorer.solana.com/tx/${result.signature}`
+      : `https://explorer.solana.com/tx/${result.signature}?cluster=${cluster}`;
 
     console.log(`\n✅ Registered "${manifest.name}" on-chain`);
     console.log(`   tx: ${result.signature}`);
-    console.log(`   ${explorerUrl}`);
+    console.log(`   Solscan:  ${solscanUrl}`);
+    console.log(`   Explorer: ${officialExplorerUrl}`);
     console.log(`\n   Any buyer agent can now discover this merchant via the on-chain registry.\n`);
   } catch (err: any) {
     console.error(`\n❌ Registration failed: ${err.message}`);

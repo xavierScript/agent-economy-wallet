@@ -139,22 +139,22 @@ export function buildRegistrationTx(
 
   const tx = new Transaction();
 
-  // Zero-value transfer to self to keep fee low
+  // Zero-value transfer to registry address so that it gets included in the
+  // transaction accounts. This allows `getSignaturesForAddress(registryAddress)`
+  // to pick up this transaction.
   tx.add(
     SystemProgram.transfer({
       fromPubkey: signerPubkey,
-      toPubkey: signerPubkey,
+      toPubkey: registryAddress,
       lamports: 0,
     }),
   );
 
-  // Memo instruction — include registry wallet as a non-signer key so its
-  // transaction history includes this registration.
+  // Memo instruction with registration data.
+  // We only include the signer, because the Memo program strictly requires
+  // that *all* accounts passed to it are signers.
   tx.add({
-    keys: [
-      { pubkey: signerPubkey, isSigner: true, isWritable: false },
-      { pubkey: registryAddress, isSigner: false, isWritable: false },
-    ],
+    keys: [{ pubkey: signerPubkey, isSigner: true, isWritable: false }],
     programId: TransactionBuilder.MEMO_PROGRAM_ID,
     data: Buffer.from(memoStr, "utf-8"),
   });
