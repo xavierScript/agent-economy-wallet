@@ -18,39 +18,39 @@
   --bg-glass-hover: rgba(255, 255, 255, 0.06);
 
   /* Accent colors */
-  --accent-primary: #7c5cfc;
-  --accent-primary-glow: rgba(124, 92, 252, 0.25);
-  --accent-secondary: #00d4aa;
-  --accent-secondary-glow: rgba(0, 212, 170, 0.2);
-  --accent-tertiary: #f97316;
+  --accent-primary: #14B8A6;
+  --accent-primary-glow: rgba(20, 184, 166, 0.25);
+  --accent-secondary: #2DD4BF;
+  --accent-secondary-glow: rgba(45, 212, 191, 0.2);
+  --accent-tertiary: #0F766E;
   --accent-warning: #facc15;
   --accent-danger: #ef4444;
 
   /* Gradients */
-  --gradient-hero: linear-gradient(135deg, #7c5cfc 0%, #00d4aa 50%, #7c5cfc 100%);
-  --gradient-card-border: linear-gradient(135deg, rgba(124, 92, 252, 0.4), rgba(0, 212, 170, 0.1));
-  --gradient-text: linear-gradient(135deg, #c4b5fd, #7c5cfc, #00d4aa);
-  --gradient-radial: radial-gradient(ellipse at 50% 0%, rgba(124, 92, 252, 0.15) 0%, transparent 60%);
-  --gradient-mesh: radial-gradient(at 27% 37%, hsla(266, 97%, 64%, 0.08) 0px, transparent 50%),
-                   radial-gradient(at 80% 20%, hsla(168, 100%, 42%, 0.06) 0px, transparent 50%),
-                   radial-gradient(at 50% 80%, hsla(266, 97%, 64%, 0.04) 0px, transparent 50%);
+  --gradient-hero: linear-gradient(135deg, #0F766E 0%, #2DD4BF 50%, #0F766E 100%);
+  --gradient-card-border: linear-gradient(135deg, rgba(20, 184, 166, 0.4), rgba(45, 212, 191, 0.1));
+  --gradient-text: linear-gradient(135deg, #99F6E4, #14B8A6, #0F766E);
+  --gradient-radial: radial-gradient(ellipse at 50% 0%, rgba(20, 184, 166, 0.15) 0%, transparent 60%);
+  --gradient-mesh: radial-gradient(at 27% 37%, hsla(173, 80%, 40%, 0.08) 0px, transparent 50%),
+                   radial-gradient(at 80% 20%, hsla(173, 80%, 25%, 0.06) 0px, transparent 50%),
+                   radial-gradient(at 50% 80%, hsla(173, 80%, 40%, 0.04) 0px, transparent 50%);
 
   /* Text */
   --text-primary: #f0f0f5;
   --text-secondary: #8b8ba3;
   --text-tertiary: #5a5a72;
-  --text-accent: #a78bfa;
+  --text-accent: #5EEAD4;
 
   /* Borders */
   --border-subtle: rgba(255, 255, 255, 0.06);
   --border-medium: rgba(255, 255, 255, 0.1);
-  --border-accent: rgba(124, 92, 252, 0.3);
+  --border-accent: rgba(20, 184, 166, 0.3);
 
   /* Shadows */
   --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.3);
   --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.4);
   --shadow-lg: 0 8px 32px rgba(0, 0, 0, 0.5);
-  --shadow-glow: 0 0 40px rgba(124, 92, 252, 0.15);
+  --shadow-glow: 0 0 40px rgba(20, 184, 166, 0.15);
   --shadow-card: 0 4px 24px rgba(0, 0, 0, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.04);
 
   /* Typography */
@@ -142,12 +142,12 @@ body::before {
 }
 
 ::-webkit-scrollbar-thumb {
-  background: rgba(124, 92, 252, 0.3);
+  background: rgba(20, 184, 166, 0.3);
   border-radius: var(--radius-full);
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: rgba(124, 92, 252, 0.5);
+  background: rgba(20, 184, 166, 0.5);
 }
 
 /* ── Layout ─────────────────────────────────────────────────────────────── */
@@ -228,8 +228,8 @@ body::before {
   gap: var(--space-xs);
   padding: 4px 12px;
   border-radius: var(--radius-full);
-  background: rgba(0, 212, 170, 0.1);
-  border: 1px solid rgba(0, 212, 170, 0.2);
+  background: rgba(45, 212, 191, 0.1);
+  border: 1px solid rgba(45, 212, 191, 0.2);
   color: var(--accent-secondary);
   font-size: 0.75rem;
   font-weight: 600;
@@ -270,8 +270,8 @@ body::before {
   gap: var(--space-sm);
   padding: 6px 16px;
   border-radius: var(--radius-full);
-  background: rgba(124, 92, 252, 0.08);
-  border: 1px solid rgba(124, 92, 252, 0.15);
+  background: rgba(20, 184, 166, 0.08);
+  border: 1px solid rgba(20, 184, 166, 0.15);
   color: var(--text-accent);
   font-size: 0.8rem;
   font-weight: 600;
@@ -503,8 +503,8 @@ body::before {
   align-items: center;
   padding: 4px 10px;
   border-radius: var(--radius-full);
-  background: rgba(124, 92, 252, 0.08);
-  border: 1px solid rgba(124, 92, 252, 0.12);
+  background: rgba(20, 184, 166, 0.08);
+  border: 1px solid rgba(20, 184, 166, 0.12);
   color: var(--text-accent);
   font-size: 0.7rem;
   font-weight: 600;
@@ -714,8 +714,8 @@ body::before {
   margin-top: var(--space-sm);
   padding: 3px 10px;
   border-radius: var(--radius-full);
-  background: rgba(0, 212, 170, 0.08);
-  border: 1px solid rgba(0, 212, 170, 0.15);
+  background: rgba(45, 212, 191, 0.08);
+  border: 1px solid rgba(45, 212, 191, 0.15);
   color: var(--accent-secondary);
   font-family: var(--font-mono);
   font-size: 0.75rem;
@@ -830,8 +830,8 @@ body::before {
 }
 
 @keyframes pulse-glow {
-  0%, 100% { box-shadow: 0 0 8px rgba(124, 92, 252, 0.3); }
-  50%      { box-shadow: 0 0 20px rgba(124, 92, 252, 0.6); }
+  0%, 100% { box-shadow: 0 0 8px rgba(20, 184, 166, 0.3); }
+  50%      { box-shadow: 0 0 20px rgba(20, 184, 166, 0.6); }
 }
 
 @keyframes pulse-live {
