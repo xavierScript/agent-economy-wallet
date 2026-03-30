@@ -1,0 +1,44 @@
+---
+title: Wallet Resources
+description: "Read-only wallet data streams for AI agent context"
+---
+
+Wallet resources provide agents with real-time visibility into their managed wallets, including balances, configuration, and active spending policies.
+
+## `wallet://all-wallets`
+
+Returns a list of all wallets managed by the current KeyManager instance.
+
+**Data includes:**
+- Wallet ID (UUID)
+- Label and public key
+- Current SOL balance
+- Creation timestamp
+
+Useful for agents that need to select the right wallet for a task or monitor a portfolio of wallets.
+
+## `wallet://detail/{wallet_id}`
+
+Detailed view of a specific wallet, including full balance breakdown.
+
+**Data includes:**
+- Wallet ID, label, public key
+- SOL balance
+- All SPL token balances (mint address, symbol, amount)
+- Transaction history summary
+- Creation and last-active timestamps
+
+**URI Template:** Replace `{wallet_id}` with the actual UUID.
+
+## `wallet://policy/{wallet_id}`
+
+Returns the active spending policy and current usage counters for a wallet.
+
+**Data includes:**
+- Per-transaction SOL limit
+- Daily spending cap and amount consumed today
+- Hourly rate limit and current hour count
+- Whitelist addresses (if configured)
+- Human-in-the-loop threshold
+
+Agents read this resource to understand their constraints before attempting a transfer, avoiding unnecessary policy rejections.

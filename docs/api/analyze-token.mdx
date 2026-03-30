@@ -1,38 +1,37 @@
 ---
 title: Analyze Token
-api: "GET /api/v1/analyze-token"
-description: "Get security analysis for a specific Solana SPL Token."
+api: "GET /api/analyze-token/:address"
+description: "Security analysis for a Solana SPL token"
 ---
 
-This endpoint provides a deep security audit of an SPL token (mint authority status, freeze authority, holder distribution, and smart contract risks).
+Provides a security assessment of an SPL token — checking mint authority status, freeze authority, and generating a risk score.
 
 ### Authentication
 
-This endpoint requires an **x402 Payment Signature** in the header.
+This endpoint requires an **x402 payment**. A `402 Payment Required` response is returned if the payment signature is missing or invalid.
 
 **Cost:** `0.1 USDC` per request.
 
 ### Header Parameters
 
 <ParamField header="x-payment-signature" type="string" required>
-  A valid base64 encoded Solana transaction signature transferring 0.1 USDC to
-  the merchant's vault address.
+  A valid Solana transaction signature proving the USDC transfer to the merchant's vault address.
 </ParamField>
 
 <ParamField header="x-payment-wallet" type="string" required>
-  The public key of the wallet making the payment.
+  The public key of the wallet that made the payment.
 </ParamField>
 
-### Query Parameters
+### Path Parameters
 
-<ParamField query="mint_address" type="string" required>
+<ParamField path="address" type="string" required>
   The public address of the SPL token mint to analyze.
 </ParamField>
 
 ### Response
 
 <ResponseField name="risk_score" type="number">
-  Scale of 1-100 indicating token risk (100 being highest risk).
+  Scale of 1-100 indicating token risk (100 = highest risk).
 </ResponseField>
 
 <ResponseField name="authorities" type="object">
@@ -43,5 +42,17 @@ This endpoint requires an **x402 Payment Signature** in the header.
 </ResponseField>
 
 <ResponseField name="summary" type="string">
-  AI-generated summary of the token's safety profile.
+  Human-readable summary of the token's safety profile.
 </ResponseField>
+
+### Example
+
+```bash
+# First call returns 402
+curl -i http://localhost:3000/api/analyze-token/EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v
+
+# After payment
+curl -H "x-payment-signature: <TX_SIGNATURE>" \
+     -H "x-payment-wallet: <YOUR_PUBKEY>" \
+     http://localhost:3000/api/analyze-token/EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v
+```

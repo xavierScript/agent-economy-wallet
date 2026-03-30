@@ -1,29 +1,85 @@
 ---
 title: Introduction
-description: "Welcome to Agent Economy Wallet — A Hybrid Agent-to-Agent Economy Server on Solana"
+description: "Agent Economy Wallet — the open-source Agent-to-Agent Marketplace SDK on Solana"
 ---
 
-Welcome to Agent Economy Wallet! This project provides a robust, hybrid **Agent-to-Agent Economy Server** built for the Solana hackathon. It empowers AI agents to seamlessly orchestrate financial processes, execute low-latency payments (via x402), and natively interact using Model Context Protocol (MCP) tools.
+Agent Economy Wallet is an open-source SDK and server that enables AI agents to **sell services, buy services, and discover each other** — entirely on the Solana blockchain. No central server. No database. No gatekeeper.
 
-## What is Agent Economy Wallet?
+## The Problem
 
-Agent Economy Wallet bridges the gap between AI orchestration and on-chain settlements. It allows agents to act autonomously with cryptographic guarantees and verifiable safety. By bringing together the Model Context Protocol (MCP) and Solana's fast execution, it creates a fertile ground for agentic economies.
+AI agents are getting smarter, but they still can't pay each other. Every "agent marketplace" today relies on a centralized database, a managed API, or a human in the middle. If the server goes down, the marketplace disappears.
+
+## The Solution
+
+Agent Economy Wallet puts the marketplace **on-chain**. Merchants register via SPL Memo transactions on Solana. Buyers discover them by reading the blockchain. Payments happen in USDC via the x402 protocol. The entire economy runs autonomously — if every server in the world went offline, any agent could reconstruct the full registry from a single Solana RPC call.
+
+## How It Works
+
+<Steps>
+  <Step title="Merchant Registers On-Chain">
+    A merchant sends an SPL Memo transaction to Solana containing its manifest URL — cost: ~$0.001, permanent, immutable.
+  </Step>
+  <Step title="Buyer Discovers Merchants">
+    A buyer agent calls `discover_registry` to scan the blockchain for all registered merchants. No API key. No rate limit.
+  </Step>
+  <Step title="Buyer Evaluates Trust">
+    The buyer reads the merchant's `/.well-known/agent.json` manifest and checks its `/reputation` endpoint — success rate, total transactions, uptime.
+  </Step>
+  <Step title="Buyer Pays & Receives Data">
+    The buyer sends USDC via the x402 protocol. The merchant verifies the on-chain payment and returns the data. One HTTP request. One Solana transaction. Done.
+  </Step>
+</Steps>
 
 ## Core Pillars
 
 <CardGroup cols={2}>
-  <Card title="Solana Native" icon="bolt">
-    High-speed, low-cost asset transfers explicitly designed for programmatic
-    execution.
+  <Card title="Decentralized Registry" icon="link">
+    Merchants register on-chain via SPL Memo. No central database, no approval process, no single point of failure.
   </Card>
-  <Card title="MCP Integrated" icon="server">
-    Standardized tools, resources, and prompts formatted perfectly for Large
-    Language Models.
+  <Card title="MCP Native" icon="server">
+    18 tools, 9 resources, and 5 prompts — all exposed via the Model Context Protocol for seamless AI agent integration.
   </Card>
-  <Card title="x402 Payments" icon="money-bill-transfer">
-    Pay-per-request API models enabling agents to pay other agents instantly.
+  <Card title="x402 Micropayments" icon="money-bill-transfer">
+    Pay-per-request API access using USDC on Solana. Agents pay other agents instantly, autonomously, on-chain.
   </Card>
   <Card title="Secure by Default" icon="shield-check">
-    AES-GCM keystore isolation and policy-engine guardrails to protect funds.
+    AES-256-GCM encrypted keystore, spending policy engine, per-transaction caps, and full audit logging.
+  </Card>
+  <Card title="Gasless via Kora" icon="bolt">
+    Agent wallets never need SOL for gas — the Kora paymaster sponsors all network fees.
+  </Card>
+  <Card title="Publishable SDK" icon="box">
+    Install `agent-economy-wallet` from npm and embed the entire economy into your own application.
+  </Card>
+</CardGroup>
+
+## Who Is This For?
+
+<CardGroup cols={3}>
+  <Card title="Merchants" icon="store">
+    You have a data source or API to monetize. Gate it with x402, register on-chain, and start earning USDC from AI buyers.
+  </Card>
+  <Card title="Buyer Agents" icon="robot">
+    Your AI agent needs external data. Give it a wallet, point it at the registry, and let it discover, evaluate, and pay — autonomously.
+  </Card>
+  <Card title="Hybrid Agents" icon="arrows-rotate">
+    Sell one service, buy others. A code review agent that pays a scraping agent for context. The network effect.
+  </Card>
+</CardGroup>
+
+## Quick Links
+
+<CardGroup cols={2}>
+  <Card title="Quickstart" icon="rocket" href="/quickstart">
+    Get running locally in under 5 minutes.
+  </Card>
+  <Card title="Architecture" icon="sitemap" href="/architecture">
+    Understand the monorepo structure and how packages connect.
+  </Card>
+  <Card title="SDK Guide" icon="code" href="/sdk/overview">
+    Install from npm and embed into your own app.
+  </Card>
+  <Card title="Demo Prompts" icon="terminal" href="/demo">
+    22 copy-paste prompts to test every capability.
   </Card>
 </CardGroup>

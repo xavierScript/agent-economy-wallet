@@ -1,0 +1,85 @@
+---
+title: Service Manifest
+description: "Machine-readable service description at /.well-known/agent.json"
+---
+
+The service manifest is a machine-readable JSON document that buyer agents use to understand what a merchant sells, at what price, and how to interact.
+
+## Endpoint
+
+```
+GET /.well-known/agent.json
+```
+
+**Authentication:** None — this endpoint is publicly accessible.
+
+## Response
+
+```json
+{
+  "name": "data",
+  "description": "Real-time Solana token intelligence",
+  "version": "1.0.0",
+  "services": [
+    {
+      "name": "fetch-price",
+      "description": "Live token prices via Jupiter API",
+      "endpoint": "/api/fetch-price/:token",
+      "method": "GET",
+      "price": 50000,
+      "payment_token": "USDC",
+      "payment_network": "solana-devnet"
+    },
+    {
+      "name": "analyze-token",
+      "description": "Token security analysis (mint/freeze authority, holder distribution)",
+      "endpoint": "/api/analyze-token/:address",
+      "method": "GET",
+      "price": 100000,
+      "payment_token": "USDC",
+      "payment_network": "solana-devnet"
+    }
+  ],
+  "reputation_url": "/reputation",
+  "payment_address": "YourBase58PublicKeyHere"
+}
+```
+
+## Response Fields
+
+<ResponseField name="name" type="string">
+  Human-readable name for the merchant agent. Configured via `AGENT_NAME` in `.env`.
+</ResponseField>
+
+<ResponseField name="description" type="string">
+  Short description of the services offered. Configured via `AGENT_DESCRIPTION` in `.env`.
+</ResponseField>
+
+<ResponseField name="services" type="array">
+  <Expandable title="Each service object contains:">
+    <ResponseField name="name" type="string">Service identifier</ResponseField>
+    <ResponseField name="description" type="string">What the service provides</ResponseField>
+    <ResponseField name="endpoint" type="string">The x402-gated route path</ResponseField>
+    <ResponseField name="method" type="string">HTTP method (GET, POST)</ResponseField>
+    <ResponseField name="price" type="number">Cost in token base units (e.g., 50000 = 0.05 USDC)</ResponseField>
+    <ResponseField name="payment_token" type="string">Token symbol (e.g., USDC)</ResponseField>
+    <ResponseField name="payment_network" type="string">Blockchain network</ResponseField>
+  </Expandable>
+</ResponseField>
+
+<ResponseField name="reputation_url" type="string">
+  Path to the merchant's reputation endpoint.
+</ResponseField>
+
+<ResponseField name="payment_address" type="string">
+  Solana public key that receives USDC payments.
+</ResponseField>
+
+## How Buyer Agents Use This
+
+After discovering a merchant via `discover_registry`, a buyer agent calls `read_manifest` to fetch this document. The agent then:
+1. Parses the available services
+2. Compares prices
+3. Selects the service to purchase
+4. Uses `probe_x402` to confirm on-chain payment details
+5. Executes the purchase via `pay_x402_invoice`

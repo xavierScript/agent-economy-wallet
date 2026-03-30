@@ -1,0 +1,107 @@
+---
+title: Docker & Deployment
+description: "Containerized deployment with Docker Compose"
+---
+
+The Agent Economy Wallet ships with Docker support for reproducible builds and deployment.
+
+## Docker Compose Services
+
+| Service | Description | Command |
+|---------|-------------|---------|
+| `cli` | Human operator TUI dashboard | `docker compose up cli` |
+| `mcp` | MCP server for smoke-testing | `docker compose run --rm -i mcp` |
+
+## Quick Start
+
+```bash
+# Build the image
+make docker-build
+
+# Launch the CLI dashboard
+make docker-up
+
+# Stop all services
+make docker-down
+
+# Stop and remove wallet data volume
+make docker-clean
+```
+
+## CLI Container
+
+The CLI container provides the full terminal dashboard experience:
+
+```yaml
+services:
+  cli:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    stdin_open: true    # Required for Ink TUI
+    tty: true
+    env_file: .env
+    volumes:
+      - wallet-data:/root/.agent-economy-wallet
+```
+
+- **`stdin_open: true`** + **`tty: true`** — required for the Ink/React terminal UI
+- **`wallet-data` volume** — persists keystores, audit logs, and policy state across restarts
+
+## MCP Container
+
+For smoke-testing the MCP server inside Docker:
+
+```bash
+docker compose run --rm -i mcp
+```
+
+<Note>
+  For connecting Claude Desktop or VS Code, use the native `node` command (not Docker) since MCP speaks over `stdio`:
+  ```json
+  {
+    "mcpServers": {
+      "agent-economy-wallet": {
+        "command": "node",
+        "args": ["/path/to/packages/mcp-server/dist/index.js"]
+      }
+    }
+  }
+  ```
+</Note>
+
+## Volume Management
+
+The `wallet-data` named volume stores all agent state:
+
+```bash
+# Inspect the volume
+docker volume inspect agent-economy-wallet_wallet-data
+
+# Remove (destroys all wallet data!)
+docker compose down -v
+```
+
+<Warning>
+  Running `docker compose down -v` or `make docker-clean` destroys the `wallet-data` volume, including all encrypted keystores and audit logs. This is irreversible.
+</Warning>
+
+## Makefile Targets
+
+All Docker operations are available as Make targets:
+
+| Target | Description |
+|--------|-------------|
+| `make docker-build` | Build the Docker image (no cache) |
+| `make docker-up` | Build and launch the CLI container |
+| `make docker-down` | Stop and remove containers |
+| `make docker-clean` | Stop containers and delete the wallet-data volume |
+
+## Production Considerations
+
+For production deployments:
+- Use a private Docker registry for the image
+- Mount encrypted backup volumes for the keystore
+- Set strong `WALLET_PASSPHRASE` values via Docker secrets
+- Run Kora on a separate container/host from the MCP server
+- Use `SOLANA_CLUSTER=mainnet-beta` with a dedicated RPC endpoint

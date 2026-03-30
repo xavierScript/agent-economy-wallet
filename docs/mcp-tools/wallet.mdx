@@ -1,32 +1,50 @@
 ---
 title: Wallet Tools
-description: Documenting the Wallet Tool
+description: "Create, inspect, and manage agent wallets"
 ---
 
-The Wallet toolset gives the AI agent self-awareness regarding its cryptographic identity and capabilities.
+The Wallet toolset gives AI agents self-awareness of their cryptographic identity, balances, and operational constraints.
 
-## Supported Tools
+## `create_wallet`
 
-### `create_wallet`
+Generate a new Solana keypair stored in the local AES-256-GCM encrypted keystore.
 
-Generates a new Solana keypair stored in the local AES-encrypted keystore. Returns the public key and standard UUID for reference.
+- **Input:** `label` (optional) — human-readable name for the wallet
+- **Returns:** Wallet ID (UUID), public key, Solana Explorer link
+- **Side effects:** If a Master Funder is configured, the wallet is automatically seeded with SOL (amount set by `AGENT_SEED_SOL`)
+- **Policy:** A default spending policy is attached at creation
 
-### `list_wallets`
+## `list_wallets`
 
-Returns the IDs and public keys of all wallets loaded into the current agent's KeyManager.
+Returns all wallets loaded in the current KeyManager.
 
-### `get_balance`
+- **Input:** None
+- **Returns:** Array of `{ wallet_id, label, publicKey, created_at }`
 
-Fetches the agent's SOL balance and known SPL token balances (e.g. USDC).
+## `get_balance`
 
-### `get_audit_logs`
+Fetches the full balance breakdown for a specific wallet.
+
+- **Input:** `wallet_id`
+- **Returns:** SOL balance + all SPL token balances (mint address, symbol, human-readable amount)
+
+## `get_audit_logs`
 
 Pulls recent transaction attempts, signatures, and policy engine decisions.
 
-### `get_policy`
+- **Input:** `wallet_id` (optional — omit for global logs)
+- **Returns:** Array of log entries with timestamp, action, outcome, and transaction signature
 
-Retrieves the active global policy rules constraining the agent (e.g. daily spending limits, blocked addresses).
+## `get_status`
 
-### `get_status`
+Returns system telemetry for the MCP server.
 
-Returns agent system telemetry (e.g. underlying RPC network endpoint, kora RPC availability).
+- **Input:** None
+- **Returns:** Solana cluster, RPC URL, Kora availability, Master Funder status, total managed wallets
+
+## `get_policy`
+
+Retrieves the active spending policy and current usage counters.
+
+- **Input:** `wallet_id` (optional)
+- **Returns:** Per-transaction limit, daily cap, hourly rate limit, consumed amounts, whitelist status

@@ -1,0 +1,91 @@
+---
+title: Kora Gasless Relay
+description: "Fee-less transactions via the Kora paymaster"
+---
+
+Kora is a Rust-based gasless relay that sponsors network fees on behalf of agent wallets. With Kora running, agent wallets never need SOL for gas — they only need USDC for x402 payments.
+
+## Why Kora?
+
+Without Kora, every agent wallet needs SOL for transaction fees. This creates friction:
+- New wallets must be funded with SOL before they can do anything
+- Agents need to manage two balances (SOL for gas + USDC for payments)
+- Small SOL balances can get depleted, causing unexpected failures
+
+With Kora, the **Kora signer pays all gas fees**. Agent wallets are truly gasless.
+
+## Funding Breakdown
+
+| Account | What it pays | How to fund |
+|---------|-------------|-------------|
+| **Kora signer** | SOL network fees for every agent transaction | `solana airdrop` (devnet) or transfer SOL (mainnet) |
+| **Agent wallets** | Nothing — completely gasless | No SOL needed |
+| **Master wallet** | SOL for account rent (e.g., new ATA creation at ~0.002 SOL) | Configured in `.env` |
+
+## Setup
+
+<Steps>
+  <Step title="Install Kora CLI">
+    ```bash
+    cargo install kora-cli
+    ```
+  </Step>
+  <Step title="Export Your Keypair">
+    Use a wallet you already control (e.g., Phantom) so you own the Kora signer address.
+
+    **From Phantom:** Settings → Security & Privacy → Export Private Key
+
+    Convert the base58 key to JSON format:
+    ```bash
+    node scripts/phantom-to-kora.mjs YOUR_PHANTOM_BASE58_KEY
+    ```
+
+    This writes `kora/kora-signer.json`.
+
+    <Warning>
+      Delete the base58 key from your terminal history after running this command. The `kora/kora-signer.json` file is `.gitignore`d and will never be committed.
+    </Warning>
+  </Step>
+  <Step title="Fund the Signer">
+    ```bash
+    solana airdrop 2 <YOUR_PUBLIC_KEY> --url devnet
+    ```
+    A 2 SOL airdrop gives you ~400,000 transactions worth of gas.
+  </Step>
+  <Step title="Configure Environment">
+    ```env .env
+    KORA_RPC_URL=http://localhost:8080
+    KORA_SIGNER_PRIVATE_KEY=kora/kora-signer.json
+    ```
+  </Step>
+  <Step title="Start the Kora Node">
+    ```bash
+    kora --config kora/kora.toml --rpc-url https://api.devnet.solana.com rpc start --signers-config kora/signers.toml
+    ```
+    Expected output: `INFO kora_lib::rpc_server::server: RPC server started on 0.0.0.0:8080`
+  </Step>
+  <Step title="Verify Connectivity">
+    ```bash
+    curl -s -X POST http://localhost:8080 \
+      -H "Content-Type: application/json" \
+      -d '{"jsonrpc":"2.0","id":1,"method":"getConfig","params":[]}'
+    ```
+  </Step>
+</Steps>
+
+## Configuration Files
+
+| File | Purpose |
+|------|---------|
+| `kora/kora.toml` | Node endpoints and general configuration |
+| `kora/signers.toml` | Signing permissions, limits, and allowed addresses |
+| `kora/kora-signer.json` | The fee-payer keypair (`.gitignore`d) |
+
+## Audit Trail
+
+When Kora sponsors a transaction, the audit log records:
+- `gasless: true`
+- `feePayer: "kora"`
+- The Kora signer's public key
+
+This distinction is visible in the `audit://wallet-logs` resource and the CLI dashboard.

@@ -1,0 +1,158 @@
+---
+title: Buyer Agent Guide
+description: "Give your AI agent the ability to discover, evaluate, and pay for services autonomously"
+---
+
+This guide shows you how to connect an AI agent (Claude Desktop, Cursor, or any MCP client) as an autonomous buyer that discovers merchants on-chain and pays for their services — all without human intervention.
+
+## What You're Building
+
+An AI agent that can:
+- Discover merchants from the decentralized on-chain registry
+- Read their service manifests and pricing
+- Check their reputation and trust scores
+- Pay for services with USDC on Solana
+- Return the purchased data to you
+
+---
+
+## Option A: MCP Client (Zero Code)
+
+Connect Claude Desktop to the MCP server and let it handle everything.
+
+<Steps>
+  <Step title="Clone & Build">
+    ```bash
+    git clone https://github.com/xavierScript/agent-economy-wallet.git
+    cd agent-economy-wallet
+    pnpm install && pnpm build
+    ```
+  </Step>
+  <Step title="Configure MCP Client">
+    Add the server to your MCP client config:
+
+    <CodeGroup>
+    ```json macOS (Claude Desktop)
+    // ~/Library/Application Support/Claude/claude_desktop_config.json
+    {
+      "mcpServers": {
+        "agent-economy-wallet": {
+          "command": "node",
+          "args": ["/absolute/path/to/packages/mcp-server/dist/index.js"]
+        }
+      }
+    }
+    ```
+
+    ```json Windows (Claude Desktop)
+    // %APPDATA%\Claude\claude_desktop_config.json
+    {
+      "mcpServers": {
+        "agent-economy-wallet": {
+          "command": "node",
+          "args": ["C:\\path\\to\\packages\\mcp-server\\dist\\index.js"]
+        }
+      }
+    }
+    ```
+    </CodeGroup>
+
+    Restart Claude Desktop.
+  </Step>
+  <Step title="Create & Fund a Wallet">
+    Open Claude and ask: _"Create a new wallet for me"_
+
+    Claude will create an agent wallet and display the public key. Fund it with:
+    - **Devnet SOL** (for gas) — use [faucet.solana.com](https://faucet.solana.com/) or `solana airdrop 2 <PUBLIC_KEY> --url devnet`
+    - **Devnet USDC** — transfer from your existing wallet
+  </Step>
+  <Step title="Run the Autonomous Purchase">
+    Paste this prompt into Claude:
+
+    > Query the on-chain agent registry to discover available merchants. Pick a merchant, check their reputation, read their manifest, then buy the cheapest service they offer. Show me the result and the Solana explorer link.
+  </Step>
+</Steps>
+
+### What Claude Does Autonomously
+
+| Step | MCP Tool | What happens |
+|------|----------|-------------|
+| 1 | `discover_registry` | Scans Solana for registered merchants |
+| 2 | `read_manifest` | Reads merchant's services + pricing |
+| 3 | `check_reputation` | Checks trust score (success rate, total transactions) |
+| 4 | `probe_x402` | Confirms on-chain payment requirements |
+| 5 | Policy check | Wallet policy engine approves the spend |
+| 6 | `pay_x402_invoice` | Sends USDC → Solana tx confirmed |
+| 7 | Data received | Returns the purchased data to you |
+
+**No human touched steps 1–7.** The agent discovered, evaluated, paid, and received data completely autonomously.
+
+---
+
+## Option B: SDK Integration (Programmatic)
+
+If you want to build a buyer agent programmatically:
+
+```typescript
+import {
+  AgentWallet,
+  discoverRegistry,
+  X402Client,
+} from "agent-economy-wallet";
+
+// 1. Initialize wallet
+const wallet = new AgentWallet({ cluster: "devnet" });
+await wallet.initialize();
+
+// 2. Discover merchants from on-chain registry
+const conn = wallet.services.connection.getConnection();
+const agents = await discoverRegistry(conn, 100);
+
+// 3. Pay for a service
+const response = await wallet.services.x402Client.fetchWithPayment(
+  "http://merchant.com/api/premium-data",
+  { method: "GET" }
+);
+
+const data = await response.json();
+console.log(data);
+```
+
+---
+
+## Available MCP Tools
+
+### Discovery (free, read-only)
+
+| Tool | Input | Description |
+|------|-------|-------------|
+| `discover_registry` | *(none)* | Scan the on-chain registry for all registered merchants |
+| `read_manifest` | `manifest_url` | Read a merchant's services, pricing, and capabilities |
+| `check_reputation` | `reputation_url` | Check merchant trust score and success rate |
+
+### Payment
+
+| Tool | Input | Description |
+|------|-------|-------------|
+| `probe_x402` | `url` | Check the price of an x402 endpoint without paying |
+| `pay_x402_invoice` | `url`, `wallet_id` | Pay for an endpoint and receive the data |
+
+### Wallet
+
+| Tool | Input | Description |
+|------|-------|-------------|
+| `create_wallet` | `label` | Create a new agent wallet |
+| `get_balance` | `wallet_id` | Check wallet balance (SOL + SPL tokens) |
+| `send_sol` | `wallet_id`, `to`, `amount` | Transfer SOL |
+| `send_token` | `wallet_id`, `mint`, `to`, `amount` | Transfer SPL tokens |
+
+---
+
+## How the On-Chain Registry Works
+
+The registry is fully decentralized — it lives on the Solana blockchain, not in any database.
+
+- **Registration:** Merchants send an SPL Memo transaction containing their manifest URL — cost: ~$0.001, permanent.
+- **Discovery:** Buyers call `getSignaturesForAddress` on the registry wallet, parse valid memos, and verify each manifest is live.
+- **No gatekeeper:** Anyone can register. No approval process. No single point of failure.
+- **Survivability:** If every server goes offline, any buyer can reconstruct the full registry from a fresh RPC call.

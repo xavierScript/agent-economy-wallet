@@ -1,0 +1,68 @@
+---
+title: Reputation
+description: "Trust signals derived from the merchant's audit log"
+---
+
+The reputation endpoint exposes trust signals for buyer agents to evaluate a merchant before transacting.
+
+## Endpoint
+
+```
+GET /reputation
+```
+
+**Authentication:** None — this endpoint is publicly accessible.
+
+## Response
+
+```json
+{
+  "agent_name": "data",
+  "success_rate": 0.97,
+  "total_transactions": 142,
+  "successful_transactions": 138,
+  "failed_transactions": 4,
+  "uptime_hours": 720,
+  "last_transaction": "2026-03-30T18:45:00Z",
+  "average_response_time_ms": 250
+}
+```
+
+## Response Fields
+
+<ResponseField name="agent_name" type="string">
+  The merchant's agent name.
+</ResponseField>
+
+<ResponseField name="success_rate" type="number">
+  Percentage of successful x402 transactions (0.0 to 1.0).
+</ResponseField>
+
+<ResponseField name="total_transactions" type="number">
+  Total number of x402 payment requests processed.
+</ResponseField>
+
+<ResponseField name="successful_transactions" type="number">
+  Number of transactions that completed successfully.
+</ResponseField>
+
+<ResponseField name="failed_transactions" type="number">
+  Number of transactions that failed (payment verification failures, timeouts, etc.).
+</ResponseField>
+
+<ResponseField name="uptime_hours" type="number">
+  Total hours the server has been running.
+</ResponseField>
+
+<ResponseField name="last_transaction" type="string">
+  ISO timestamp of the most recent transaction.
+</ResponseField>
+
+## How Buyer Agents Use This
+
+The `check_reputation` MCP tool fetches this endpoint and returns the data to the agent. A buyer typically:
+1. Checks `success_rate` — is the merchant reliable?
+2. Checks `total_transactions` — is the merchant established or brand new?
+3. Checks `last_transaction` — is the merchant actively serving traffic?
+
+A high success rate with meaningful transaction volume is a strong trust signal.

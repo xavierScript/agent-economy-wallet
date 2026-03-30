@@ -1,0 +1,39 @@
+---
+title: Overview
+description: "9 MCP resources providing real-time, read-only data streams for AI agents"
+---
+
+MCP Resources expose read-only data that AI agents can query or subscribe to — wallet balances, audit trails, policies, system status, and payment configuration — without invoking a tool.
+
+Resources are identified by URIs (e.g., `wallet://all-wallets`) and return structured JSON data that agents can use for context enrichment and decision-making.
+
+## Resource Categories
+
+<CardGroup cols={2}>
+  <Card title="Wallet Resources" icon="wallet" href="/mcp-resources/wallet">
+    Wallet list, detail views, and policy configuration.
+  </Card>
+  <Card title="Audit Resources" icon="clipboard-list" href="/mcp-resources/audit">
+    Global and per-wallet audit trails.
+  </Card>
+  <Card title="System Resources" icon="gauge-high" href="/mcp-resources/system">
+    System status, configuration, and health metrics.
+  </Card>
+  <Card title="Payment Resources" icon="credit-card" href="/mcp-resources/payments">
+    x402 payment configuration and merchant settings.
+  </Card>
+</CardGroup>
+
+## Complete Resource Reference
+
+| URI | Category | Description |
+|-----|----------|-------------|
+| `wallet://all-wallets` | Wallet | List all managed wallets with balances |
+| `wallet://detail/{wallet_id}` | Wallet | Detailed view of a specific wallet |
+| `wallet://policy/{wallet_id}` | Wallet | Active spending policy and usage |
+| `audit://logs` | Audit | Global audit log (last 50 entries) |
+| `audit://wallet-logs/{wallet_id}` | Audit | Per-wallet audit trail |
+| `system://status` | System | Server health, cluster, RPC status |
+| `system://config` | System | Full system configuration |
+| `payments://x402-config` | Payment | x402 paywall settings and merchant address |
+| `trading://strategies` | Trading | Available trading strategies and parameters |

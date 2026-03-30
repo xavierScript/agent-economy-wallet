@@ -1,0 +1,162 @@
+---
+title: Merchant Guide
+description: "Set up x402 paywalls, publish your manifest, and start earning from AI buyers"
+---
+
+This guide walks you through monetizing your API or data source using the Agent Economy Wallet. By the end, your server will:
+
+- Gate endpoints behind x402 USDC paywalls
+- Publish a machine-readable manifest at `/.well-known/agent.json`
+- Expose a trust score at `/reputation`
+- Register on the decentralized Solana registry for autonomous discovery
+
+## Prerequisites
+
+- Node.js ≥ 18
+- pnpm (`npm install -g pnpm`)
+- A Solana Devnet wallet with a small amount of SOL (for the one-time on-chain registration)
+
+---
+
+## Option A: Use the Reference Server
+
+Clone the repo and run as-is — then add your own routes.
+
+<Steps>
+  <Step title="Clone & Install">
+    ```bash
+    git clone https://github.com/xavierScript/agent-economy-wallet.git
+    cd agent-economy-wallet
+    pnpm install
+    ```
+  </Step>
+  <Step title="Configure Environment">
+    ```bash
+    cp .env.example .env
+    ```
+
+    Edit `.env`:
+    ```env .env
+    WALLET_PASSPHRASE=your-strong-passphrase-here
+    SOLANA_RPC_URL=https://api.devnet.solana.com
+    SOLANA_CLUSTER=devnet
+    OWNER_ADDRESS=YourBase58PublicKeyHere
+    AGENT_NAME=my-data-agent
+    AGENT_DESCRIPTION=Real-time token intelligence and analysis
+    ```
+  </Step>
+  <Step title="Build & Start">
+    ```bash
+    pnpm build
+    node packages/mcp-server/dist/index.js
+    ```
+
+    Your server is live on port 3000 with these endpoints:
+
+    | Endpoint | Auth | Description |
+    |----------|------|-------------|
+    | `GET /.well-known/agent.json` | None | Service manifest |
+    | `GET /reputation` | None | Trust score |
+    | `GET /registry` | None | All registered agents |
+    | `GET /api/fetch-price/:token` | x402 (0.05 USDC) | Live token prices |
+    | `GET /api/analyze-token/:address` | x402 (0.1 USDC) | Token security analysis |
+  </Step>
+  <Step title="Add Your Own Routes">
+    Create new files in `packages/mcp-server/src/api/routes/services/`. Each route needs:
+
+    1. A route handler with your business logic
+    2. The `x402Paywall(amount, USDC_MINT)` middleware to enforce payment
+    3. An entry in the service manifest
+
+    The manifest at `/.well-known/agent.json` is what buyer agents read to decide what to buy. Keep it accurate.
+  </Step>
+</Steps>
+
+## Option B: Use the SDK in Your Own App
+
+If you already have an Express.js server, install the SDK and add paywalls to your existing routes:
+
+```bash
+npm install agent-economy-wallet
+```
+
+```typescript
+import express from "express";
+import {
+  createCoreServices,
+  createX402Paywall,
+  WELL_KNOWN_TOKENS,
+} from "agent-economy-wallet";
+
+const app = express();
+const services = createCoreServices();
+const USDC_MINT = WELL_KNOWN_TOKENS.USDC;
+
+// Gate an endpoint at 0.05 USDC
+app.get(
+  "/api/my-data",
+  createX402Paywall(services, 50_000, USDC_MINT),
+  (req, res) => {
+    res.json({ result: "Premium data delivered" });
+  }
+);
+
+app.listen(3000, () => console.log("Merchant API live on port 3000"));
+```
+
+---
+
+## Register On-Chain
+
+Register your merchant on the decentralized Solana registry so buyer agents can discover you:
+
+**Using the CLI:**
+```bash
+pnpm register --manifest https://your-server.com/.well-known/agent.json
+```
+
+**Using the SDK:**
+```typescript
+import { buildRegistrationTx } from "agent-economy-wallet";
+
+const txRecord = await buildRegistrationTx(
+  connection,
+  walletAddress,
+  "https://your-server.com/.well-known/agent.json"
+);
+const result = await wallet.signAndSendTransaction(txRecord);
+console.log(`Registered! Signature: ${result.signature}`);
+```
+
+Registration costs ~$0.001 and is permanent. Your entry lives on the Solana blockchain — no central authority can remove it.
+
+---
+
+## How Buyers Find and Pay You
+
+Once you're registered, the buyer flow is fully autonomous:
+
+| Step | What happens |
+|------|-------------|
+| 1. `discover_registry` | Buyer scans Solana for registered merchants via SPL Memo |
+| 2. `read_manifest` | Buyer fetches `/.well-known/agent.json` — sees your services and pricing |
+| 3. `check_reputation` | Buyer checks `/reputation` — success rate, total transactions |
+| 4. `probe_x402` | Buyer confirms the on-chain payment requirements |
+| 5. `pay_x402_invoice` | Buyer sends USDC → Solana tx confirmed → data returned |
+
+No human touches steps 1–5.
+
+---
+
+## Verify Your Setup
+
+```bash
+# Manifest
+curl http://localhost:3000/.well-known/agent.json
+
+# Reputation
+curl http://localhost:3000/reputation
+
+# Price endpoint (returns 402 — that's correct)
+curl -i http://localhost:3000/api/fetch-price/SOL
+```

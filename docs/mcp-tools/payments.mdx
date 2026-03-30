@@ -1,23 +1,43 @@
 ---
-title: Payments Tools
-description: Documenting the Payments Tool
+title: Payment Tools
+description: "Probe and pay x402-gated API endpoints"
 ---
 
-The Payments toolset provides AI agents with the ability to programmatically handle monetary requests and execute micro-transactions using the x402 protocol.
+The Payment toolset enables AI agents to interact with the x402 micropayment protocol — discovering costs and executing on-chain payments to access gated HTTP resources.
 
-## Supported Tools
+## `probe_x402`
 
-### `probe_x402_endpoint`
+Discover the cost and requirements of a protected endpoint **without paying**.
 
-When an agent wants to discover the cost and requirements of a protected resource, it uses this tool.
+- **Input:**
+  - `url` — the x402-gated endpoint URL
+- **Execution:** Sends an HTTP GET request. If the server returns `402 Payment Required`, parses the payment headers:
+  - `x-payment-amount` — cost in token base units
+  - `x-payment-mint` — the SPL token mint address (e.g., USDC)
+  - `x-payment-address` — the merchant's receiving wallet
+- **Returns:** Payment requirements (amount, token, merchant address, network)
 
-- **Input Parameters:** `url`
-- **Execution:** Makes an HTTP GET request to the target URL to extract the `402 Payment Required` headers (`x-payment-amount`, `x-payment-mint`, `x-payment-address`).
+<Tip>
+  Use `probe_x402` first to check prices before committing to a purchase. This is how buyer agents comparison-shop across merchants.
+</Tip>
 
-### `pay_x402_invoice`
+## `pay_x402_invoice`
 
-When an agent actually agrees to the required payment, it signs a Solana transaction to fulfill the x402 cost.
+Execute the full x402 payment flow in a single call — pay the merchant and receive the data.
 
-- **Input Parameters:** `wallet_id`, `url`, `method` (default POST), `body` (optional data payload)
-- **Execution:** Automatically queries the exact cost, securely transfers funds to the merchant via `TransactionBuilder`/`MasterFunder`, and finally executes the HTTP request passing the derived transaction signature in the `x-payment-signature` header.
-- **Returns:** The resulting HTTP response from the merchant.
+- **Input:**
+  - `wallet_id` — the agent wallet that will pay
+  - `url` — the x402-gated endpoint URL
+  - `method` (optional, default: `GET`) — HTTP method
+  - `body` (optional) — request body for POST/PUT endpoints
+- **Execution:**
+  1. Queries the endpoint to extract payment requirements (or uses cached requirements from a prior `probe_x402`)
+  2. Validates the payment against the wallet's [spending policy](/security)
+  3. Transfers the exact USDC amount to the merchant via `TransactionBuilder`
+  4. Waits for on-chain confirmation
+  5. Retries the HTTP request with the `x-payment-signature` header
+- **Returns:** The merchant's HTTP response data + transaction signature + Explorer link
+
+<Note>
+  The entire flow — discover price → transfer USDC → verify on-chain → retry with signature → return data — happens in a single tool invocation. The agent never needs to orchestrate multiple steps.
+</Note>

@@ -1,12 +1,33 @@
 ---
 title: Security Audit
-description: MCP Prompts - Security Audit
+description: "Comprehensive cross-wallet security posture review prompt"
 ---
 
-The `security-audit` prompt is designed to instruct the AI agent to systematically evaluate the risk factors involved with a Solana SPL token.
+The `security_audit` prompt instructs the AI agent to perform a systematic security review across all managed wallets and the system's overall configuration.
 
-## Prompt Usage
+## When It's Used
 
-> **System Prompt:** "You are an expert Solana smart contract security auditor. Your task is to analyze the following SPL Token Mint information. Discuss the implications if mint authority is enabled vs. disabled. Evaluate the token for any obvious freeze authority risks, and provide a 1-100 risk score where 100 is highly dangerous."
+Invoked by operators who want a compliance-style review of their deployment — typically on a regular schedule or after a security incident.
 
-This guarantees the LLM returns an expected format and acts thoroughly before invoking any purchasing or token interacting capabilities.
+## Prompt Template
+
+> **System Prompt:** "You are an expert Solana smart contract security auditor. Perform a comprehensive security audit of this Agentic Wallet deployment. Review all wallet policies, analyze the audit log for violations and anomalies, check spending patterns, and provide a security posture assessment with a 1-100 risk score."
+
+## What the Agent Does
+
+1. **Reads** `system://status` and `system://config` for infrastructure health
+2. **Lists** all wallets via `list_wallets` and checks their policies
+3. **Reviews** `audit://logs` for policy violations and blocked transactions
+4. **Analyzes** spending patterns for anomalies (sudden spikes, unusual recipients)
+5. **Reports:**
+   - Number of policy violations detected
+   - Unusual transaction patterns
+   - Blocked transaction summary
+   - Overall security posture score (1-100)
+   - Recommended remediation actions
+
+## Benefits
+
+- **Automated compliance:** Run security reviews without manual log analysis
+- **Pattern detection:** LLMs can identify subtle anomalies humans might miss in raw log data
+- **Actionable output:** The audit produces specific, prioritized recommendations

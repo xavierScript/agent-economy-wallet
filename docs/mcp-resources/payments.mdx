@@ -1,0 +1,32 @@
+---
+title: Payment Resources
+description: "x402 payment configuration and merchant settings"
+---
+
+Payment resources expose the x402 paywall configuration and related trading parameters.
+
+## `payments://x402-config`
+
+Returns the current x402 paywall configuration for the merchant server.
+
+**Data includes:**
+- Merchant receiver address (the wallet that receives USDC payments)
+- Configured x402 endpoints and their pricing
+- Accepted payment token (mint address)
+- Anti-replay cache status
+
+Buyer agents can read this resource to understand the merchant's payment requirements before invoking `probe_x402` or `pay_x402_invoice`.
+
+## `trading://strategies`
+
+Returns available trading strategies and their parameters.
+
+**Data includes:**
+- Strategy names and descriptions
+- Supported token pairs
+- Risk parameters and limits
+- Execution modes
+
+<Note>
+  Trading strategies are informational — they provide context for AI agents making portfolio decisions but do not execute trades automatically.
+</Note>

@@ -1,22 +1,31 @@
 ---
-title: Tokens Tools
-description: Documenting the Tokens Tool
+title: Token Tools
+description: "Create SPL token mints and issue supply"
 ---
 
-The Token toolset allows agents to create and mint Solana SPL tokens. Information retrieved from these tools can be used to bootstrap new economies and tokens on development networks.
+The Token toolset allows agents to create and manage Solana SPL tokens. Useful for bootstrapping new token economies on development networks.
 
-## Supported Tools
+## `create_token_mint`
 
-### `create_token_mint`
+Create a new SPL token mint. The signing wallet becomes the mint authority.
 
-Create a new SPL token mint on devnet. The wallet becomes the mint authority, able to mint new tokens. Returns the mint address. Use `mint_tokens` to mint supply after creation.
+- **Input:**
+  - `wallet_id` — the wallet that will own the mint authority
+  - `decimals` (optional, default: `9`) — decimal precision of the token
+- **Returns:** Mint address, authority public key, transaction signature
 
-- **Input Parameters:** `wallet_id`, `decimals` (optional, default 9)
-- **Returns:** The mint address, authority, and transaction signature.
+<Note>
+  This tool is registered in the tools index as `registerMintTokenTool` — it handles both mint creation and token minting operations.
+</Note>
 
-### `mint_tokens`
+## `mint_tokens`
 
-Mint SPL tokens to a wallet's token account. The signing wallet must be the mint authority. Automatically creates the recipient's Associated Token Account if it doesn't exist.
+Mint new tokens from an existing mint. The signing wallet must hold the mint authority.
 
-- **Input Parameters:** `wallet_id`, `mint`, `to` (optional), `amount`
-- **Returns:** The transaction signature and minted amount.
+- **Input:**
+  - `wallet_id` — the wallet with mint authority
+  - `mint` — the token mint address
+  - `amount` — number of tokens to mint (in human-readable units)
+  - `to` (optional) — recipient wallet address. Defaults to the signing wallet.
+- **Side effects:** Automatically creates the recipient's Associated Token Account (ATA) if it doesn't exist.
+- **Returns:** Transaction signature, minted amount, updated balance

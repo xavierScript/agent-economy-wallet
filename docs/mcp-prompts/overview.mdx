@@ -1,0 +1,45 @@
+---
+title: Overview
+description: "5 MCP prompts — guided workflows for complex agent tasks"
+---
+
+MCP Prompts are pre-built conversation templates that guide AI agents through complex multi-step workflows. When invoked, they inject structured instructions into the agent's context window, ensuring consistent and thorough execution.
+
+## Available Prompts
+
+<CardGroup cols={2}>
+  <Card title="Wallet Setup" icon="plus" href="/mcp-prompts/wallet-setup">
+    Guided wallet creation and initial configuration.
+  </Card>
+  <Card title="Risk Assessment" icon="triangle-exclamation" href="/mcp-prompts/risk-assessment">
+    Evaluate the safety of a pending on-chain transaction.
+  </Card>
+  <Card title="Security Audit" icon="shield-check" href="/mcp-prompts/security-audit">
+    Comprehensive security review across all wallets.
+  </Card>
+  <Card title="Daily Report" icon="chart-line" href="/mcp-prompts/daily-report">
+    Summarize daily operations and flag anomalies.
+  </Card>
+  <Card title="x402 Payment" icon="credit-card" href="/mcp-prompts/x402-payment">
+    Guided x402 payment flow with cost confirmation.
+  </Card>
+</CardGroup>
+
+## How Prompts Work
+
+Unlike tools (which execute code) and resources (which return data), prompts inject structured instructions into the LLM's context. This gives the agent:
+
+1. **A clear task definition** — what to analyze, in what order
+2. **Expected output format** — ensuring consistent, parseable results
+3. **Safety guardrails** — forcing the agent to review policies and constraints before acting
+4. **Explainability** — the agent produces a text-based reasoning trail before executing any action
+
+## Prompt Reference
+
+| Prompt | Category | Purpose |
+|--------|----------|---------|
+| `wallet_setup` | Setup | Create and configure a new agent wallet |
+| `risk_assessment` | Analysis | Pre-transaction safety evaluation |
+| `security_audit` | Analysis | Cross-wallet security posture review |
+| `daily_report` | Analysis | Operational summary and anomaly detection |
+| `x402_payment` | Payment | Guided cost discovery and payment flow |

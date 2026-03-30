@@ -1,0 +1,66 @@
+---
+title: Registry
+description: "Query all registered agents from the on-chain Solana registry"
+---
+
+The registry endpoint provides a convenient HTTP interface to the on-chain SPL Memo registry. It reads the Solana blockchain and returns all registered agents.
+
+## Endpoint
+
+```
+GET /registry
+```
+
+**Authentication:** None — this endpoint is publicly accessible.
+
+## Response
+
+```json
+{
+  "network": "devnet",
+  "registry_address": "DeKbktsRhJ4sWH344Fxzy52HoC4und9Vk4pcHUTvcWw5",
+  "agents": [
+    {
+      "name": "data",
+      "manifest_url": "https://merchant.example.com/.well-known/agent.json",
+      "wallet": "5Yz3k...XqP",
+      "signature": "3rQm...abc",
+      "timestamp": 1711820400
+    }
+  ],
+  "total": 1,
+  "fetched_at": "2026-03-30T19:00:00Z"
+}
+```
+
+## Response Fields
+
+<ResponseField name="network" type="string">
+  The Solana cluster scanned (devnet, mainnet-beta).
+</ResponseField>
+
+<ResponseField name="registry_address" type="string">
+  The public key of the registry coordination wallet.
+</ResponseField>
+
+<ResponseField name="agents" type="array">
+  <Expandable title="Each agent object contains:">
+    <ResponseField name="name" type="string">Agent name from the SPL Memo</ResponseField>
+    <ResponseField name="manifest_url" type="string">URL to the agent's service manifest</ResponseField>
+    <ResponseField name="wallet" type="string">The registering wallet's public key</ResponseField>
+    <ResponseField name="signature" type="string">The registration transaction signature</ResponseField>
+    <ResponseField name="timestamp" type="number">Unix timestamp of the registration</ResponseField>
+  </Expandable>
+</ResponseField>
+
+## How It Works
+
+Under the hood, this endpoint:
+1. Calls `getSignaturesForAddress` on the known registry wallet
+2. Fetches each transaction's memo data
+3. Parses memos that match the format `{"agent":"...","manifest":"...","v":1}`
+4. Returns all valid registrations
+
+<Tip>
+  This is the same data returned by the `discover_registry` MCP tool. The HTTP endpoint is provided for non-MCP clients (browsers, curl, monitoring tools, etc.).
+</Tip>

@@ -1,0 +1,125 @@
+---
+title: SDK Overview
+description: "Install agent-economy-wallet from npm and embed the agent economy into your application"
+---
+
+The Agent Economy Wallet SDK is a standalone npm package that lets you embed the full agent marketplace into your own Node.js application — without cloning the monorepo.
+
+## Installation
+
+```bash
+npm install agent-economy-wallet
+```
+
+<CodeGroup>
+```bash pnpm
+pnpm add agent-economy-wallet
+```
+
+```bash yarn
+yarn add agent-economy-wallet
+```
+</CodeGroup>
+
+## Three Developer Personas
+
+The SDK serves three types of developers:
+
+<CardGroup cols={3}>
+  <Card title="Merchant" icon="store" href="/sdk/merchant">
+    You have an API or data source to monetize. Gate endpoints with x402, publish your manifest, and register on-chain.
+  </Card>
+  <Card title="Buyer Agent" icon="robot" href="/sdk/buyer">
+    Your AI agent needs external data. Give it a wallet, discover merchants on-chain, and pay autonomously.
+  </Card>
+  <Card title="Hybrid" icon="arrows-rotate">
+    Sell one service, buy others. A code review agent that pays a scraping agent for context.
+  </Card>
+</CardGroup>
+
+## Quick Examples
+
+### Initialize a Wallet
+
+```typescript
+import { AgentWallet } from "agent-economy-wallet";
+
+const wallet = new AgentWallet({
+  cluster: "devnet",
+  keystorePath: "./my-keys",
+});
+
+const info = await wallet.initialize();
+console.log(`Address: ${info.address}`);
+console.log(`SOL Balance: ${info.balances.sol}`);
+```
+
+### Merchant: Gate an Endpoint
+
+```typescript
+import express from "express";
+import { createCoreServices, createX402Paywall, USDC_MINT } from "agent-economy-wallet";
+
+const app = express();
+const services = createCoreServices();
+
+// Require 0.1 USDC payment
+const paywall = createX402Paywall(services, 100_000, USDC_MINT);
+
+app.get("/api/premium-data", paywall, (req, res) => {
+  res.json({ data: "Agents rule the world" });
+});
+
+app.listen(3000);
+```
+
+### Buyer: Discover & Pay
+
+```typescript
+import { discoverRegistry, X402Client } from "agent-economy-wallet";
+
+const agents = await discoverRegistry(connection, 100);
+console.log("Found agents:", agents);
+
+const response = await wallet.services.x402Client.fetchWithPayment(
+  "http://merchant.com/api/premium-data",
+  { method: "GET" }
+);
+```
+
+### Register On-Chain
+
+```typescript
+import { buildRegistrationTx } from "agent-economy-wallet";
+
+const txRecord = await buildRegistrationTx(
+  connection,
+  wallet.getAddress(),
+  "https://my-agent.com/.well-known/agent.json"
+);
+
+const result = await wallet.signAndSendTransaction(txRecord);
+console.log(`Registered! Signature: ${result.signature}`);
+```
+
+## Full API Surface
+
+| Export | Category | Description |
+|--------|----------|-------------|
+| `AgentWallet` | Core | Wallet creation, signing, balance queries |
+| `KeyManager` | Core | AES-256-GCM encrypted keystore |
+| `PolicyEngine` | Core | Spending policy enforcement |
+| `AuditLogger` | Core | Transaction audit trail |
+| `createCoreServices` | Core | Service factory for full initialization |
+| `SolanaConnection` | Core | Managed RPC connection |
+| `TransactionBuilder` | Protocol | Construct and sign Solana transactions |
+| `SplTokenService` | Protocol | SPL token operations (mint, transfer, ATA) |
+| `X402Client` | Protocol | Buyer-side x402 payment handling |
+| `X402ServerService` | Protocol | Merchant-side x402 verification |
+| `createX402Paywall` | Middleware | Express middleware for x402 gating |
+| `discoverRegistry` | Registry | Scan on-chain registry for merchants |
+| `buildRegistrationTx` | Registry | Build SPL Memo registration transaction |
+| `getRegistryAddress` | Registry | Get the registry coordination wallet |
+| `MasterFunder` | Relay | Auto-fund new agent wallets |
+| `KoraService` | Relay | Gasless transaction relay |
+| `WELL_KNOWN_TOKENS` | Utility | Token symbol → mint address mapping |

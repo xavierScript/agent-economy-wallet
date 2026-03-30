@@ -1,0 +1,36 @@
+---
+title: Audit Resources
+description: "Tamper-evident audit trails across all wallets"
+---
+
+Audit resources provide read-only access to the transaction audit log — a chronological record of every action taken by every agent wallet.
+
+## `audit://logs`
+
+Returns the most recent 50 audit log entries across **all wallets**.
+
+**Each entry includes:**
+- Timestamp
+- Action type (e.g., `send_sol`, `create_wallet`, `policy_violation`)
+- Wallet ID
+- Outcome (`success` or `failure`)
+- Transaction signature (if applicable)
+- Policy engine decision details (if applicable)
+- Gasless metadata (`gasless: true/false`, `feePayer`)
+
+Useful for operators monitoring overall system activity and for the `daily_report` and `security_audit` MCP prompts.
+
+## `audit://wallet-logs/{wallet_id}`
+
+Returns the full audit trail for a specific wallet.
+
+**URI Template:** Replace `{wallet_id}` with the actual UUID.
+
+**Data includes:** Same fields as `audit://logs`, filtered to a single wallet.
+
+Agents use this to:
+- Verify whether recent transactions landed on-chain
+- Review policy engine rejections
+- Confirm the initial auto-funding event
+- Distinguish gasless (Kora-sponsored) vs self-paid transactions
+- Build context for the `risk_assessment` prompt

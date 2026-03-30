@@ -1,29 +1,42 @@
 ---
-title: Transfers Tools
-description: Documenting the Transfers Tool
+title: Transfer Tools
+description: "Send SOL, SPL tokens, and on-chain memos"
 ---
 
-The Transfers toolset encapsulates the logic for moving assets on the Solana network. Every transfer invoked by the agent must pass through the **Policy Engine** before it is finally signed by the core wallet.
+The Transfer toolset handles asset movement on the Solana network. Every transfer is validated by the [Policy Engine](/security) before signing — rejected transactions never reach the network.
 
-## Supported Tools
+## `send_sol`
 
-### `send_sol`
+Send native SOL to a recipient address.
 
-Sends native SOL to a recipient.
+- **Input:**
+  - `wallet_id` — the sending wallet
+  - `to` — recipient's Solana public key
+  - `amount` — amount in SOL (e.g., `0.01`)
+- **Guardrails:** Validates against per-transaction cap, daily spending limit, and whitelist
+- **Returns:** Transaction signature and Solana Explorer link
 
-- **Input Parameters:** `wallet_id`, `to` (recipient), `amount` (SOL)
-- **Guardrails:** Evaluates daily SOL spending limit. Handled by `MasterFunder` underlying logic.
+## `send_token`
 
-### `send_token`
+Send an SPL token (USDC, custom tokens, etc.) to a recipient.
 
-Sends an SPL token (e.g., USDC, custom utility tokens) to a recipient.
+- **Input:**
+  - `wallet_id` — the sending wallet
+  - `mint` — token mint address or well-known symbol (e.g., `USDC`)
+  - `to` — recipient's Solana public key
+  - `amount` — amount in human-readable units
+- **Guardrails:** Validates against SPL token limits. Automatically creates the recipient's Associated Token Account (ATA) if it doesn't exist.
+- **Returns:** Transaction signature and Solana Explorer link
 
-- **Input Parameters:** `wallet_id`, `mint` (address or well-known token symbol), `to` (recipient), `amount`
-- **Guardrails:** Evaluates daily SPL token limits, validates target associated token account (ATA) exists, and constructs the ATA creation instruction if necessary.
+## `write_memo`
 
-### `write_memo`
+Publish an immutable on-chain message using the SPL Memo program.
 
-Publishes an on-chain message via the SPL Memo program.
+- **Input:**
+  - `wallet_id` — the signing wallet
+  - `message` — the text to write on-chain
+- **Returns:** Transaction signature and Solana Explorer link
 
-- **Input Parameters:** `wallet_id`, `message`
-- **Returns:** The transaction signature of the published memo.
+<Note>
+  Memos are permanent and publicly visible on the Solana ledger. This is the same mechanism used by the [on-chain registry](/architecture#data-flow-autonomous-purchase) for merchant registration.
+</Note>

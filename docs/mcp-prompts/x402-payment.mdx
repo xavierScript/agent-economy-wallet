@@ -1,0 +1,30 @@
+---
+title: x402 Payment
+description: "Guided x402 payment flow with cost confirmation prompt"
+---
+
+The `x402_payment` prompt guides an AI agent through the complete x402 payment lifecycle — from cost discovery to payment execution to data retrieval.
+
+## When It's Used
+
+Invoked when an agent needs to purchase data from an x402-gated endpoint and wants structured guidance through the payment flow.
+
+## What the Agent Does
+
+1. **Probes** the target URL using `probe_x402` to discover:
+   - Price (USDC amount)
+   - Merchant address
+   - Payment token mint
+2. **Evaluates** whether the cost is acceptable:
+   - Checks wallet balance (sufficient USDC?)
+   - Validates against spending policy
+   - Confirms the merchant address is reasonable
+3. **Confirms** the payment details to the user (if in interactive mode)
+4. **Executes** payment using `pay_x402_invoice`
+5. **Returns** the purchased data along with the transaction signature and Explorer link
+
+## Benefits
+
+- **Cost transparency:** The agent always shows the price before paying
+- **Policy compliance:** Spending limits are checked before the transaction
+- **Structured flow:** Ensures the agent follows the probe → evaluate → pay → return pattern consistently

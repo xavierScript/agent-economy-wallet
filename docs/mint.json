@@ -19,37 +19,72 @@
   "navigation": [
     {
       "group": "Getting Started",
-      "pages": ["introduction", "quickstart", "demo", "security"]
+      "pages": ["introduction", "quickstart", "architecture", "demo"]
     },
     {
-      "group": "API",
-      "pages": ["api/analyze-token", "api/fetch-price"]
+      "group": "SDK",
+      "pages": [
+        "sdk/overview",
+        "sdk/merchant",
+        "sdk/buyer",
+        "sdk/publishing"
+      ]
     },
     {
       "group": "MCP Tools",
       "pages": [
-        "mcp-tools/merchant",
-        "mcp-tools/payments",
-        "mcp-tools/tokens",
+        "mcp-tools/overview",
+        "mcp-tools/wallet",
         "mcp-tools/transfers",
-        "mcp-tools/wallet"
+        "mcp-tools/tokens",
+        "mcp-tools/payments",
+        "mcp-tools/discovery"
       ]
     },
     {
       "group": "MCP Resources",
-      "pages": ["mcp-resources/audit-logs", "mcp-resources/system-status"]
+      "pages": [
+        "mcp-resources/overview",
+        "mcp-resources/wallet",
+        "mcp-resources/audit",
+        "mcp-resources/system-status",
+        "mcp-resources/payments"
+      ]
     },
     {
       "group": "MCP Prompts",
       "pages": [
-        "mcp-prompts/daily-report",
+        "mcp-prompts/overview",
+        "mcp-prompts/wallet-setup",
         "mcp-prompts/risk-assessment",
-        "mcp-prompts/security-audit"
+        "mcp-prompts/security-audit",
+        "mcp-prompts/daily-report",
+        "mcp-prompts/x402-payment"
       ]
     },
     {
-      "group": "Other Components",
-      "pages": ["core/cli", "core/wallet-core", "core/kora"]
+      "group": "API Reference",
+      "pages": [
+        "api/manifest",
+        "api/reputation",
+        "api/registry",
+        "api/fetch-price",
+        "api/analyze-token"
+      ]
+    },
+    {
+      "group": "Infrastructure",
+      "pages": [
+        "infra/wallet-core",
+        "infra/kora",
+        "infra/cli",
+        "infra/explorer",
+        "infra/docker"
+      ]
+    },
+    {
+      "group": "Security",
+      "pages": ["security"]
     }
   ]
 }

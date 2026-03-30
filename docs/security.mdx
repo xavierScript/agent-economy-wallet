@@ -1,25 +1,82 @@
 ---
-title: Security Architecture
-description: "Robust protection for autonomous agent operations"
+title: Security
+description: "Multi-layered security architecture for autonomous agent operations"
 ---
 
-Agent Economy Wallet implements multiple layers of security so your AI agent can manage funds autonomously without severe risk of drain or unauthorized API exposure.
+Agent Economy Wallet implements defense-in-depth security to ensure AI agents can manage funds autonomously without risk of drain, replay, or unauthorized access.
 
-## AES-GCM Keystore Isolation
+## AES-256-GCM Keystore Isolation
 
-Private keys are never exposed in plaintext to the LLM or standard application state.
+Private keys are never exposed in plaintext to the LLM or application state.
 
-- Encrypted at rest using **AES-256-GCM**.
-- Decrypted in memory only when a discrete, authorized signing operation is triggered.
-- Agents only receive public keys and signing references, never the raw seed phrases.
+- **Encryption at rest:** All keypairs encrypted using AES-256-GCM with a key derived via PBKDF2 (210,000 iterations, SHA-512).
+- **In-memory decryption:** Keys are decrypted only when a discrete, authorized signing operation is triggered — never held in memory otherwise.
+- **Agent isolation:** Agents receive public keys and signing references only. Raw seed phrases are never exposed to the LLM context.
+- **File-level protection:** Keystores are saved to `~/.agent-economy-wallet/keys/` and are `.gitignore`d from source control.
 
 ## Spending Policy Engine
 
-Agents shouldn't go rogue. The robust Policy Engine enforces algorithmic guardrails:
+Every outbound transaction passes through the Policy Engine before reaching the network:
 
-- **Daily Limits:** Set maximum spending per 24 hours (e.g., max 10 USDC).
-- **Per-Transaction Caps:** Prevent single massive transfers.
-- **Whitelist Only:** Restrict interactions to known program addresses or trusted merchant public keys.
-- **Human-in-the-Loop Required:** Specific high-value thresholds require cryptographic approval from a human admin (`human-only.ts` guardrail).
+| Guardrail | Description |
+|-----------|-------------|
+| **Per-Transaction Cap** | Maximum SOL or token amount allowed in a single transfer |
+| **Daily Spending Limit** | Rolling 24-hour cap on total outbound value |
+| **Rate Limiting** | Maximum transactions per hour to prevent rapid drain |
+| **Whitelist Enforcement** | Restrict interactions to known program addresses and trusted merchant keys |
+| **Human-in-the-Loop** | High-value transfers above a configurable threshold require explicit operator approval via the CLI |
 
-All rejected attempts are logged directly into the `wallet-audit-logs` MCP resource.
+All rejected attempts are logged to the tamper-evident audit trail and surfaced in MCP resources.
+
+<Warning>
+  The Policy Engine runs **before** signing — rejected transactions never touch the network. There is no override mechanism available to the AI agent.
+</Warning>
+
+## x402 Payment Security
+
+The x402 protocol includes built-in protections against abuse:
+
+- **On-chain verification:** Every payment signature is verified against the Solana ledger. The merchant confirms the USDC transfer amount, recipient address, and transaction finality before releasing data.
+- **Anti-replay cache:** An LRU cache of recent transaction signatures prevents the same payment from being used twice.
+- **Stateless validation:** No off-chain state is needed. Payment proofs are Solana transaction signatures — independently verifiable by any party.
+
+## On-Chain Registry Security
+
+The decentralized registry has unique security properties:
+
+- **Immutable registrations:** Once an SPL Memo transaction is confirmed, it cannot be altered or deleted.
+- **Wallet attribution:** Every registration is signed by the merchant's wallet — the blockchain provides cryptographic proof of authorship.
+- **Manifest verification:** Buyer agents fetch the manifest from the URL in the memo and can verify the server is still live before transacting.
+- **No central authority:** There is no admin key, no governance token, and no mechanism for any party to censor or remove a registration.
+
+## Audit Trail
+
+Every action taken by every agent is recorded in the audit log:
+
+- Transaction attempts (successful and failed)
+- Policy engine evaluations
+- x402 payment flows (probe, pay, receive)
+- Wallet creation and closure events
+- Gasless relay usage (Kora vs self-paid)
+
+The audit log is queryable via MCP resources (`audit://logs`, `audit://wallet-logs/{wallet_id}`) and the CLI dashboard.
+
+## Wallet Closure
+
+Wallet closure is a **human-only** operation:
+
+- The `close_wallet` function is deliberately excluded from MCP tool registration.
+- Only human operators using the CLI TUI can close a wallet.
+- On closure, remaining SOL is swept to the `OWNER_ADDRESS` configured in `.env`.
+- All associated keys are securely destroyed from the keystore.
+
+## Recommendations
+
+<Tip>
+  **For production deployments:**
+  - Use `pnpm key:import` to encrypt the master wallet key — never store base58 keys in `.env`.
+  - Set `WALLET_PASSPHRASE` to a strong, unique passphrase (minimum 12 characters).
+  - Run the Kora relay on a separate machine from the MCP server.
+  - Review audit logs regularly via the CLI dashboard or `daily_report` prompt.
+  - Set conservative daily spending limits and lower them as needed.
+</Tip>

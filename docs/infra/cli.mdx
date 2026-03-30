@@ -1,0 +1,66 @@
+---
+title: CLI Dashboard
+description: "Terminal-based operator interface for monitoring agents"
+---
+
+The CLI application (`packages/cli`) provides a powerful terminal-based dashboard for human operators to monitor their agent wallets in real time.
+
+Built with [Ink](https://github.com/vadimdemedes/ink) (React for the terminal), it bridges the gap between headless agent operations and the physical owner of the funds.
+
+## Starting the CLI
+
+```bash
+# Build and launch
+pnpm cli
+
+# Or via Make
+make cli
+
+# Or via Docker
+docker compose up cli
+```
+
+## Features
+
+### Live Dashboard
+
+Auto-refreshing interface displaying:
+- Current agent tasks and recently invoked MCP tools
+- Financial velocity (SOL/USDC spent vs earned)
+- Active wallet count and total balance
+
+### Wallet Management
+
+- Create new wallets with automatic Master Funder seeding
+- View detailed balance breakdowns (SOL + all SPL tokens)
+- Close wallets with SOL sweep to `OWNER_ADDRESS`
+
+<Warning>
+  Wallet closure is intentionally restricted to the CLI — it is **not** exposed as an MCP tool. This ensures AI agents cannot destroy their own wallets.
+</Warning>
+
+### Live Audit Logs
+
+Streaming tabular view of the audit trail, color-coded:
+- 🟢 **Green** — successful transfers
+- 🔴 **Red** — policy engine rejections
+- 🔵 **Blue** — incoming x402 payments
+- ⚪ **Gray** — informational events (wallet creation, balance checks)
+
+### Policy Configuration
+
+Interactive adjustment of spending policy parameters:
+- Modify 24-hour spending limits
+- Add or remove addresses from the whitelist
+- Toggle the `HUMAN_ONLY` threshold for high-value transfers
+- Changes take effect immediately
+
+## Docker
+
+The CLI runs inside Docker with full TTY support:
+
+```bash
+docker compose up cli
+```
+
+The `wallet-data` volume persists keystores, audit logs, and policy state across container restarts.

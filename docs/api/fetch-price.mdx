@@ -1,46 +1,53 @@
 ---
 title: Fetch Price
-api: "GET /api/v1/fetch-price"
-description: "Fetch real-time token prices via CoinGecko API."
+api: "GET /api/fetch-price/:token"
+description: "Live token pricing via the Jupiter Price API"
 ---
 
-Provides real-time pricing data for SPL tokens by querying the CoinGecko aggregator natively.
+Provides real-time pricing data for SPL tokens by querying the Jupiter aggregator.
 
 ### Authentication
 
-This endpoint requires an **x402 Payment Signature** in the header.
+This endpoint requires an **x402 payment**. A `402 Payment Required` response is returned if the payment signature is missing or invalid.
 
 **Cost:** `0.05 USDC` per request.
 
 ### Header Parameters
 
 <ParamField header="x-payment-signature" type="string" required>
-  A valid base64 encoded Solana transaction signature transferring 0.05 USDC to
-  the merchant's vault address.
+  A valid Solana transaction signature proving the USDC transfer to the merchant's vault address.
 </ParamField>
 
 <ParamField header="x-payment-wallet" type="string" required>
-  The public key of the wallet making the payment.
+  The public key of the wallet that made the payment.
 </ParamField>
 
-### Query Parameters
+### Path Parameters
 
-<ParamField query="id" type="string" required>
-  The token symbol or mint address.
-</ParamField>
-
-<ParamField query="vs_token" type="string" default="USDC">
-  The token to price against (defaults to USDC).
+<ParamField path="token" type="string" required>
+  The token symbol (e.g., `SOL`, `BONK`, `JUP`) or mint address.
 </ParamField>
 
 ### Response
 
 <ResponseField name="data" type="object">
   <Expandable title="properties">
-    <ResponseField name="id" type="string" />
-    <ResponseField name="mintSymbol" type="string" />
-    <ResponseField name="vsToken" type="string" />
-    <ResponseField name="vsTokenSymbol" type="string" />
-    <ResponseField name="price" type="number" />
+    <ResponseField name="id" type="string">Token identifier</ResponseField>
+    <ResponseField name="mintSymbol" type="string">Token symbol</ResponseField>
+    <ResponseField name="vsToken" type="string">Quote token address</ResponseField>
+    <ResponseField name="vsTokenSymbol" type="string">Quote token symbol (e.g., USDC)</ResponseField>
+    <ResponseField name="price" type="number">Current price</ResponseField>
   </Expandable>
 </ResponseField>
+
+### Example
+
+```bash
+# First call returns 402 — discover payment requirements
+curl -i http://localhost:3000/api/fetch-price/SOL
+
+# After payment, include signature to receive data
+curl -H "x-payment-signature: <TX_SIGNATURE>" \
+     -H "x-payment-wallet: <YOUR_PUBKEY>" \
+     http://localhost:3000/api/fetch-price/SOL
+```

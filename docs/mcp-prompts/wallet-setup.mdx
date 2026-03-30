@@ -1,0 +1,26 @@
+---
+title: Wallet Setup
+description: "Guided wallet creation and initial configuration prompt"
+---
+
+The `wallet_setup` prompt guides an AI agent through the process of creating and configuring a new agent wallet, including funding, policy verification, and initial health checks.
+
+## When It's Used
+
+Invoked when an agent needs to set up a new wallet from scratch — typically at the start of a session or when onboarding a new agent identity.
+
+## Prompt Behavior
+
+The prompt instructs the agent to:
+
+1. **Create** a new wallet using `create_wallet`
+2. **Verify** the wallet was funded by the Master Funder (if configured)
+3. **Check** the attached spending policy using `get_policy`
+4. **Confirm** the wallet appears in `list_wallets`
+5. **Report** the wallet ID, public key, SOL balance, and Explorer link
+
+## Benefits
+
+- **Consistency:** Ensures new wallets are always created with proper verification steps
+- **Onboarding:** Provides a smooth first-run experience for new users
+- **Audit trail:** The agent's reasoning is visible in the conversation, creating a natural audit record

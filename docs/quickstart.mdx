@@ -1,61 +1,135 @@
 ---
 title: Quickstart
-description: "Start using Agent Economy Wallet locally in minutes"
+description: "Get the Agent Economy Wallet running locally in under 5 minutes"
 ---
 
 ## Prerequisites
 
-Before starting, make sure you have the following installed:
+<CardGroup cols={2}>
+  <Card title="Node.js ≥ 18" icon="node-js" href="https://nodejs.org">
+    JavaScript runtime
+  </Card>
+  <Card title="pnpm" icon="box" href="https://pnpm.io/installation">
+    Workspace-aware package manager
+  </Card>
+</CardGroup>
 
-- [Node.js](https://nodejs.org/en/) (v18 or higher)
-- [pnpm](https://pnpm.io/installation) (Workspace package manager)
-- [Rust / Cargo](https://rustup.rs/) (for the Kora components)
-- [Docker](https://www.docker.com/) (Optional, for easy daemon orchestration)
+**Optional:**
+- [Rust / Cargo](https://rustup.rs/) — required only for [Kora gasless relay](/infra/kora)
+- [Docker](https://www.docker.com/) — required only for [containerized deployment](/infra/docker)
+
+---
 
 ## Installation
 
-**1. Clone the repository**
+<Steps>
+  <Step title="Clone the repository">
+    ```bash
+    git clone https://github.com/xavierScript/agent-economy-wallet.git
+    cd agent-economy-wallet
+    ```
+  </Step>
+  <Step title="Install dependencies">
+    ```bash
+    pnpm install
+    ```
+  </Step>
+  <Step title="Build the workspace">
+    ```bash
+    pnpm build
+    ```
+    This builds all packages in the correct order: `wallet-core` → `cli` → `mcp-server` → `sdk`.
+  </Step>
+  <Step title="Configure environment variables">
+    ```bash
+    cp .env.example .env
+    ```
 
-```bash
-git clone https://github.com/xavierScript/agent-economy-wallet.git
-cd agent-economy-wallet
+    Edit `.env` with your values:
+
+    ```env .env
+    # Required
+    WALLET_PASSPHRASE=your-strong-passphrase-here
+    SOLANA_RPC_URL=https://api.devnet.solana.com
+    SOLANA_CLUSTER=devnet
+    OWNER_ADDRESS=YourBase58PublicKeyHere
+    ```
+
+    For a full reference of every variable, see the [`.env.guide.md`](https://github.com/xavierScript/agent-economy-wallet/blob/main/.env.guide.md) in the repo root.
+  </Step>
+  <Step title="Secure your master wallet (recommended)">
+    The master wallet automatically funds new agent wallets. Import securely:
+
+    1. Set `MASTER_WALLET_SECRET_KEY` in `.env` with your base58 private key.
+    2. Run `pnpm key:import` — the key is encrypted with AES-256-GCM and saved to `~/.agent-economy-wallet/keys/`.
+    3. Remove `MASTER_WALLET_SECRET_KEY` from `.env`.
+    4. Set `MASTER_WALLET_KEY_LABEL=master-funder` in `.env`.
+    5. Clear your shell history (`history -c && history -w` on bash).
+
+    <Warning>
+      Never commit private keys to source control. The encrypted keystore is the only safe storage method.
+    </Warning>
+  </Step>
+  <Step title="Start the server">
+    ```bash
+    pnpm start
+    ```
+
+    This launches the hybrid MCP/Express server:
+    - **MCP transport** on `stdio` — for Claude Desktop, Cursor, VS Code
+    - **Express API** on `http://localhost:3000` — for HTTP clients and merchant endpoints
+  </Step>
+</Steps>
+
+---
+
+## Connect an MCP Client
+
+Point your AI client at the built MCP server. For Claude Desktop, update your config:
+
+<CodeGroup>
+```json macOS
+// ~/Library/Application Support/Claude/claude_desktop_config.json
+{
+  "mcpServers": {
+    "agent-economy-wallet": {
+      "command": "node",
+      "args": ["/absolute/path/to/agent-economy-wallet/packages/mcp-server/dist/index.js"]
+    }
+  }
+}
 ```
 
-**2. Install dependencies**
-
-```bash
-pnpm install
+```json Windows
+// %APPDATA%\Claude\claude_desktop_config.json
+{
+  "mcpServers": {
+    "agent-economy-wallet": {
+      "command": "node",
+      "args": ["C:\\path\\to\\agent-economy-wallet\\packages\\mcp-server\\dist\\index.js"]
+    }
+  }
+}
 ```
+</CodeGroup>
 
-**3. Build the workspace**
+Restart your MCP client to load the new tools.
 
-```bash
-pnpm build
-```
-
-**4. Set up environment variables**
-Copy the sample env files:
-
-```bash
-cp .env.example .env
-```
-
-Fill in your Solana RPC URL and other necessary configurations. For a secure setup of the master wallet that funds your agents, follow these steps:
-
-1. Paste your base58 private key into `MASTER_WALLET_SECRET_KEY` in the `.env` file.
-2. Run `pnpm key:import` (The key is encrypted using your `WALLET_PASSPHRASE` and saved to `~/.agent-economy-wallet/keys/`).
-3. Delete or comment out `MASTER_WALLET_SECRET_KEY` from your `.env` file.
-4. Set `MASTER_WALLET_KEY_LABEL` in `.env` to the label you chose during import (default is `master-funder`).
-5. Clear your shell history to ensure the key isn't stored in memory (e.g., `history -c && history -w` on bash).
-
-For full details on all supported environment variables, please refer to the `.env.guide.md` file in the repository root.
-
-**5. Start the CLI**
-
-```bash
-pnpm start
-```
+---
 
 ## Next Steps
 
-Navigate to the [Demo Guide](/demo) to run the two-agent local economy simulation.
+<CardGroup cols={2}>
+  <Card title="I want to sell services" icon="store" href="/sdk/merchant">
+    Set up x402 paywalls, publish your manifest, and register on-chain.
+  </Card>
+  <Card title="I want to buy services" icon="robot" href="/sdk/buyer">
+    Discover merchants, evaluate trust, and pay autonomously.
+  </Card>
+  <Card title="Run the demo" icon="terminal" href="/demo">
+    22 copy-paste prompts to exercise every capability of the system.
+  </Card>
+  <Card title="Use the SDK in your app" icon="code" href="/sdk/overview">
+    Install from npm and embed agent economy into your own Node.js app.
+  </Card>
+</CardGroup>

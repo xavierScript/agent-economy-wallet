@@ -1,15 +1,33 @@
 ---
-title: System Status
-description: MCP Resources - System Status
+title: System Resources
+description: "Server health, configuration, and infrastructure status"
 ---
 
-The `system-status` resource provides the agent with a real-time snapshot of the underlying infrastructure it is running on. This is exposed as an active JSON stream that the LLM context can query to diagnose its own operational health.
+System resources give AI agents real-time insight into the infrastructure they're running on — useful for diagnostics, health checks, and the MCP prompts that generate operational reports.
 
-## Resource Data Points
+## `system://status`
 
-Agents subscribing to `wallet://system/status` will observe:
+Real-time snapshot of the server's operational health.
 
-1. **Network Connectivity:** Current Solana RPC cluster (e.g. devnet, mainnet-beta), and RPC URL in use.
-2. **Policy Engine Configuration:** Information on the active restrictions preventing malicious code from sending out high-velocity asset transfers.
-3. **Master Funder:** Whether the Master Funder is available (can act as a fee-payer for automated gasless deployments).
-4. **Agent Balance Summary:** A snapshot of total managed wallets, recent activity levels, and basic health metrics across the ecosystem.
+**Data includes:**
+- **Network:** Solana cluster (devnet, mainnet-beta) and RPC URL
+- **Master Funder:** Whether a master wallet is configured and its balance
+- **Kora Relay:** Whether the Kora gasless relay is available
+- **Wallets:** Total managed wallets and recent activity levels
+- **Uptime:** Server start time and current uptime
+
+## `system://config`
+
+Full system configuration for the current deployment.
+
+**Data includes:**
+- Solana cluster and RPC endpoint
+- Policy Engine defaults (per-tx cap, daily limit, rate limit)
+- Master Funder configuration (seed amount, key label)
+- Kora relay URL and API key status
+- Merchant configuration (receiver address, agent name)
+- Log level
+
+<Warning>
+  This resource exposes configuration values, not secrets. Private keys, passphrases, and API keys are never included in the output.
+</Warning>

@@ -1,0 +1,66 @@
+---
+title: Agent Economy Explorer
+description: "Visual dashboard for browsing the on-chain agent registry"
+---
+
+The Agent Economy Explorer (`packages/explorer`) is a Next.js application that reads the on-chain Solana registry and renders a visual directory of all registered agents.
+
+## Features
+
+- **Server-side data fetching** — registry data is fetched from Solana at build/request time
+- **Agent cards** — each registered agent displayed with name, manifest URL, wallet address, and registration timestamp
+- **Agent detail modal** — click an agent to see their services, pricing, and reputation
+- **Live stats** — total active agents, total services, network info, and last sync time
+- **Glassmorphism UI** — premium dark-mode design with smooth animations
+
+## Running Locally
+
+```bash
+# From the monorepo root
+pnpm --filter explorer dev
+
+# Or via Make
+make explorer
+```
+
+The explorer runs on `http://localhost:3001` by default (the MCP server uses 3000).
+
+## Environment Variables
+
+Create a `.env.local` in `packages/explorer/`:
+
+```env
+NEXT_PUBLIC_REGISTRY_ADDRESS=DeKbktsRhJ4sWH344Fxzy52HoC4und9Vk4pcHUTvcWw5
+NEXT_PUBLIC_SOLANA_RPC=https://api.devnet.solana.com
+```
+
+| Variable | Description |
+|----------|-------------|
+| `NEXT_PUBLIC_REGISTRY_ADDRESS` | The registry coordination wallet (same as `REGISTRY_WALLET_ADDRESS` in the main `.env`) |
+| `NEXT_PUBLIC_SOLANA_RPC` | Solana RPC endpoint to query |
+
+## Deploying to Vercel
+
+The Explorer is a standard Next.js app — deploy to [Vercel](https://vercel.com) in one click:
+
+1. Push the `packages/explorer` directory (or the full monorepo) to GitHub
+2. Import the repository in Vercel
+3. Set the root directory to `packages/explorer`
+4. Add the environment variables above
+5. Deploy
+
+## Project Structure
+
+```
+packages/explorer/
+├── src/
+│   ├── app/              # Next.js App Router pages
+│   ├── components/
+│   │   ├── Dashboard.tsx  # Main layout with hero, stats, and agent grid
+│   │   ├── AgentGrid.tsx  # Card grid of registered agents
+│   │   └── AgentModal.tsx # Detail modal for a selected agent
+│   └── lib/
+│       └── registry.ts   # Server-side Solana registry fetcher
+├── public/               # Static assets
+└── next.config.ts        # Next.js configuration
+```

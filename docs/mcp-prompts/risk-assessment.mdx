@@ -1,17 +1,28 @@
 ---
 title: Risk Assessment
-description: MCP Prompts - Risk Assessment
+description: "Pre-transaction safety evaluation prompt"
 ---
 
-The `risk-assessment` prompt is a fundamental safety mechanism that guides you (the LLM agent) to evaluate the safety of an impending on-chain action before requesting the tool execution.
+The `risk_assessment` prompt instructs the AI agent to evaluate the safety of an impending on-chain transaction before executing it — a fundamental safety mechanism for autonomous agents.
 
-## Prompt Usage
+## When It's Used
 
-When asked to transfer an amount larger than the standard threshold, the system prepends this prompt to your context window:
+Automatically prepended to the agent's context when a transfer exceeds a configurable threshold, or invoked manually to evaluate a specific wallet's risk exposure.
+
+## Prompt Template
 
 > **System Prompt:** "You are evaluating a transaction. Review the provided `target_address`, `amount`, and `token_type` against the `wallet-audit-logs` resource. Ensure the requested amount does not violate the active Policy Engine limits. State your justification clearly before invoking a transfer tool."
 
-### Benefits
+## What the Agent Does
 
-- **Explainability:** Before the wallet signs the transaction, the agent produces a text-based trail of logic.
-- **Anomaly Detection:** If another agent tries to extract funds maliciously via a conversational exploit, the AI is prompted to pause, review the policy parameters, and deny the request if it seems suspect.
+1. **Reviews** the target address against the wallet's whitelist
+2. **Checks** the amount against per-transaction and daily limits
+3. **Reads** the `audit://wallet-logs` resource for recent activity
+4. **Calculates** remaining daily headroom (cap - consumed)
+5. **States justification** — explaining why the transaction is safe (or unsafe) before proceeding
+
+## Benefits
+
+- **Explainability:** The agent produces a text-based reasoning trail before any irreversible action
+- **Anomaly detection:** If a malicious prompt injection tries to extract funds, the agent is forced to pause, review the policy parameters, and deny the request if it seems suspicious
+- **Compliance:** Creates a natural audit record of why each transfer was approved

@@ -1,10 +1,31 @@
 ---
-title: Overview
-description: "Model Context Protocol Prompts for Agent Economy Wallets"
+title: Daily Report
+description: "Operational summary and anomaly detection prompt"
 ---
 
-Provides the LLM with perfectly formatted systemic instructions and predefined task contexts.
+The `daily_report` prompt instructs the AI agent to generate a comprehensive daily operations summary, covering all wallet activity, spending, and potential issues.
 
-- `daily-report`: Instructs the agent on how to summarize daily vault activities and profits.
-- `risk-assessment`: Evaluates whether a proposed on-chain transaction is safe based on the policy engine rules.
-- `security-audit`: In-depth prompt for reviewing the smart contract and authority statuses of an SPL token.
+## When It's Used
+
+Typically invoked at the end of each day (or on a schedule) to give operators a high-level view of system activity without manually reading audit logs.
+
+## What the Agent Does
+
+1. **Reads** `audit://logs` for the last 24 hours of activity
+2. **Aggregates:**
+   - Total transactions (successful + failed)
+   - Total SOL and USDC moved
+   - Number of wallets active
+   - x402 payments made and received
+3. **Flags anomalies:**
+   - Policy violations and blocked transactions
+   - Unusual spending spikes
+   - New wallet creations
+   - Failed transaction patterns
+4. **Reports** a structured summary with sections for highlights, concerns, and recommended actions
+
+## Benefits
+
+- **Operator visibility:** Understand the entire day's activity in a single report
+- **Anomaly detection:** Surface issues that might be buried in raw log data
+- **Record keeping:** The daily report serves as a natural operational log

@@ -1,0 +1,55 @@
+---
+title: Overview
+description: "18 MCP tools exposing the full agent economy to AI models"
+---
+
+The MCP Tools provide AI agents with a standardized interface to interact with the wallet engine, Solana blockchain, x402 payment protocol, and decentralized marketplace. Each tool has a typed schema that LLMs can parse and invoke autonomously.
+
+## Tool Categories
+
+<CardGroup cols={3}>
+  <Card title="Wallet" icon="wallet" href="/mcp-tools/wallet">
+    Create, list, inspect, and manage agent wallets.
+  </Card>
+  <Card title="Transfers" icon="arrow-right-arrow-left" href="/mcp-tools/transfers">
+    Send SOL, SPL tokens, and on-chain memos.
+  </Card>
+  <Card title="Tokens" icon="coins" href="/mcp-tools/tokens">
+    Create token mints and mint supply.
+  </Card>
+  <Card title="Payments" icon="credit-card" href="/mcp-tools/payments">
+    Probe and pay x402-gated endpoints.
+  </Card>
+  <Card title="Discovery" icon="magnifying-glass" href="/mcp-tools/discovery">
+    Discover merchants, read manifests, check reputation.
+  </Card>
+  <Card title="Merchant" icon="store">
+    Premium data tools gated by x402 (analyze token, fetch prices).
+  </Card>
+</CardGroup>
+
+## Complete Tool Reference
+
+| Tool | Category | Input | Description |
+|------|----------|-------|-------------|
+| `create_wallet` | Wallet | `label` | Generate a new AES-encrypted wallet |
+| `list_wallets` | Wallet | — | List all managed wallet IDs and public keys |
+| `get_balance` | Wallet | `wallet_id` | SOL + SPL token balances |
+| `get_audit_logs` | Wallet | `wallet_id?` | Recent transaction history and policy decisions |
+| `get_status` | Wallet | — | System telemetry (cluster, RPC, Kora status) |
+| `get_policy` | Wallet | `wallet_id?` | Active spending policy and usage counters |
+| `send_sol` | Transfer | `wallet_id`, `to`, `amount` | Policy-enforced SOL transfer |
+| `send_token` | Transfer | `wallet_id`, `mint`, `to`, `amount` | SPL token transfer with ATA handling |
+| `write_memo` | Transfer | `wallet_id`, `message` | Publish an on-chain SPL Memo |
+| `mint_tokens` | Token | `wallet_id`, `mint`, `amount`, `to?` | Mint SPL tokens (requires mint authority) |
+| `probe_x402` | Payment | `url` | Discover x402 price without paying |
+| `pay_x402_invoice` | Payment | `wallet_id`, `url`, `method?`, `body?` | Pay and receive data in one step |
+| `fetch_prices` | Merchant | `tokens` | Live token prices via Jupiter API |
+| `analyze_token_security` | Merchant | `mint_address` | Token security analysis (mint/freeze authority) |
+| `discover_registry` | Discovery | — | Scan Solana for registered merchants |
+| `read_manifest` | Discovery | `manifest_url` | Read a merchant's `.well-known/agent.json` |
+| `check_reputation` | Discovery | `reputation_url` | Check merchant trust score |
+
+<Note>
+  `close_wallet` exists in the codebase but is **intentionally excluded** from MCP registration. Wallet closure is a destructive operation restricted to human operators via the [CLI](/infra/cli).
+</Note>

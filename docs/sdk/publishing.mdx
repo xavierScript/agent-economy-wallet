@@ -1,0 +1,69 @@
+---
+title: Publishing to npm
+description: "Publish the SDK as a standalone npm package"
+---
+
+The `packages/sdk` directory is designed to be published independently as the `agent-economy-wallet` npm package.
+
+## Prerequisites
+
+- npm account with publishing permissions
+- All internal workspace dependencies compiled
+
+```bash
+npm login
+```
+
+## Publishing Steps
+
+<Steps>
+  <Step title="Build the Entire Workspace">
+    From the monorepo root, build all internal dependencies:
+    ```bash
+    pnpm build
+    ```
+  </Step>
+  <Step title="Navigate to the SDK Package">
+    ```bash
+    cd packages/sdk
+    ```
+  </Step>
+  <Step title="Bump the Version">
+    ```bash
+    npm version patch   # or minor, or major
+    ```
+  </Step>
+  <Step title="Verify Package Contents">
+    Ensure only compiled artifacts are included — no `.ts` source or internal scripts:
+    ```bash
+    npm pack --dry-run
+    ```
+    Expected output: `package.json`, `README.md`, and files from `dist/`.
+  </Step>
+  <Step title="Publish">
+    ```bash
+    npm publish --access public
+    ```
+  </Step>
+</Steps>
+
+<Note>
+  If the name `agent-economy-wallet` is taken on npm, namespace it as `@your-org/agent-economy-wallet`.
+</Note>
+
+## What Gets Published
+
+The SDK re-exports the public API surface from `@agent-economy-wallet/core` and `@agent-economy-wallet/mcp-server`:
+
+```typescript
+// Consumers use a single import:
+import {
+  AgentWallet,
+  createX402Paywall,
+  discoverRegistry,
+  buildRegistrationTx,
+  X402Client,
+} from "agent-economy-wallet";
+```
+
+The full export list is documented in the [SDK Overview](/sdk/overview#full-api-surface).
