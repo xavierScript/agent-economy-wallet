@@ -1,69 +1,100 @@
 ---
 title: Publishing to npm
-description: "Publish the SDK as a standalone npm package"
+description: "Publish the SDK and its sub-packages from the pnpm workspace"
 ---
 
-The `packages/sdk` directory is designed to be published independently as the `agent-economy-wallet` npm package.
+The Agent Economy Wallet monorepo publishes **three packages** to npm using `pnpm publish`. Publishing is always done from the **monorepo root** — never from inside an individual package directory.
+
+## Published Packages
+
+| Package | Registry name | Visibility |
+|---------|--------------|------------|
+| `packages/sdk` | `agent-economy-wallet` | Public |
+| `packages/wallet-core` | `@agent-economy-wallet/core` | Public |
+| `packages/mcp-server` | `@agent-economy-wallet/mcp-server` | Public |
+
+The root monorepo and `@agent-economy-wallet/cli` are marked `"private": true` and are **never** published.
+
+---
 
 ## Prerequisites
 
-- npm account with publishing permissions
-- All internal workspace dependencies compiled
+- A free [npmjs.com](https://npmjs.com) account
+- An **npm organisation** named `agent-economy-wallet` (required for scoped packages like `@agent-economy-wallet/core`)
+- Two-Factor Authentication (2FA) enabled on your npm account
 
-```bash
-npm login
-```
+---
 
 ## Publishing Steps
 
 <Steps>
-  <Step title="Build the Entire Workspace">
-    From the monorepo root, build all internal dependencies:
+  <Step title="Authenticate with npm">
+    ```bash
+    pnpm login
+    ```
+    Follow the browser prompt. You only need to do this once per machine.
+  </Step>
+  <Step title="Build the entire workspace">
+    From the **monorepo root**, compile all packages in dependency order:
     ```bash
     pnpm build
     ```
   </Step>
-  <Step title="Navigate to the SDK Package">
+  <Step title="Run tests">
     ```bash
-    cd packages/sdk
+    pnpm test
     ```
   </Step>
-  <Step title="Bump the Version">
-    ```bash
-    npm version patch   # or minor, or major
-    ```
+  <Step title="Bump versions">
+    Edit the `"version"` field inside the `package.json` of each package you changed. All three published packages should stay in sync:
+    - `packages/sdk/package.json`
+    - `packages/wallet-core/package.json`
+    - `packages/mcp-server/package.json`
+
+    Follow [Semantic Versioning](https://semver.org/): `patch` for fixes, `minor` for new features, `major` for breaking changes.
   </Step>
-  <Step title="Verify Package Contents">
-    Ensure only compiled artifacts are included — no `.ts` source or internal scripts:
+  <Step title="Publish the workspace">
     ```bash
-    npm pack --dry-run
+    pnpm publish -r --access public --no-git-checks --otp YOUR_2FA_CODE
     ```
-    Expected output: `package.json`, `README.md`, and files from `dist/`.
-  </Step>
-  <Step title="Publish">
-    ```bash
-    npm publish --access public
-    ```
+
+    `pnpm publish -r` recursively publishes every non-private package in the workspace. It automatically replaces internal `workspace:*` references with real version numbers in the published bundle — so consumers never see them.
+
+    <Note>
+      Get your `--otp` code from your authenticator app (Google Authenticator, Authy, etc.) immediately before running this command — OTP codes expire in 30 seconds.
+    </Note>
   </Step>
 </Steps>
 
-<Note>
-  If the name `agent-economy-wallet` is taken on npm, namespace it as `@your-org/agent-economy-wallet`.
-</Note>
+---
 
 ## What Gets Published
 
-The SDK re-exports the public API surface from `@agent-economy-wallet/core` and `@agent-economy-wallet/mcp-server`:
+The SDK (`agent-economy-wallet`) is a thin re-export layer over `@agent-economy-wallet/core` and `@agent-economy-wallet/mcp-server`. Consumers can use a single import:
 
 ```typescript
-// Consumers use a single import:
 import {
   AgentWallet,
+  createCoreServices,
   createX402Paywall,
   discoverRegistry,
   buildRegistrationTx,
   X402Client,
+  WELL_KNOWN_TOKENS,
 } from "agent-economy-wallet";
 ```
 
 The full export list is documented in the [SDK Overview](/sdk/overview#full-api-surface).
+
+---
+
+## Checking Published Packages
+
+After publishing, verify the packages appear correctly:
+
+```bash
+# Check the latest version on the registry
+pnpm view agent-economy-wallet version
+pnpm view @agent-economy-wallet/core version
+pnpm view @agent-economy-wallet/mcp-server version
+```

@@ -1,6 +1,7 @@
 {
-  "name": "agent-economy-wallet-monorepo",
+  "name": "agent-economy-wallet",
   "version": "1.0.0",
+  "private": true,
   "description": "Programmatic Solana wallets — create, sign, hold tokens, and interact with on-chain programs",
   "type": "module",
   "scripts": {

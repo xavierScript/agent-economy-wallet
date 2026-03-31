@@ -1,6 +1,7 @@
 {
   "name": "@agent-economy-wallet/cli",
-  "version": "2.0.0",
+  "version": "1.0.0",
+  "private": true,
   "description": "Ink-based TUI for observing Solana agent economy wallet actions",
   "type": "module",
   "bin": {

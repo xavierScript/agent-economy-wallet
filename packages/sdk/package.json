@@ -1,6 +1,6 @@
 {
   "name": "agent-economy-wallet",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Programmatic Solana wallets and agent SDK",
   "type": "module",
   "main": "./dist/index.js",

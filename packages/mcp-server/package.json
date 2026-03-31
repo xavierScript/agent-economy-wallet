@@ -1,6 +1,6 @@
 {
   "name": "@agent-economy-wallet/mcp-server",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "MCP server exposing Solana agent economy wallet tools for AI agents",
   "type": "module",
   "main": "./dist/index.js",
