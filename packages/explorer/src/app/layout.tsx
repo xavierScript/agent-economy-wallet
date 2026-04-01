@@ -52,12 +52,12 @@ export default function RootLayout({
                   GitHub
                 </a>
                 <a
-                  href="https://www.npmjs.com/package/agent-economy-wallet"
+                  href="https://xavierscript.mintlify.app/introduction"
                   target="_blank"
                   rel="noopener noreferrer"
                   className="nav-link"
                 >
-                  SDK
+                  Docs
                 </a>
               </div>
             </div>
