@@ -30,6 +30,8 @@ export function createServices(): WalletServices {
     preferredNetwork: X402Client.getNetworkId(core.config.cluster),
     autoRetry: true,
     maxPaymentLamports: 1_000_000_000, // 1 SOL default max
+    protocolFeeAddress: core.config.protocolFeeAddress,
+    protocolFeeBps: core.config.protocolFeeBps,
   });
 
   return { ...core, x402Client };

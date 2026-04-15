@@ -55,6 +55,8 @@ export interface RegistrySnapshot {
   network: string;
   registry_address: string;
   total_services: number;
+  total_registrations: number;
+  protocol_volume_usdc: number;
 }
 
 // ── Helpers ──────────────────────────────────────────────────────────────
@@ -141,10 +143,9 @@ export async function fetchRegistrySnapshot(
     });
   } catch (err) {
     console.error("[Explorer] Failed to fetch signatures:", err);
-    // If the registry address is invalid or RPC is unreachable,
-    // we still return a valid (empty) snapshot so the UI renders.
   }
 
+  const totalRegistrations = signatures.length;
   const agents: DiscoveredAgent[] = [];
   const seenManifests = new Set<string>();
 
@@ -215,11 +216,66 @@ export async function fetchRegistrySnapshot(
       ? "Mainnet"
       : "Custom";
 
+  // Estimate protocol volume from service prices in manifests
+  let protocolVolumeUsdc = 0;
+  for (const agent of agents) {
+    for (const svc of agent.services) {
+      const price = svc.price ?? svc.cost ?? 0;
+      if (typeof price === "number") protocolVolumeUsdc += price;
+    }
+  }
+
   return {
     agents,
     fetched_at: new Date().toISOString(),
     network,
     registry_address: REGISTRY_ADDRESS,
     total_services: totalServices,
+    total_registrations: totalRegistrations,
+    protocol_volume_usdc: protocolVolumeUsdc,
   };
+}
+
+// ── Health Ping ──────────────────────────────────────────────────────────
+
+export type AgentHealthStatus = "online" | "slow" | "offline";
+
+export interface AgentHealth {
+  manifest_url: string;
+  status: AgentHealthStatus;
+  latency_ms: number;
+}
+
+/**
+ * Ping an agent's manifest URL to determine health.
+ * < 2000ms = online, > 2000ms = slow, failed = offline
+ */
+export async function pingAgentHealth(
+  manifestUrl: string,
+): Promise<AgentHealth> {
+  const start = Date.now();
+  try {
+    const resp = await fetch(manifestUrl, {
+      method: "HEAD",
+      signal: AbortSignal.timeout(5000),
+      cache: "no-store",
+    });
+    const latency = Date.now() - start;
+
+    if (!resp.ok) {
+      return { manifest_url: manifestUrl, status: "offline", latency_ms: latency };
+    }
+
+    return {
+      manifest_url: manifestUrl,
+      status: latency > 2000 ? "slow" : "online",
+      latency_ms: latency,
+    };
+  } catch {
+    return {
+      manifest_url: manifestUrl,
+      status: "offline",
+      latency_ms: Date.now() - start,
+    };
+  }
 }

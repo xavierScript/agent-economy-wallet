@@ -32,7 +32,7 @@ import { TransactionBuilder } from "./transaction-builder.js";
 // ── Registry wallet address ─────────────────────────────────────────────────
 // Override via REGISTRY_WALLET_ADDRESS env var, or use this default.
 // This address acts as a coordination point — not a funded wallet.
-const DEFAULT_REGISTRY_ADDRESS = "regXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX";
+const DEFAULT_REGISTRY_ADDRESS = "DeKbktsRhJ4sWH344Fxzy52HoC4und9Vk4pcHUTvcWw5";
 
 export function getRegistryAddress(): PublicKey {
   const addr = process.env.REGISTRY_WALLET_ADDRESS || DEFAULT_REGISTRY_ADDRESS;
