@@ -74,6 +74,20 @@ export interface AgentWalletConfig {
    * Set via KORA_API_KEY env var.
    */
   koraApiKey?: string;
+  /**
+   * Protocol treasury wallet address (base58 public key).
+   * When set, a small percentage of every x402 payment is automatically
+   * routed to this address as a protocol fee.
+   * Set via PROTOCOL_FEE_ADDRESS env var.
+   */
+  protocolFeeAddress?: string;
+  /**
+   * Protocol fee in basis points (1 bp = 0.01%).
+   * For example, 50 = 0.5%, 100 = 1%.
+   * Only applied when protocolFeeAddress is set.
+   * Set via PROTOCOL_FEE_BPS env var. Defaults to 50 (0.5%).
+   */
+  protocolFeeBps: number;
 }
 
 function getPassphrase(): string {
@@ -113,5 +127,7 @@ export function getDefaultConfig(): AgentWalletConfig {
     agentSeedSol: Number(process.env.AGENT_SEED_SOL) || 0.05,
     koraRpcUrl: process.env.KORA_RPC_URL || undefined,
     koraApiKey: process.env.KORA_API_KEY || undefined,
+    protocolFeeAddress: process.env.PROTOCOL_FEE_ADDRESS || undefined,
+    protocolFeeBps: parseInt(process.env.PROTOCOL_FEE_BPS ?? "50", 10),
   };
 }

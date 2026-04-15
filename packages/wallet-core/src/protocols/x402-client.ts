@@ -124,6 +124,16 @@ export interface X402ClientConfig {
   autoRetry?: boolean;
   /** Maximum payment amount in lamports the client will approve per request */
   maxPaymentLamports?: number;
+  /**
+   * Protocol treasury address. When set, a percentage of every payment
+   * is automatically routed to this address as a protocol fee.
+   */
+  protocolFeeAddress?: string;
+  /**
+   * Protocol fee in basis points (1 bp = 0.01%). Default: 50 (0.5%).
+   * Only applied when protocolFeeAddress is set.
+   */
+  protocolFeeBps?: number;
 }
 
 // ── Constants ────────────────────────────────────────────────────────────────
@@ -162,6 +172,8 @@ export class X402Client {
       autoRetry: config.autoRetry ?? true,
       maxPaymentLamports:
         config.maxPaymentLamports ?? DEFAULT_MAX_PAYMENT_LAMPORTS,
+      protocolFeeAddress: config.protocolFeeAddress ?? "",
+      protocolFeeBps: config.protocolFeeBps ?? 50,
     };
   }
 
@@ -494,16 +506,35 @@ export class X402Client {
 
     const tx = new Transaction();
 
-    // ── Payment instruction ────────────────────────────────────────────────
+    // ── Protocol fee calculation ───────────────────────────────────────────
+    let merchantAmount = amount;
+    let feeAmount = BigInt(0);
+    const hasFee = this.config.protocolFeeAddress && this.config.protocolFeeBps > 0;
+    if (hasFee) {
+      feeAmount = (amount * BigInt(this.config.protocolFeeBps)) / BigInt(10_000);
+      merchantAmount = amount - feeAmount;
+    }
+
+    // ── Payment instruction(s) ─────────────────────────────────────────────
     if (requirements.asset === NATIVE_SOL_MINT) {
-      // Native SOL transfer via System Program
+      // Native SOL transfer via System Program — merchant gets (amount - fee)
       tx.add(
         SystemProgram.transfer({
           fromPubkey: payer,
           toPubkey: payTo,
-          lamports: Number(amount),
+          lamports: Number(merchantAmount),
         }),
       );
+      // Protocol fee transfer (SOL)
+      if (hasFee && feeAmount > BigInt(0)) {
+        tx.add(
+          SystemProgram.transfer({
+            fromPubkey: payer,
+            toPubkey: new PublicKey(this.config.protocolFeeAddress),
+            lamports: Number(feeAmount),
+          }),
+        );
+      }
     } else {
       // SPL Token Transfer (opcode 3 — plain Transfer, not TransferChecked).
       // Native servers validate ix.data[0] === 3, so we must NOT use
@@ -542,14 +573,51 @@ export class X402Client {
         }
       }
 
+      // Merchant payment (amount - fee)
       tx.add(
         createTransferInstruction(
           sourceAta, // source ATA
           destAta, // destination ATA
           payer, // owner / authority
-          Number(amount),
+          Number(merchantAmount),
         ),
       );
+
+      // Protocol fee transfer (SPL)
+      if (hasFee && feeAmount > BigInt(0)) {
+        const treasuryWallet = new PublicKey(this.config.protocolFeeAddress);
+        const treasuryAta = getAssociatedTokenAddressSync(mint, treasuryWallet);
+
+        // Create treasury ATA if it doesn't exist
+        if (connection) {
+          let treasuryAtaExists = false;
+          try {
+            await getAccount(connection, treasuryAta);
+            treasuryAtaExists = true;
+          } catch {
+            // will create below
+          }
+          if (!treasuryAtaExists) {
+            tx.add(
+              createAssociatedTokenAccountInstruction(
+                payer,
+                treasuryAta,
+                treasuryWallet,
+                mint,
+              ),
+            );
+          }
+        }
+
+        tx.add(
+          createTransferInstruction(
+            sourceAta,
+            treasuryAta,
+            payer,
+            Number(feeAmount),
+          ),
+        );
+      }
     }
 
     // Fee payer is either the facilitator or the wallet itself
