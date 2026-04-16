@@ -1,6 +1,7 @@
 "use client";
 
 import { type DiscoveredAgent, type AgentHealthStatus } from "@/lib/registry";
+import { motion, type Variants } from "framer-motion";
 
 interface AgentGridProps {
   agents: DiscoveredAgent[];
@@ -56,17 +57,48 @@ export default function AgentGrid({ agents, onSelect, healthMap }: AgentGridProp
     );
   }
 
+  const containerVariants: Variants = {
+    hidden: { opacity: 0 },
+    show: {
+      opacity: 1,
+      transition: {
+        staggerChildren: 0.08,
+      },
+    },
+  };
+
+  const itemVariants: Variants = {
+    hidden: { opacity: 0, y: 15, scale: 0.95 },
+    show: {
+      opacity: 1,
+      y: 0,
+      scale: 1,
+      transition: {
+        type: "spring",
+        stiffness: 400,
+        damping: 25,
+      },
+    },
+  };
+
   return (
-    <div className="agent-grid">
-      {agents.map((agent, i) => {
+    <motion.div
+      className="agent-grid"
+      variants={containerVariants}
+      initial="hidden"
+      animate="show"
+    >
+      {agents.map((agent) => {
         const health = healthMap?.[agent.manifest_url];
         const statusCfg = health ? STATUS_CONFIG[health] : null;
 
         return (
-          <div
+          <motion.div
             key={agent.registration_tx}
-            className="agent-card animate-card-enter"
-            style={{ animationDelay: `${i * 80}ms` }}
+            className="agent-card"
+            variants={itemVariants}
+            whileHover={{ y: -4, scale: 1.01 }}
+            whileTap={{ scale: 0.98 }}
             onClick={() => onSelect(agent)}
             role="button"
             tabIndex={0}
@@ -125,9 +157,9 @@ export default function AgentGrid({ agents, onSelect, healthMap }: AgentGridProp
                 View <span>→</span>
               </span>
             </div>
-          </div>
+          </motion.div>
         );
       })}
-    </div>
+    </motion.div>
   );
 }

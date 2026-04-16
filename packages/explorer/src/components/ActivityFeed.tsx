@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState, useRef } from "react";
+import { Radio, CircleDollarSign, ExternalLink } from "lucide-react";
 
 interface ActivityItem {
   type: "registration" | "payment";
@@ -109,8 +110,8 @@ export default function ActivityFeed({
               className="activity-item animate-card-enter"
               style={{ animationDelay: `${i * 50}ms` }}
             >
-              <div className="activity-item-icon">
-                {item.type === "registration" ? "📡" : "💸"}
+              <div className="activity-item-icon" style={{ display: "flex", alignItems: "center", color: item.type === "registration" ? "var(--accent-secondary)" : "var(--accent-primary)" }}>
+                {item.type === "registration" ? <Radio size={16} /> : <CircleDollarSign size={16} />}
               </div>
               <div className="activity-item-content">
                 <div className="activity-item-title">
@@ -121,8 +122,9 @@ export default function ActivityFeed({
                   target="_blank"
                   rel="noopener noreferrer"
                   className="activity-item-tx"
+                  style={{ display: "inline-flex", alignItems: "center", gap: "4px" }}
                 >
-                  {truncateSig(item.tx_signature)} ↗
+                  {truncateSig(item.tx_signature)} <ExternalLink size={12} />
                 </a>
               </div>
               <span className="activity-item-time">

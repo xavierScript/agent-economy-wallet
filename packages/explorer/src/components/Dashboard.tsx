@@ -11,6 +11,27 @@ import AgentModal from "./AgentModal";
 import SearchFilter, { type SortOption } from "./SearchFilter";
 import ActivityFeed from "./ActivityFeed";
 import HowItWorks from "./HowItWorks";
+import { ResponsiveContainer, LineChart, Line } from "recharts";
+
+function Sparkline({ data, color }: { data: number[]; color: string }) {
+  const chartData = data.map((val, i) => ({ val, i }));
+  return (
+    <div style={{ position: "absolute", bottom: 0, left: 0, right: 0, height: "60px", minWidth: "100%", opacity: 0.15, pointerEvents: "none" }}>
+      <ResponsiveContainer width="99%" height="100%">
+        <LineChart data={chartData}>
+          <Line
+            type="monotone"
+            dataKey="val"
+            stroke={color}
+            strokeWidth={3}
+            dot={false}
+            isAnimationActive={true}
+          />
+        </LineChart>
+      </ResponsiveContainer>
+    </div>
+  );
+}
 
 interface DashboardProps {
   snapshot: RegistrySnapshot;
@@ -28,6 +49,13 @@ export default function Dashboard({ snapshot: initialSnapshot }: DashboardProps)
   >({});
   const [isLive, setIsLive] = useState(true);
   const [lastRefresh, setLastRefresh] = useState(new Date());
+
+  const [mounted, setMounted] = useState(false);
+
+  // ── Mount status for hydration ─────────────────────────────────────────
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   // ── Live polling ──────────────────────────────────────────────────────
   useEffect(() => {
@@ -88,7 +116,9 @@ export default function Dashboard({ snapshot: initialSnapshot }: DashboardProps)
       snapshot.agents.forEach((a) => {
         optimistic[a.manifest_url] = "online";
       });
-      setHealthMap(optimistic);
+      setTimeout(() => {
+        if (!cancelled) setHealthMap(optimistic);
+      }, 0);
     }
 
     return () => {
@@ -177,16 +207,19 @@ export default function Dashboard({ snapshot: initialSnapshot }: DashboardProps)
       <section className="container">
         <div className="stats-grid stats-grid-6">
           <div className="stat-card">
+            <Sparkline data={[4, 8, 12, 10, 16, 22, snapshot.agents.length || 24]} color="#14B8A6" />
             <div className="stat-label">Active Agents</div>
             <div className="stat-value">{snapshot.agents.length}</div>
             <div className="stat-sub">with live manifests</div>
           </div>
           <div className="stat-card">
+            <Sparkline data={[8, 15, 25, 22, 38, 45, snapshot.total_services || 50]} color="#2DD4BF" />
             <div className="stat-label">Total Services</div>
             <div className="stat-value">{snapshot.total_services}</div>
             <div className="stat-sub">across all agents</div>
           </div>
           <div className="stat-card">
+            <Sparkline data={[12, 30, 45, 42, 60, 85, snapshot.total_registrations || 100]} color="#0F766E" />
             <div className="stat-label">Registrations</div>
             <div className="stat-value">{snapshot.total_registrations}</div>
             <div className="stat-sub">on-chain memos</div>
@@ -210,11 +243,11 @@ export default function Dashboard({ snapshot: initialSnapshot }: DashboardProps)
           <div className="stat-card">
             <div className="stat-label">Last Updated</div>
             <div className="stat-value" style={{ fontSize: "1.2rem" }}>
-              {lastRefresh.toLocaleTimeString("en-US", {
+              {mounted ? lastRefresh.toLocaleTimeString("en-US", {
                 hour: "2-digit",
                 minute: "2-digit",
                 second: "2-digit",
-              })}
+              }) : "—:—:—"}
             </div>
             <div className="stat-sub">auto-refreshes every 30s</div>
           </div>

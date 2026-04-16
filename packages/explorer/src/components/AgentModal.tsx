@@ -2,6 +2,8 @@
 
 import { useEffect, useCallback, useState } from "react";
 import { type DiscoveredAgent, type AgentHealthStatus } from "@/lib/registry";
+import { toast } from "sonner";
+import { Copy, Check, ExternalLink } from "lucide-react";
 
 interface AgentModalProps {
   agent: DiscoveredAgent;
@@ -49,6 +51,7 @@ export default function AgentModal({ agent, onClose, healthStatus }: AgentModalP
   const copyAddress = () => {
     navigator.clipboard.writeText(agent.registered_by);
     setCopied(true);
+    toast.success("Address copied to clipboard");
     setTimeout(() => setCopied(false), 2000);
   };
 
@@ -134,8 +137,12 @@ export default function AgentModal({ agent, onClose, healthStatus }: AgentModalP
                   onClick={copyAddress}
                   title="Copy full address"
                 >
-                  {truncateAddress(agent.registered_by)}
-                  <span className="copy-icon">{copied ? "✓" : "⧉"}</span>
+                  <span className="truncate-address font-mono" style={{ maxWidth: "140px" }}>
+                    {truncateAddress(agent.registered_by)}
+                  </span>
+                  <span className="copy-icon">
+                    {copied ? <Check size={14} /> : <Copy size={14} />}
+                  </span>
                 </button>
               </span>
             </div>
@@ -159,9 +166,10 @@ export default function AgentModal({ agent, onClose, healthStatus }: AgentModalP
                 href={explorerUrl}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="info-value info-link"
+                className="info-value info-link font-mono"
+                style={{ display: "flex", alignItems: "center", gap: "4px" }}
               >
-                {truncateSig(agent.registration_tx)} ↗
+                {truncateSig(agent.registration_tx)} <ExternalLink size={12} />
               </a>
             </div>
             <div className="info-row">
@@ -171,8 +179,9 @@ export default function AgentModal({ agent, onClose, healthStatus }: AgentModalP
                 target="_blank"
                 rel="noopener noreferrer"
                 className="info-value info-link"
+                style={{ display: "flex", alignItems: "center", gap: "4px" }}
               >
-                View manifest.json ↗
+                View manifest.json <ExternalLink size={12} />
               </a>
             </div>
           </div>
