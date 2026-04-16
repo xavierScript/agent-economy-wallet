@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
-import Link from "next/link";
 import { Toaster } from "sonner";
+import { Navbar } from "@/components/Navbar";
 import "./globals.css";
 
 export const metadata: Metadata = {
@@ -39,40 +39,7 @@ export default function RootLayout({
         <Toaster theme="dark" position="bottom-right" />
         <div className="page-wrapper">
           {/* ── Navigation ──────────────────────────────────────────── */}
-          <nav className="nav">
-            <div className="container nav-inner">
-              <Link href="/" className="nav-brand">
-                <div className="nav-brand-icon">⚛</div>
-                <span>Yanga Wallet</span>
-                <span className="nav-version">Explorer</span>
-              </Link>
-              <div className="nav-links">
-                <span className="nav-badge">
-                  <span className="nav-badge-dot" />
-                  Live
-                </span>
-                <Link href="/explore" className="nav-link nav-link-cta">
-                  Explore
-                </Link>
-                <a
-                  href="https://xavierscript.mintlify.app/introduction"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="nav-link"
-                >
-                  Docs
-                </a>
-                <a
-                  href="https://github.com/xavierScript/agent-economy-wallet"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="nav-link"
-                >
-                  GitHub
-                </a>
-              </div>
-            </div>
-          </nav>
+          <Navbar />
 
           {/* ── Page content ───────────────────────────────────────── */}
           {children}
@@ -80,9 +47,8 @@ export default function RootLayout({
           {/* ── Footer ─────────────────────────────────────────────── */}
           <footer className="footer">
             <div className="container footer-inner">
-              <span>
-                © {new Date().getFullYear()} Yanga Wallet · Built on Solana ·
-                0.5% protocol fee
+              <span >
+                © {new Date().getFullYear()} Yanga Wallet · Built on Solana
               </span>
               <div className="footer-links">
                 <a
