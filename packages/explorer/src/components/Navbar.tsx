@@ -2,10 +2,12 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { Menu, X } from "lucide-react";
 
 export function Navbar() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const pathname = usePathname();
 
   return (
     <nav className="nav">
@@ -21,10 +23,16 @@ export function Navbar() {
             <span className="nav-badge-dot" />
             Live
           </span>
-          <Link href="/" className="nav-link">
+          <Link
+            href="/"
+            className={`nav-link ${pathname === "/" ? "nav-link-cta" : ""}`}
+          >
             Home
           </Link>
-          <Link href="/explore" className="nav-link nav-link-cta">
+          <Link
+            href="/explore"
+            className={`nav-link ${pathname === "/explore" ? "nav-link-cta" : ""}`}
+          >
             Explore
           </Link>
           <a
@@ -61,17 +69,17 @@ export function Navbar() {
           <div className="mobile-menu-links">
             <Link
               href="/"
-              className="mobile-nav-link"
+              className={`mobile-nav-link ${pathname === "/" ? "mobile-nav-link-active" : ""}`}
               onClick={() => setIsMobileMenuOpen(false)}
             >
               Home
             </Link>
             <Link
               href="/explore"
-              className="mobile-nav-link mobile-nav-link-cta"
+              className={`mobile-nav-link ${pathname === "/explore" ? "mobile-nav-link-active" : ""}`}
               onClick={() => setIsMobileMenuOpen(false)}
             >
-              Explore Dashboard
+              Explore Marketplace
             </Link>
             <a
               href="https://xavierscript.mintlify.app/introduction"

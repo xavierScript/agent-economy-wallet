@@ -1590,7 +1590,7 @@ body::before {
     border-bottom: none;
   }
 
-  .mobile-nav-link-cta {
+  .mobile-nav-link-active {
     color: var(--accent-primary);
     font-weight: 600;
   }
