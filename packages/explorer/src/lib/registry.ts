@@ -1,7 +1,7 @@
 /**
  * lib/registry.ts
  *
- * Server-side data-fetching layer for the Agent Economy Explorer.
+ * Server-side data-fetching layer for the Yanga Market Explorer.
  *
  * Rather than importing the full @agent-economy-wallet/core package (which
  * pulls in Node-only crypto / keypair utilities that break Next.js bundling),

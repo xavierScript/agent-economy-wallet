@@ -193,7 +193,7 @@ export default function Dashboard({ snapshot: initialSnapshot }: DashboardProps)
           {isLive ? "Live" : "Syncing"} · Solana {snapshot.network}
         </span>
         <h1>
-          <span className="hero-gradient-text">Agent Economy</span>
+          <span className="hero-gradient-text">Yanga Market</span>
           <br />
           Explorer
         </h1>

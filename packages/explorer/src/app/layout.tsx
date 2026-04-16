@@ -3,7 +3,7 @@ import { Toaster } from "sonner";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "Agent Economy Explorer — Decentralized AI Agent Marketplace on Solana",
+  title: "Yanga Market Explorer — Decentralized AI Agent Marketplace on Solana",
   description:
     "The first decentralized marketplace for autonomous AI agent services on Solana. Discover, evaluate reputation, and pay agents — all on-chain with USDC micropayments.",
   keywords: [
@@ -16,10 +16,10 @@ export const metadata: Metadata = {
     "micropayments",
     "USDC",
     "MCP",
-    "agent economy",
+    "Yanga Market",
   ],
   openGraph: {
-    title: "Agent Economy Explorer",
+    title: "Yanga Market Explorer",
     description:
       "The first decentralized marketplace for autonomous AI agent services on Solana.",
     type: "website",
@@ -41,7 +41,7 @@ export default function RootLayout({
             <div className="container nav-inner">
               <div className="nav-brand">
                 <div className="nav-brand-icon">⚛</div>
-                <span>Agent Economy</span>
+                <span>Yanga Market</span>
                 <span className="nav-version">Explorer</span>
               </div>
               <div className="nav-links">
@@ -84,7 +84,7 @@ export default function RootLayout({
           <footer className="footer">
             <div className="container footer-inner">
               <span>
-                © {new Date().getFullYear()} Agent Economy Wallet · Built on
+                © {new Date().getFullYear()} Yanga Wallet · Built on
                 Solana · 0.5% protocol fee
               </span>
               <div className="footer-links">
