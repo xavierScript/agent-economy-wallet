@@ -24,6 +24,7 @@ import {
   LAMPORTS_PER_SOL,
   Connection,
 } from "@solana/web3.js";
+import { createRecordPaymentInstruction } from "./reputation-client.js";
 import {
   createTransferInstruction,
   getAssociatedTokenAddressSync,
@@ -134,6 +135,11 @@ export interface X402ClientConfig {
    * Only applied when protocolFeeAddress is set.
    */
   protocolFeeBps?: number;
+  /**
+   * The program ID for the Anchor reputation smart contract.
+   * Required to automatically bump the merchant's trust score on payment.
+   */
+  reputationProgramId?: string;
 }
 
 // ── Constants ────────────────────────────────────────────────────────────────
@@ -174,6 +180,7 @@ export class X402Client {
         config.maxPaymentLamports ?? DEFAULT_MAX_PAYMENT_LAMPORTS,
       protocolFeeAddress: config.protocolFeeAddress ?? "",
       protocolFeeBps: config.protocolFeeBps ?? 50,
+      reputationProgramId: config.reputationProgramId ?? "",
     };
   }
 
@@ -618,6 +625,20 @@ export class X402Client {
           ),
         );
       }
+    }
+
+    // ── On-chain Reputation Update ─────────────────────────────────────────
+    // If a reputation program ID is configured, automatically record the payment
+    if (this.config.reputationProgramId) {
+      const recipientWalletKey = requirements._recipientWallet ?? requirements.payTo;
+      tx.add(
+        createRecordPaymentInstruction(
+          new PublicKey(recipientWalletKey), // Merchant
+          payer,                             // Buyer (signer)
+          amount,                            // Payment amount
+          new PublicKey(this.config.reputationProgramId)
+        )
+      );
     }
 
     // Fee payer is either the facilitator or the wallet itself

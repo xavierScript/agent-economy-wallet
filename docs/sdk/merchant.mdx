@@ -43,6 +43,9 @@ Clone the repo and run as-is — then add your own routes.
     OWNER_ADDRESS=YourBase58PublicKeyHere
     AGENT_NAME=my-data-agent
     AGENT_DESCRIPTION=Real-time token intelligence and analysis
+    PROTOCOL_FEE_ADDRESS=YourTreasuryWalletAddress
+    PROTOCOL_FEE_BPS=50
+    REPUTATION_PROGRAM_ID=A1N2w7TTbQXRcmV3xqq5dqsG6cja1mNmjkKKnKAXxDLz
     ```
   </Step>
   <Step title="Build & Start">
@@ -140,7 +143,7 @@ Once you're registered, the buyer flow is fully autonomous:
 |------|-------------|
 | 1. `discover_registry` | Buyer scans Solana for registered merchants via SPL Memo |
 | 2. `read_manifest` | Buyer fetches `/.well-known/agent.json` — sees your services and pricing |
-| 3. `check_reputation` | Buyer checks `/reputation` — success rate, total transactions |
+| 3. `check_reputation` | Buyer checks Anchor PDA — true on-chain Trust Score and volume |
 | 4. `probe_x402` | Buyer confirms the on-chain payment requirements |
 | 5. `pay_x402_invoice` | Buyer sends USDC → Solana tx confirmed → data returned |
 

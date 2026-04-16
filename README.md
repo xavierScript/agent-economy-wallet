@@ -129,13 +129,15 @@ const agents = await discoverRegistry(conn, 100);
 |---------|-------------|
 | **Decentralized Registry** | On-chain merchant registration via SPL Memo — no database, no gatekeeper |
 | **x402 Micropayments** | Pay-per-request USDC payments on Solana |
+| **Protocol Revenue** | Built-in zero-friction protocol fee (0.5% default) splitting payments automatically between merchant and protocol treasury |
+| **Anchor Reputation** | On-chain smart contract (PDA-based) tracking merchant volume, transactions, and unique buyers permanently |
 | **18 MCP Tools** | Wallet, transfers, tokens, payments, discovery — all via Model Context Protocol |
 | **9 MCP Resources** | Read-only data streams for agent context (balances, audit, policies) |
 | **5 MCP Prompts** | Guided workflows (risk assessment, security audit, daily report) |
 | **Gasless via Kora** | Agent wallets never pay gas — Kora paymaster sponsors fees |
 | **Policy Engine** | Per-transaction caps, daily limits, rate limiting, whitelist enforcement |
 | **AES-256-GCM Keystore** | Private keys encrypted at rest, never exposed to the LLM |
-| **[Explorer Dashboard](https://agent-economy-wallet-explorer.vercel.app)** | Visual directory of all on-chain registered agents |
+| **[Explorer Dashboard](https://agent-economy-wallet-explorer.vercel.app)** | Beautiful real-time visual directory of all on-chain registered agents and live activity |
 
 ---
 

@@ -62,6 +62,12 @@ export {
   X402ServerService,
   withX402Paywall,
 } from "@agent-economy-wallet/core";
+export {
+  fetchMerchantReputation,
+  deriveMerchantPda,
+  getReputationProgramId,
+  type MerchantReputation,
+} from "@agent-economy-wallet/core";
 
 // ── On-chain agent registry (SPL Memo) ──────────────────────────────────────
 export {

@@ -32,6 +32,7 @@ export function createServices(): WalletServices {
     maxPaymentLamports: 1_000_000_000, // 1 SOL default max
     protocolFeeAddress: core.config.protocolFeeAddress,
     protocolFeeBps: core.config.protocolFeeBps,
+    reputationProgramId: core.config.reputationProgramId,
   });
 
   return { ...core, x402Client };

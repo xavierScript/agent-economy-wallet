@@ -56,4 +56,9 @@ export {
   type AgentMemo,
   type DiscoveredAgent,
 } from "./protocols/registry-protocol.js";
-
+export {
+  fetchMerchantReputation,
+  deriveMerchantPda,
+  getReputationProgramId,
+  type MerchantReputation,
+} from "./protocols/reputation-client.js";

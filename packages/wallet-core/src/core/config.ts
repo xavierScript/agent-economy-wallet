@@ -88,6 +88,11 @@ export interface AgentWalletConfig {
    * Set via PROTOCOL_FEE_BPS env var. Defaults to 50 (0.5%).
    */
   protocolFeeBps: number;
+  /**
+   * The program ID for the Anchor reputation smart contract.
+   * Defaults to A1N2w7TTbQXRcmV3xqq5dqsG6cja1mNmjkKKnKAXxDLz
+   */
+  reputationProgramId?: string;
 }
 
 function getPassphrase(): string {
@@ -129,5 +134,6 @@ export function getDefaultConfig(): AgentWalletConfig {
     koraApiKey: process.env.KORA_API_KEY || undefined,
     protocolFeeAddress: process.env.PROTOCOL_FEE_ADDRESS || undefined,
     protocolFeeBps: parseInt(process.env.PROTOCOL_FEE_BPS ?? "50", 10),
+    reputationProgramId: process.env.REPUTATION_PROGRAM_ID || undefined,
   };
 }
