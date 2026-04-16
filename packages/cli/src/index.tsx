@@ -3,7 +3,7 @@
 /**
  * @agent-economy-wallet/cli
  *
- * Ink-based TUI for observing Solana agent economy wallet actions in real-time.
+ * Ink-based TUI for observing Solana Yanga Wallet actions in real-time.
  * Displays wallets, balances, and audit activity with auto-refresh.
  *
  * Keyboard:

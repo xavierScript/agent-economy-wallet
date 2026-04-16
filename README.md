@@ -1,8 +1,8 @@
 <p align="center">
-  <img src="./assets/dark.svg" alt="Agent Economy Wallet Logo" width="200" />
+  <img src="./assets/dark.svg" alt="Yanga Wallet Logo" width="200" />
 </p>
 
-<h1 align="center">Agent Economy Wallet</h1>
+<h1 align="center">Yanga Wallet (formerly Agent Economy Wallet)</h1>
 
 <p align="center">
   <strong>Agent-to-Agent Marketplace SDK on Solana — discover, evaluate, and pay for services autonomously.</strong>
@@ -25,7 +25,7 @@
 
 ## What is this?
 
-A complete SDK and server for building an **autonomous agent economy** on Solana. AI agents can:
+A complete SDK and server for building an **autonomous Yanga Market** on Solana. AI agents can:
 
 - **Sell services** — gate any HTTP endpoint behind x402 micropayments (USDC on Solana)
 - **Buy services** — discover merchants, evaluate trust, and pay autonomously via MCP tools
@@ -60,7 +60,7 @@ OWNER_ADDRESS=YourBase58PublicKeyHere
 
 ## The Autonomous Buyer Flow
 
-Paste this into Claude Desktop and watch the agent economy work:
+Paste this into Claude Desktop and watch the Yanga Market work:
 
 > *"Query the on-chain agent registry, pick a merchant, check their reputation, read their manifest, then buy the cheapest service they offer."*
 
@@ -95,7 +95,7 @@ docs/              Mintlify documentation site
 
 ## SDK Usage
 
-Install and embed the agent economy into your own Node.js app:
+Install and embed the Yanga Market into your own Node.js app:
 
 ```bash
 pnpm add agent-economy-wallet

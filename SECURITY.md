@@ -9,7 +9,7 @@ Contact: Open a private security advisory via [GitHub Security Advisories](https
 
 ## Security Architecture
 
-The Agent Economy Wallet implements defense-in-depth security for autonomous AI agents managing on-chain funds.
+The Yanga Wallet implements defense-in-depth security for autonomous AI agents managing on-chain funds.
 
 ### Key Encryption
 

@@ -8,7 +8,7 @@ export default function Loading() {
           <span className="live-dot" /> Loading... · Solana
         </span>
         <h1>
-          <span className="hero-gradient-text">Agent Economy</span>
+          <span className="hero-gradient-text">Yanga Market</span>
           <br /> Explorer
         </h1>
       </section>
