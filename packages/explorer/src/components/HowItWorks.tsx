@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Search, FileText, Star, Tag, ShieldCheck, Coins, CheckSquare } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 
@@ -128,6 +128,7 @@ const STEPS = [
 
 export default function HowItWorks() {
   const [activeStep, setActiveStep] = useState(0);
+  const activeStepRef = useRef<HTMLDivElement>(null);
 
   // Auto-cycle through steps
   useEffect(() => {
@@ -136,6 +137,13 @@ export default function HowItWorks() {
     }, 4500);
     return () => clearInterval(interval);
   }, []);
+
+  // Auto-scroll on mobile
+  useEffect(() => {
+    if (activeStepRef.current && window.innerWidth <= 768) {
+      activeStepRef.current.scrollIntoView({ behavior: "smooth", block: "nearest", inline: "center" });
+    }
+  }, [activeStep]);
 
   return (
     <section className="how-it-works">
@@ -159,6 +167,7 @@ export default function HowItWorks() {
             return (
               <div 
                 key={step.number} 
+                ref={isActive ? activeStepRef : null}
                 className={`terminal-step ${isActive ? "active" : ""}`}
                 onClick={() => setActiveStep(i)}
                 onMouseEnter={() => setActiveStep(i)}

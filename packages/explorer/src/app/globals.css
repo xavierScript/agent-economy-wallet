@@ -1483,6 +1483,22 @@ body::before {
     gap: var(--space-sm);
   }
 
+  .modal-title {
+    font-size: 1.1rem;
+    word-break: break-word;
+    line-height: 1.3;
+  }
+
+  .info-row {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 6px;
+  }
+
+  .modal-health {
+    font-size: 0.7rem;
+  }
+
   .modal {
     max-height: 90vh;
   }
