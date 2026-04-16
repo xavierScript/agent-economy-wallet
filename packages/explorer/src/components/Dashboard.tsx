@@ -10,13 +10,23 @@ import AgentGrid from "./AgentGrid";
 import AgentModal from "./AgentModal";
 import SearchFilter, { type SortOption } from "./SearchFilter";
 import ActivityFeed from "./ActivityFeed";
-import HowItWorks from "./HowItWorks";
 import { ResponsiveContainer, LineChart, Line } from "recharts";
 
 function Sparkline({ data, color }: { data: number[]; color: string }) {
   const chartData = data.map((val, i) => ({ val, i }));
   return (
-    <div style={{ position: "absolute", bottom: 0, left: 0, right: 0, height: "60px", minWidth: "100%", opacity: 0.15, pointerEvents: "none" }}>
+    <div
+      style={{
+        position: "absolute",
+        bottom: 0,
+        left: 0,
+        right: 0,
+        height: "60px",
+        minWidth: "100%",
+        opacity: 0.15,
+        pointerEvents: "none",
+      }}
+    >
       <ResponsiveContainer width="99%" height="100%">
         <LineChart data={chartData}>
           <Line
@@ -37,16 +47,18 @@ interface DashboardProps {
   snapshot: RegistrySnapshot;
 }
 
-export default function Dashboard({ snapshot: initialSnapshot }: DashboardProps) {
+export default function Dashboard({
+  snapshot: initialSnapshot,
+}: DashboardProps) {
   const [snapshot, setSnapshot] = useState(initialSnapshot);
   const [selectedAgent, setSelectedAgent] = useState<DiscoveredAgent | null>(
     null,
   );
   const [searchQuery, setSearchQuery] = useState("");
   const [sortBy, setSortBy] = useState<SortOption>("newest");
-  const [healthMap, setHealthMap] = useState<
-    Record<string, AgentHealthStatus>
-  >({});
+  const [healthMap, setHealthMap] = useState<Record<string, AgentHealthStatus>>(
+    {},
+  );
   const [isLive, setIsLive] = useState(true);
   const [lastRefresh, setLastRefresh] = useState(new Date());
 
@@ -99,8 +111,11 @@ export default function Dashboard({ snapshot: initialSnapshot }: DashboardProps)
           const latency = Date.now() - start;
 
           if (!cancelled) {
-            map[agent.manifest_url] =
-              !resp.ok ? "offline" : latency > 2000 ? "slow" : "online";
+            map[agent.manifest_url] = !resp.ok
+              ? "offline"
+              : latency > 2000
+                ? "slow"
+                : "online";
           }
         } catch {
           if (!cancelled) map[agent.manifest_url] = "offline";
@@ -168,21 +183,29 @@ export default function Dashboard({ snapshot: initialSnapshot }: DashboardProps)
   const displayAgents = filteredAgents();
 
   // ── Compute enhanced stats ─────────────────────────────────────────────
-  const avgPrice = snapshot.agents.length > 0
-    ? snapshot.agents.reduce((sum, a) => {
-        const prices = a.services
-          .map((s: any) => s.price ?? s.cost ?? 0)
-          .filter((p: number) => p > 0);
-        return sum + (prices.length > 0 ? prices.reduce((a: number, b: number) => a + b, 0) / prices.length : 0);
-      }, 0) / snapshot.agents.length
-    : 0;
+  const avgPrice =
+    snapshot.agents.length > 0
+      ? snapshot.agents.reduce((sum, a) => {
+          const prices = a.services
+            .map((s: any) => s.price ?? s.cost ?? 0)
+            .filter((p: number) => p > 0);
+          return (
+            sum +
+            (prices.length > 0
+              ? prices.reduce((a: number, b: number) => a + b, 0) /
+                prices.length
+              : 0)
+          );
+        }, 0) / snapshot.agents.length
+      : 0;
 
-  const newestRegistration = snapshot.agents.length > 0
-    ? snapshot.agents.reduce((latest, a) => {
-        const t = new Date(a.registered_at).getTime();
-        return t > new Date(latest.registered_at).getTime() ? a : latest;
-      })
-    : null;
+  const newestRegistration =
+    snapshot.agents.length > 0
+      ? snapshot.agents.reduce((latest, a) => {
+          const t = new Date(a.registered_at).getTime();
+          return t > new Date(latest.registered_at).getTime() ? a : latest;
+        })
+      : null;
 
   return (
     <>
@@ -207,19 +230,36 @@ export default function Dashboard({ snapshot: initialSnapshot }: DashboardProps)
       <section className="container">
         <div className="stats-grid stats-grid-6">
           <div className="stat-card">
-            <Sparkline data={[4, 8, 12, 10, 16, 22, snapshot.agents.length || 24]} color="#14B8A6" />
+            <Sparkline
+              data={[4, 8, 12, 10, 16, 22, snapshot.agents.length || 24]}
+              color="#14B8A6"
+            />
             <div className="stat-label">Active Agents</div>
             <div className="stat-value">{snapshot.agents.length}</div>
             <div className="stat-sub">with live manifests</div>
           </div>
           <div className="stat-card">
-            <Sparkline data={[8, 15, 25, 22, 38, 45, snapshot.total_services || 50]} color="#2DD4BF" />
+            <Sparkline
+              data={[8, 15, 25, 22, 38, 45, snapshot.total_services || 50]}
+              color="#2DD4BF"
+            />
             <div className="stat-label">Total Services</div>
             <div className="stat-value">{snapshot.total_services}</div>
             <div className="stat-sub">across all agents</div>
           </div>
           <div className="stat-card">
-            <Sparkline data={[12, 30, 45, 42, 60, 85, snapshot.total_registrations || 100]} color="#0F766E" />
+            <Sparkline
+              data={[
+                12,
+                30,
+                45,
+                42,
+                60,
+                85,
+                snapshot.total_registrations || 100,
+              ]}
+              color="#0F766E"
+            />
             <div className="stat-label">Registrations</div>
             <div className="stat-value">{snapshot.total_registrations}</div>
             <div className="stat-sub">on-chain memos</div>
@@ -227,9 +267,7 @@ export default function Dashboard({ snapshot: initialSnapshot }: DashboardProps)
           <div className="stat-card">
             <div className="stat-label">Avg Service Price</div>
             <div className="stat-value" style={{ fontSize: "1.4rem" }}>
-              {avgPrice > 0
-                ? `$${avgPrice.toFixed(4)}`
-                : "—"}
+              {avgPrice > 0 ? `$${avgPrice.toFixed(4)}` : "—"}
             </div>
             <div className="stat-sub">USDC per request</div>
           </div>
@@ -243,20 +281,17 @@ export default function Dashboard({ snapshot: initialSnapshot }: DashboardProps)
           <div className="stat-card">
             <div className="stat-label">Last Updated</div>
             <div className="stat-value" style={{ fontSize: "1.2rem" }}>
-              {mounted ? lastRefresh.toLocaleTimeString("en-US", {
-                hour: "2-digit",
-                minute: "2-digit",
-                second: "2-digit",
-              }) : "—:—:—"}
+              {mounted
+                ? lastRefresh.toLocaleTimeString("en-US", {
+                    hour: "2-digit",
+                    minute: "2-digit",
+                    second: "2-digit",
+                  })
+                : "—:—:—"}
             </div>
             <div className="stat-sub">auto-refreshes every 30s</div>
           </div>
         </div>
-      </section>
-
-      {/* ── How It Works ──────────────────────────────────────────── */}
-      <section className="container">
-        <HowItWorks />
       </section>
 
       {/* ── Main Content: Directory + Activity Feed ────────────────── */}

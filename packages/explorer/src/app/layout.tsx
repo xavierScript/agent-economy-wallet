@@ -1,9 +1,10 @@
 import type { Metadata } from "next";
+import Link from "next/link";
 import { Toaster } from "sonner";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "Yanga Market Explorer — Decentralized AI Agent Marketplace on Solana",
+  title: "Yanga Wallet — Decentralized AI Agent Marketplace on Solana",
   description:
     "The first decentralized marketplace for autonomous AI agent services on Solana. Discover, evaluate reputation, and pay agents — all on-chain with USDC micropayments.",
   keywords: [
@@ -16,10 +17,11 @@ export const metadata: Metadata = {
     "micropayments",
     "USDC",
     "MCP",
+    "Yanga Wallet",
     "Yanga Market",
   ],
   openGraph: {
-    title: "Yanga Market Explorer",
+    title: "Yanga Wallet | Market Explorer",
     description:
       "The first decentralized marketplace for autonomous AI agent services on Solana.",
     type: "website",
@@ -39,16 +41,19 @@ export default function RootLayout({
           {/* ── Navigation ──────────────────────────────────────────── */}
           <nav className="nav">
             <div className="container nav-inner">
-              <div className="nav-brand">
+              <Link href="/" className="nav-brand">
                 <div className="nav-brand-icon">⚛</div>
-                <span>Yanga Market</span>
+                <span>Yanga Wallet</span>
                 <span className="nav-version">Explorer</span>
-              </div>
+              </Link>
               <div className="nav-links">
                 <span className="nav-badge">
                   <span className="nav-badge-dot" />
                   Live
                 </span>
+                <Link href="/explore" className="nav-link nav-link-cta">
+                  Explore
+                </Link>
                 <a
                   href="https://xavierscript.mintlify.app/introduction"
                   target="_blank"
@@ -65,14 +70,6 @@ export default function RootLayout({
                 >
                   GitHub
                 </a>
-                <a
-                  href="https://www.npmjs.com/package/agent-economy-wallet"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="nav-link nav-link-cta"
-                >
-                  npm ↗
-                </a>
               </div>
             </div>
           </nav>
@@ -84,8 +81,8 @@ export default function RootLayout({
           <footer className="footer">
             <div className="container footer-inner">
               <span>
-                © {new Date().getFullYear()} Yanga Wallet · Built on
-                Solana · 0.5% protocol fee
+                © {new Date().getFullYear()} Yanga Wallet · Built on Solana ·
+                0.5% protocol fee
               </span>
               <div className="footer-links">
                 <a
