@@ -100,7 +100,7 @@ export default async function HomePage() {
 
         <div className={styles.actionRow}>
           <Link href="/explore" className={styles.primaryCta}>
-            Enter Live Explorer
+            Explore Marketplace
           </Link>
           <a
             href="https://xavierscript.mintlify.app/introduction"
