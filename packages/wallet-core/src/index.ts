@@ -62,3 +62,8 @@ export {
   getReputationProgramId,
   type MerchantReputation,
 } from "./protocols/reputation-client.js";
+export {
+  StreamingPaymentService,
+  type StreamSession,
+  type StreamSessionResult,
+} from "./protocols/streaming-payment-service.js";

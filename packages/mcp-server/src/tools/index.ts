@@ -35,6 +35,11 @@ import { registerDiscoverRegistryTool } from "./discovery/discover-registry.js";
 import { registerReadManifestTool } from "./discovery/read-manifest.js";
 import { registerCheckReputationTool } from "./discovery/check-reputation.js";
 
+// streaming/ — per-compute streaming payments via MagicBlock ER
+import { registerStreamPaymentSessionTool } from "./streaming/stream-payment-session.js";
+import { registerCloseStreamSessionTool } from "./streaming/close-stream-session.js";
+import { registerGetStreamStatusTool } from "./streaming/get-stream-status.js";
+
 /**
  * Register all wallet tools on the given MCP server instance.
  */
@@ -66,4 +71,9 @@ export function registerAllTools(
   registerDiscoverRegistryTool(server, services);
   registerReadManifestTool(server, services);
   registerCheckReputationTool(server, services);
+
+  // streaming/ — per-compute streaming payments via MagicBlock ER
+  registerStreamPaymentSessionTool(server, services);
+  registerCloseStreamSessionTool(server, services);
+  registerGetStreamStatusTool(server, services);
 }

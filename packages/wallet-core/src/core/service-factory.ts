@@ -15,6 +15,7 @@ import { SplTokenService } from "../protocols/spl-token.js";
 import { MasterFunder } from "./master-funder.js";
 import { KoraService } from "../protocols/kora-service.js";
 import { X402ServerService } from "../protocols/x402-server.js";
+import { StreamingPaymentService } from "../protocols/streaming-payment-service.js";
 import { getDefaultConfig, type AgentWalletConfig } from "./config.js";
 
 // ── Types ────────────────────────────────────────────────────────────────────
@@ -36,6 +37,8 @@ export interface CoreServices {
   /** null when KORA_RPC_URL is not set */
   koraService: KoraService | null;
   x402Server: X402ServerService;
+  /** null when YANGA_STREAM_PROGRAM_ID is not set */
+  streamingPayment: StreamingPaymentService | null;
 }
 
 // ── Factory ──────────────────────────────────────────────────────────────────
@@ -99,6 +102,23 @@ export function createCoreServices(): CoreServices {
   const splTokenService = new SplTokenService(connection);
   const x402Server = new X402ServerService(connection.getConnection(), auditLogger);
 
+  // Streaming payments via MagicBlock ER — shares program ID with reputation
+  let streamingPayment: StreamingPaymentService | null = null;
+  try {
+    streamingPayment = new StreamingPaymentService(
+      walletService,
+      keyManager,
+      txBuilder,
+      policyEngine,
+      auditLogger,
+      connection,
+    );
+  } catch (err: any) {
+    console.warn(
+      `\x1b[33m⚠  StreamingPaymentService disabled: ${err.message}\x1b[0m`,
+    );
+  }
+
   return {
     config,
     connection,
@@ -111,5 +131,6 @@ export function createCoreServices(): CoreServices {
     masterFunder,
     koraService,
     x402Server,
+    streamingPayment,
   };
 }
