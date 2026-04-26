@@ -183,7 +183,7 @@ export class StreamingPaymentService {
       sessionIdBytes,
     );
 
-    // 6. Initialize session on L1
+    // 6. Init and Delegate session on L1
     const initIx = this.buildInitializeSessionIx(
       buyerPubkey,
       merchantPubkey,
@@ -192,34 +192,27 @@ export class StreamingPaymentService {
       params.ratePerTick,
       params.intervalMs,
     );
-    const initTx = new Transaction().add(initIx);
-    await this.walletService.signAndSendTransaction(
-      params.walletId,
-      initTx,
-      {
-        action: "stream:initialize_session",
-        details: {
-          sessionId,
-          merchant: params.merchantAddress,
-          ratePerTick: params.ratePerTick,
-          intervalMs: params.intervalMs,
-        },
-      },
-    );
-
-    // 7. Delegate session to ER
+    
     const delegateIx = this.buildDelegateSessionIx(
       buyerPubkey,
       pdaAddress,
       sessionIdBytes,
     );
-    const delegateTx = new Transaction().add(delegateIx);
+
+    const initAndDelegateTx = new Transaction().add(initIx, delegateIx);
+    
     await this.walletService.signAndSendTransaction(
       params.walletId,
-      delegateTx,
+      initAndDelegateTx,
       {
-        action: "stream:delegate_session",
-        details: { sessionId, erEndpoint: this.erEndpoint },
+        action: "stream:initialize_and_delegate_session",
+        details: {
+          sessionId,
+          merchant: params.merchantAddress,
+          ratePerTick: params.ratePerTick,
+          intervalMs: params.intervalMs,
+          erEndpoint: this.erEndpoint,
+        },
       },
     );
 
@@ -342,11 +335,39 @@ export class StreamingPaymentService {
     const durationMs = Date.now() - session.startedAt.getTime();
     session.status = "closed";
 
+    // 6. Perform the final L1 settlement transfer
+    let l1TransferSignature = settlementSignature;
+    if (session.totalPaid > 0) {
+      const merchantPubkey = new PublicKey(session.merchantAddress);
+      const mintPubkey = new PublicKey(session.mint);
+
+      const transferTx = await this.txBuilder.buildTokenTransfer(
+        buyerPubkey,
+        merchantPubkey,
+        mintPubkey,
+        session.totalPaid / 1_000_000, // convert base units to human-readable (6 decimals)
+        6, // USDC decimals
+      );
+
+      const txResult = await this.walletService.signAndSendTransaction(
+        session.walletId,
+        transferTx,
+        {
+          action: "stream:final_settlement",
+          details: {
+            sessionId,
+            totalPaid: session.totalPaid,
+          },
+        },
+      );
+      l1TransferSignature = txResult.signature;
+    }
+
     this.audit.log({
       action: "stream_session_close",
       walletId: session.walletId,
       publicKey: session.buyerPublicKey,
-      txSignature: settlementSignature,
+      txSignature: l1TransferSignature,
       success: true,
       details: {
         sessionId,
@@ -361,8 +382,8 @@ export class StreamingPaymentService {
       totalPaid: session.totalPaid,
       tickCount: session.tickCount,
       durationMs,
-      settlementSignature,
-      solscanUrl: `https://solscan.io/tx/${settlementSignature}?cluster=devnet`,
+      settlementSignature: l1TransferSignature,
+      solscanUrl: `https://solscan.io/tx/${l1TransferSignature}?cluster=devnet`,
     };
 
     this.sessions.delete(sessionId);
@@ -392,29 +413,7 @@ export class StreamingPaymentService {
     const mintPubkey = new PublicKey(session.mint);
 
     try {
-      // 1. Transfer USDC on L1
-      const transferTx = await this.txBuilder.buildTokenTransfer(
-        buyerPubkey,
-        merchantPubkey,
-        mintPubkey,
-        session.ratePerTick / 1_000_000, // convert base units to human-readable (6 decimals)
-        6, // USDC decimals
-      );
-
-      await this.walletService.signAndSendTransaction(
-        session.walletId,
-        transferTx,
-        {
-          action: "stream:tick_transfer",
-          details: {
-            sessionId,
-            tickCount: session.tickCount + 1,
-            amount: session.ratePerTick,
-          },
-        },
-      );
-
-      // 2. Update local state
+      // 1. Update local state
       session.totalPaid += session.ratePerTick;
       session.tickCount += 1;
 
@@ -512,46 +511,63 @@ export class StreamingPaymentService {
     IX_DELEGATE_SESSION.copy(data, 0);
     Buffer.from(sessionIdBytes).copy(data, 8);
 
-    // The #[delegate] macro injects additional accounts for the delegation
-    // program. The Accounts struct has: payer, validator (Option), session (del).
-    // The macro expands to also require:
-    //   - owner program (our program)
-    //   - delegation record PDA
-    //   - delegation metadata PDA
-    //   - delegation program
-    //   - system program
+    // The #[delegate] macro expands DelegateSession to this account order:
+    //   1. payer (Signer, mut)
+    //   2. validator (Option<AccountInfo>) — present with ER validator
+    //   3. buffer_session — PDA of OUR program: seeds = ["buffer", session.key()]
+    //   4. delegation_record_session — PDA of delegation program: seeds = ["delegation", session.key()]
+    //   5. delegation_metadata_session — PDA of delegation program: seeds = ["delegation-metadata", session.key()]
+    //   6. session — the PDA being delegated (mut)
+    //   7. owner_program — our program ID
+    //   8. delegation_program — DELeGG...
+    //   9. system_program
 
-    // Derive the delegation record PDA
+    // Derive buffer PDA (owned by OUR program)
+    const [bufferSession] = PublicKey.findProgramAddressSync(
+      [Buffer.from("buffer"), sessionPda.toBuffer()],
+      this.programId,
+    );
+
+    // Derive the delegation record PDA (owned by delegation program)
     const [delegationRecord] = PublicKey.findProgramAddressSync(
       [Buffer.from("delegation"), sessionPda.toBuffer()],
       DELEGATION_PROGRAM_ID,
     );
 
-    // Derive the delegation metadata PDA
+    // Derive the delegation metadata PDA (owned by delegation program)
     const [delegationMetadata] = PublicKey.findProgramAddressSync(
-      [Buffer.from("delegation_metadata"), sessionPda.toBuffer()],
+      [Buffer.from("delegation-metadata"), sessionPda.toBuffer()],
       DELEGATION_PROGRAM_ID,
     );
 
     return new TransactionInstruction({
       programId: this.programId,
       keys: [
+        // 1. payer
         { pubkey: buyer, isSigner: true, isWritable: true },
-        // validator as Option<AccountInfo> — present
+        // 2. validator (Option — present)
         { pubkey: this.erValidator, isSigner: false, isWritable: false },
+        // 3. buffer_session
+        { pubkey: bufferSession, isSigner: false, isWritable: true },
+        // 4. delegation_record_session
+        { pubkey: delegationRecord, isSigner: false, isWritable: true },
+        // 5. delegation_metadata_session
+        { pubkey: delegationMetadata, isSigner: false, isWritable: true },
+        // 6. session (the PDA to delegate)
         { pubkey: sessionPda, isSigner: false, isWritable: true },
+        // 7. owner_program
         {
           pubkey: this.programId,
           isSigner: false,
           isWritable: false,
         },
-        { pubkey: delegationRecord, isSigner: false, isWritable: true },
-        { pubkey: delegationMetadata, isSigner: false, isWritable: true },
+        // 8. delegation_program
         {
           pubkey: DELEGATION_PROGRAM_ID,
           isSigner: false,
           isWritable: false,
         },
+        // 9. system_program
         {
           pubkey: SystemProgram.programId,
           isSigner: false,
