@@ -87,6 +87,7 @@ packages/
   cli/             Ink-based TUI for human operators (private, not published)
   sdk/             Unified npm package (agent-economy-wallet)
   explorer/        Next.js dashboard — browse the on-chain registry
+programs/          Solana Anchor smart contracts (Reputation & ER Streaming)
 kora/              Kora gasless relay configuration
 docs/              Mintlify documentation site
 ```
