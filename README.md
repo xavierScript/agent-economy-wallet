@@ -18,18 +18,18 @@
 </p>
 
 <p align="center">
-  <a href="https://xavierscript.mintlify.app">Documentation</a> · <a href="https://agent-economy-wallet-explorer.vercel.app">Explorer</a> · <a href="https://www.youtube.com/playlist?list=PL0SN_TTIhgAUG_kiUNZd4crZruk12ZTUk">Demos</a> · <a href="https://x.com/xavierScript/status/2039315867285016736?s=20">X Article</a>
+  <a href="https://xavierscript.mintlify.app">Documentation</a> · <a href="https://yanga-wallet.vercel.app">Explorer</a> · <a href="https://dev.to/xavier_script/from-broke-bots-to-streaming-economies-building-the-agent-economy-wallet-edb">Hackathon Article</a> · <a href="https://explorer.solana.com/tx/4QzWvrcoRYcJYh4fH1su8prLmJ1vme7ivXY2JWsDZzeXDUvR3MnaQjGKUAN2mkKgdjY157cjDQH22hTJ8pWXWmA2?cluster=devnet">Streaming TX</a>
 </p>
 
 ---
 
 ## What is this?
 
-A complete SDK and server for building an **autonomous Yanga Market** on Solana. AI agents can:
+A complete SDK and server for building an **autonomous Yanga Market** on Solana, built for the MagicBlock Hackathon. AI agents can:
 
-- **Sell services** — gate any HTTP endpoint behind x402 micropayments (USDC on Solana)
-- **Buy services** — discover merchants, evaluate trust, and pay autonomously via MCP tools
-- **Register on-chain** — join a decentralized registry (SPL Memo) with no central gatekeeper
+- **Stream payments (Per-Compute)** — stream USDC gaslessly by the millisecond using **MagicBlock Ephemeral Rollups**
+- **Buy & Sell services (Per-Request)** — gate HTTP endpoints behind x402 micropayments
+- **Discover & evaluate** — find merchants via on-chain SPL Memo and check their Anchor PDA reputation
 
 The registry lives entirely on the blockchain. No database. No central server. If every server goes down, any buyer agent can reconstruct the full registry from a single Solana RPC call.
 
@@ -127,17 +127,16 @@ const agents = await discoverRegistry(conn, 100);
 
 | Feature | Description |
 |---------|-------------|
+| **Streaming via Ephemeral Rollups** | Per-compute, sub-second continuous streaming payments powered by MagicBlock ER |
 | **Decentralized Registry** | On-chain merchant registration via SPL Memo — no database, no gatekeeper |
 | **x402 Micropayments** | Pay-per-request USDC payments on Solana |
-| **Protocol Revenue** | Built-in zero-friction protocol fee (0.5% default) splitting payments automatically between merchant and protocol treasury |
 | **Anchor Reputation** | On-chain smart contract (PDA-based) tracking merchant volume, transactions, and unique buyers permanently |
-| **18 MCP Tools** | Wallet, transfers, tokens, payments, discovery — all via Model Context Protocol |
-| **9 MCP Resources** | Read-only data streams for agent context (balances, audit, policies) |
-| **5 MCP Prompts** | Guided workflows (risk assessment, security audit, daily report) |
+| **Protocol Revenue** | Built-in zero-friction protocol fee (0.5% default) splitting payments automatically between merchant and protocol treasury |
+| **18+ MCP Tools** | Wallet, transfers, streaming sessions, payments, discovery — all via Model Context Protocol |
 | **Gasless via Kora** | Agent wallets never pay gas — Kora paymaster sponsors fees |
 | **Policy Engine** | Per-transaction caps, daily limits, rate limiting, whitelist enforcement |
 | **AES-256-GCM Keystore** | Private keys encrypted at rest, never exposed to the LLM |
-| **[Explorer Dashboard](https://agent-economy-wallet-explorer.vercel.app)** | Beautiful real-time visual directory of all on-chain registered agents and live activity |
+| **[Explorer Dashboard](https://yanga-wallet.vercel.app)** | Beautiful real-time visual directory of all on-chain registered agents and live activity |
 
 ---
 
@@ -151,12 +150,14 @@ const agents = await discoverRegistry(conn, 100);
 
 ---
 
-## Resources
+## Submission Links & Resources
 
 | Resource | Link |
 |----------|------|
 | Documentation | [xavierscript.mintlify.app](https://xavierscript.mintlify.app) |
-| Explorer | [agent-economy-wallet-explorer.vercel.app](https://agent-economy-wallet-explorer.vercel.app) |
+| Explorer | [yanga-wallet.vercel.app](https://yanga-wallet.vercel.app) |
+| Hackathon Article | [dev.to (Streaming Economies)](https://dev.to/xavier_script/from-broke-bots-to-streaming-economies-building-the-agent-economy-wallet-edb) |
+| Settlement TX | [Solana Explorer (Devnet)](https://explorer.solana.com/tx/4QzWvrcoRYcJYh4fH1su8prLmJ1vme7ivXY2JWsDZzeXDUvR3MnaQjGKUAN2mkKgdjY157cjDQH22hTJ8pWXWmA2?cluster=devnet) |
 | Demo Playlist | [YouTube](https://www.youtube.com/playlist?list=PL0SN_TTIhgAUG_kiUNZd4crZruk12ZTUk) |
 | Security Policy | [SECURITY.md](./SECURITY.md) |
 | License | [MIT](./LICENSE) |
