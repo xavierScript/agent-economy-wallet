@@ -29,6 +29,7 @@ import { registerProbeX402Tool } from "./payments/probe-x402.js";
 // merchant/
 import { registerFetchPricesTool } from "./merchant/fetch-prices.js";
 import { registerAnalyzeTokenSecurityTool } from "./merchant/analyze-token-security.js";
+import { registerMonitorNetworkOracleTool } from "./merchant/monitor-network-oracle.js";
 
 // discovery/ — buyer agent tools for finding and evaluating merchants
 import { registerDiscoverRegistryTool } from "./discovery/discover-registry.js";
@@ -66,6 +67,7 @@ export function registerAllTools(
   // merchant/ — premium tools
   registerFetchPricesTool(server, services);
   registerAnalyzeTokenSecurityTool(server, services);
+  registerMonitorNetworkOracleTool(server, services);
 
   // discovery/ — buyer agent tools (read-only, no payment)
   registerDiscoverRegistryTool(server, services);
