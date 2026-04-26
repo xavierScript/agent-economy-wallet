@@ -25,9 +25,9 @@
 
 ## What is this?
 
-A complete SDK and server for building an **autonomous Yanga Market** on Solana, built for the MagicBlock Hackathon. AI agents can:
+A complete SDK and server for building an **autonomous Agent Market** on Solana, built for the MagicBlock Hackathon. AI agents can:
 
-- **Stream payments (Per-Compute)** — stream USDC gaslessly by the millisecond using **MagicBlock Ephemeral Rollups**
+- **Stream payments (Per-Compute)** — stream USDC to pay for services gaslessly by the millisecond using **MagicBlock Ephemeral Rollups**
 - **Buy & Sell services (Per-Request)** — gate HTTP endpoints behind x402 micropayments
 - **Discover & evaluate** — find merchants via on-chain SPL Memo and check their Anchor PDA reputation
 
