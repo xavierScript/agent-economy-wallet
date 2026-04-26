@@ -18,7 +18,7 @@
 </p>
 
 <p align="center">
-  <a href="https://xavierscript.mintlify.app">Documentation</a> · <a href="https://yanga-wallet.vercel.app">Explorer</a> · <a href="https://dev.to/xavier_script/from-broke-bots-to-streaming-economies-building-the-agent-economy-wallet-edb">Hackathon Article</a> · <a href="https://explorer.solana.com/tx/4QzWvrcoRYcJYh4fH1su8prLmJ1vme7ivXY2JWsDZzeXDUvR3MnaQjGKUAN2mkKgdjY157cjDQH22hTJ8pWXWmA2?cluster=devnet">Streaming TX</a>
+  <a href="https://xavierscript.mintlify.app">Documentation</a> · <a href="https://yanga-wallet.vercel.app">Explorer</a> · <a href="https://dev.to/xavier_script/from-broke-bots-to-streaming-economies-building-the-agent-economy-wallet-edb">Article</a> · <a href="https://explorer.solana.com/tx/4QzWvrcoRYcJYh4fH1su8prLmJ1vme7ivXY2JWsDZzeXDUvR3MnaQjGKUAN2mkKgdjY157cjDQH22hTJ8pWXWmA2?cluster=devnet">Streaming TX</a> · <a href="https://youtu.be/5SW5TVHPMIE?si=7EfxMBaA8OUN9yFD">Demo</a>
 </p>
 
 ---
