@@ -34,4 +34,9 @@ export {
   type AgentMemo,
   type DiscoveredAgent,
 } from "./registry-protocol.js";
+export {
+  StreamingPaymentService,
+  type StreamSession,
+  type StreamSessionResult,
+} from "./streaming-payment-service.js";
 

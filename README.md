@@ -18,20 +18,65 @@
 </p>
 
 <p align="center">
-  <a href="https://xavierscript.mintlify.app">Documentation</a> · <a href="https://agent-economy-wallet-explorer.vercel.app">Explorer</a> · <a href="https://www.youtube.com/playlist?list=PL0SN_TTIhgAUG_kiUNZd4crZruk12ZTUk">Demos</a> · <a href="https://x.com/xavierScript/status/2039315867285016736?s=20">X Article</a>
+  <a href="https://xavierscript.mintlify.app">Documentation</a> · <a href="https://yanga-wallet.vercel.app">Explorer</a> · <a href="https://dev.to/xavier_script/from-broke-bots-to-streaming-economies-building-the-agent-economy-wallet-edb">Article</a> · <a href="https://explorer.solana.com/tx/4QzWvrcoRYcJYh4fH1su8prLmJ1vme7ivXY2JWsDZzeXDUvR3MnaQjGKUAN2mkKgdjY157cjDQH22hTJ8pWXWmA2?cluster=devnet">Streaming TX</a> · <a href="https://youtu.be/5SW5TVHPMIE?si=7EfxMBaA8OUN9yFD">Demo</a>
 </p>
 
 ---
 
 ## What is this?
 
-A complete SDK and server for building an **autonomous Yanga Market** on Solana. AI agents can:
+Right now, AI agents are broke. They consume compute, data, and API
+resources — and put the bill on their human creator's credit card.
+They can't earn. They can't spend. They certainly can't pay each other.
 
-- **Sell services** — gate any HTTP endpoint behind x402 micropayments (USDC on Solana)
-- **Buy services** — discover merchants, evaluate trust, and pay autonomously via MCP tools
-- **Register on-chain** — join a decentralized registry (SPL Memo) with no central gatekeeper
+**Yanga Wallet fixes this.** It is a complete SDK and MCP Server that
+gives any AI agent a secure Solana wallet, autonomous payment rails,
+and a permissionless on-chain marketplace to find and trade with other
+agents — with no central server, no database, and no gatekeeper.
 
-The registry lives entirely on the blockchain. No database. No central server. If every server goes down, any buyer agent can reconstruct the full registry from a single Solana RPC call.
+### Two ways agents pay each other
+
+**Per-Request (x402)** — the agent pays a fixed price once and gets a
+discrete response back. Like a vending machine: insert coin, receive
+item. Best for data lookups, one-shot analysis, anything with a clear
+input and output. Settled directly on Solana L1.
+
+**Per-Compute (Streaming via MagicBlock Ephemeral Rollups)** — the
+agent pays continuously while a service is running, then stops when it
+is done. Think of it like a taxi meter: the clock runs while you are
+in the cab, and you pay for exactly the time you used — nothing more.
+
+This is made possible by **MagicBlock Ephemeral Rollups**. Here is
+what actually happens under the hood:
+
+1. A `StreamSession` account is created on Solana L1 and its ownership
+   is delegated to MagicBlock's ER — a dedicated SVM execution layer
+   running at sub-50ms latency.
+2. Every tick interval (minimum 500ms), two things happen atomically:
+   a USDC transfer settles on L1, and the session state (tick count,
+   cumulative amount) is updated on the ER in real time.
+3. When the agent closes the session, the ER commits all accumulated
+   state back to Solana L1 in a single verifiable settlement
+   transaction. The full session history — every tick, every payment —
+   is permanently on-chain.
+
+The result: an agent can stream payments at machine speed with the
+trust guarantees of Solana, without paying L1 fees on every single
+tick. The ER absorbs the high-frequency updates. L1 sees the final
+truth.
+
+> **Why does this matter?** Long-running agent tasks — continuous
+> market monitoring, extended code review sessions, real-time data
+> feeds — do not fit neatly into a single API call. Per-compute
+> payments let merchants charge for the actual value delivered, and let
+> buyers pay for exactly what they used. No upfront commitment.
+> No subscription. The session runs as long as the agent needs it,
+> and not a microsecond longer.
+
+The registry lives entirely on the blockchain. No database. No central
+server. If every Web2 server on earth goes dark, any buyer agent can
+reconstruct the full marketplace from a single Solana RPC call.
+
 
 ---
 
@@ -87,6 +132,7 @@ packages/
   cli/             Ink-based TUI for human operators (private, not published)
   sdk/             Unified npm package (agent-economy-wallet)
   explorer/        Next.js dashboard — browse the on-chain registry
+programs/          Solana Anchor smart contracts (Reputation & ER Streaming)
 kora/              Kora gasless relay configuration
 docs/              Mintlify documentation site
 ```
@@ -127,17 +173,16 @@ const agents = await discoverRegistry(conn, 100);
 
 | Feature | Description |
 |---------|-------------|
+| **Streaming via Ephemeral Rollups** | Per-compute, sub-second continuous streaming payments powered by MagicBlock ER |
 | **Decentralized Registry** | On-chain merchant registration via SPL Memo — no database, no gatekeeper |
 | **x402 Micropayments** | Pay-per-request USDC payments on Solana |
-| **Protocol Revenue** | Built-in zero-friction protocol fee (0.5% default) splitting payments automatically between merchant and protocol treasury |
 | **Anchor Reputation** | On-chain smart contract (PDA-based) tracking merchant volume, transactions, and unique buyers permanently |
-| **18 MCP Tools** | Wallet, transfers, tokens, payments, discovery — all via Model Context Protocol |
-| **9 MCP Resources** | Read-only data streams for agent context (balances, audit, policies) |
-| **5 MCP Prompts** | Guided workflows (risk assessment, security audit, daily report) |
+| **Protocol Revenue** | Built-in zero-friction protocol fee (0.5% default) splitting payments automatically between merchant and protocol treasury |
+| **18+ MCP Tools** | Wallet, transfers, streaming sessions, payments, discovery — all via Model Context Protocol |
 | **Gasless via Kora** | Agent wallets never pay gas — Kora paymaster sponsors fees |
 | **Policy Engine** | Per-transaction caps, daily limits, rate limiting, whitelist enforcement |
 | **AES-256-GCM Keystore** | Private keys encrypted at rest, never exposed to the LLM |
-| **[Explorer Dashboard](https://agent-economy-wallet-explorer.vercel.app)** | Beautiful real-time visual directory of all on-chain registered agents and live activity |
+| **[Explorer Dashboard](https://yanga-wallet.vercel.app)** | Beautiful real-time visual directory of all on-chain registered agents and live activity |
 
 ---
 
@@ -151,12 +196,14 @@ const agents = await discoverRegistry(conn, 100);
 
 ---
 
-## Resources
+## Submission Links & Resources
 
 | Resource | Link |
 |----------|------|
 | Documentation | [xavierscript.mintlify.app](https://xavierscript.mintlify.app) |
-| Explorer | [agent-economy-wallet-explorer.vercel.app](https://agent-economy-wallet-explorer.vercel.app) |
+| Explorer | [yanga-wallet.vercel.app](https://yanga-wallet.vercel.app) |
+| Hackathon Article | [dev.to (Streaming Economies)](https://dev.to/xavier_script/from-broke-bots-to-streaming-economies-building-the-agent-economy-wallet-edb) |
+| Settlement TX | [Solana Explorer (Devnet)](https://explorer.solana.com/tx/4QzWvrcoRYcJYh4fH1su8prLmJ1vme7ivXY2JWsDZzeXDUvR3MnaQjGKUAN2mkKgdjY157cjDQH22hTJ8pWXWmA2?cluster=devnet) |
 | Demo Playlist | [YouTube](https://www.youtube.com/playlist?list=PL0SN_TTIhgAUG_kiUNZd4crZruk12ZTUk) |
 | Security Policy | [SECURITY.md](./SECURITY.md) |
 | License | [MIT](./LICENSE) |

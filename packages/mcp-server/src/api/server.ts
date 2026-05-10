@@ -7,6 +7,7 @@ import {
   registerRegistryRoute,
   registerAnalyzeTokenRoute,
   registerFetchPriceRoute,
+  registerMarketMonitorRoute,
 } from "./routes/index.js";
 
 // Re-export middleware for backward compatibility with root index.ts
@@ -29,6 +30,7 @@ export function createExpressApp(services: WalletServices): express.Express {
   registerRegistryRoute(app, services);
   registerAnalyzeTokenRoute(app, services);
   registerFetchPriceRoute(app, services);
+  registerMarketMonitorRoute(app, services);
 
   return app;
 }

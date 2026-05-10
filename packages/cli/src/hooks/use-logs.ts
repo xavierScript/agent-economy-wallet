@@ -18,10 +18,20 @@ export interface UseLogsOptions {
   interval?: number;
   /** Bump to force refresh. */
   refreshKey?: number;
+  /** Whether to allow faster polling */
+  allowFasterPolling?: boolean;
 }
 
 export function useLogs(services: WalletServices, opts: UseLogsOptions = {}) {
-  const { count = 20, walletId, interval = 3_000, refreshKey = 0 } = opts;
+  const {
+    count = 20,
+    walletId,
+    interval = 3_000,
+    refreshKey = 0,
+    allowFasterPolling,
+  } = opts;
+  const safeInterval =
+    !allowFasterPolling && interval > 0 && interval < 1000 ? 1000 : interval;
   const [logs, setLogs] = useState<AuditLogEntry[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -36,11 +46,11 @@ export function useLogs(services: WalletServices, opts: UseLogsOptions = {}) {
 
     fetch();
 
-    if (interval > 0) {
-      const id = setInterval(fetch, interval);
+    if (safeInterval > 0) {
+      const id = setInterval(fetch, safeInterval);
       return () => clearInterval(id);
     }
-  }, [refreshKey, count, walletId, interval]);
+  }, [refreshKey, count, walletId, safeInterval]);
 
   return { logs, loading };
 }

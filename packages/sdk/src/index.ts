@@ -94,3 +94,10 @@ export {
 
 // ── Express middleware (for merchants) ──────────────────────────────────────
 export { createX402Paywall } from "@agent-economy-wallet/mcp-server/api/server";
+
+// ── Streaming payments (MagicBlock ER) ──────────────────────────────────
+export {
+  StreamingPaymentService,
+  type StreamSession,
+  type StreamSessionResult,
+} from "@agent-economy-wallet/core";

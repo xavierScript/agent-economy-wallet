@@ -26,6 +26,7 @@ export function registerManifestRoute(app: Express, services: WalletServices) {
           id: "fetch-price",
           endpoint: "/api/fetch-price/:token",
           description: "Live token price via CoinGecko",
+          pricing_model: "per_request",
           payment: {
             amount: "0.05",
             token: "USDC",
@@ -36,10 +37,23 @@ export function registerManifestRoute(app: Express, services: WalletServices) {
           id: "analyze-token",
           endpoint: "/api/analyze-token/:address",
           description: "Security rug-check and on-chain token analysis",
+          pricing_model: "per_request",
           payment: {
             amount: "0.1",
             token: "USDC",
             network: "solana-devnet",
+          },
+        },
+        {
+          id: "market-monitor",
+          endpoint: "/api/market-monitor",
+          description:
+            "Continuous real-time market data — priced per compute second via MagicBlock ER",
+          pricing_model: "per_compute",
+          payment: {
+            rate_per_tick: 1000,
+            interval_ms: 500,
+            token: "USDC",
           },
         },
       ],

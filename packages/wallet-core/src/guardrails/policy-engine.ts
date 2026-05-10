@@ -313,6 +313,8 @@ export class PolicyEngine {
             "ComputeBudget111111111111111111111111111111", // Compute Budget
             "JUP6LkbZbjS1jKKwapdHNy74zcZ3tLUZoi5QNyVTaV4", // Jupiter v6
             "TokenzQdBNbLqP5VEhdkAS6EPFLC1PHnBqCXEpPxuEb", // Token-2022
+            "A1N2w7TTbQXRcmV3xqq5dqsG6cja1mNmjkKKnKAXxDLz", // Agent Economy Program (Reputation/Streaming)
+            "DELeGGvXpWV2fqJUhqcF5ZSYMS4JTLjteaAMARRSaeSh", // MagicBlock ER Delegation Program
           ],
         },
       ],

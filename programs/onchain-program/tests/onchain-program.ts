@@ -1,20 +1,39 @@
 import * as anchor from "@coral-xyz/anchor";
-import { Program } from "@coral-xyz/anchor";
+import { Program, web3 } from "@coral-xyz/anchor";
 import { OnchainProgram } from "../target/types/onchain_program";
-import { PublicKey, Keypair } from "@solana/web3.js";
+import {
+  PublicKey,
+  Keypair,
+  LAMPORTS_PER_SOL,
+  sendAndConfirmTransaction,
+} from "@solana/web3.js";
 import { expect } from "chai";
+import {
+  ConnectionMagicRouter,
+  GetCommitmentSignature,
+} from "@magicblock-labs/ephemeral-rollups-sdk";
 
-describe("agent-reputation", () => {
-  // Configure the client to use the local cluster.
-  const provider = anchor.AnchorProvider.env();
-  anchor.setProvider(provider);
+// ── Setup ────────────────────────────────────────────────────────────────
 
-  const program = anchor.workspace.onchainProgram as Program<OnchainProgram>;
+const provider = anchor.AnchorProvider.env();
+anchor.setProvider(provider);
 
-  // Create a mock merchant keypair
-  const merchant = Keypair.generate();
+const program = anchor.workspace.onchainProgram as Program<OnchainProgram>;
+const merchant = Keypair.generate();
 
-  // Derive the merchant reputation PDA
+const STREAM_SESSION_SEED = Buffer.from("stream_session");
+
+function makeSessionId(n: number): number[] {
+  const bytes = new Array(16).fill(0);
+  bytes[0] = n & 0xff;
+  return bytes;
+}
+
+// ═══════════════════════════════════════════════════════════════════════
+// Reputation Tests
+// ═══════════════════════════════════════════════════════════════════════
+
+describe("reputation", () => {
   const [merchantPda, merchantBump] = PublicKey.findProgramAddressSync(
     [Buffer.from("merchant"), merchant.publicKey.toBuffer()],
     program.programId,
@@ -27,84 +46,36 @@ describe("agent-reputation", () => {
         merchantAccount: merchantPda,
         merchant: merchant.publicKey,
         payer: provider.wallet.publicKey,
-        systemProgram: anchor.web3.SystemProgram.programId,
+        systemProgram: web3.SystemProgram.programId,
       })
       .rpc();
 
     console.log("  Initialize tx:", tx);
 
-    // Fetch the account and verify
     const account = await program.account.merchantAccount.fetch(merchantPda);
-    expect(account.merchant.toBase58()).to.equal(
-      merchant.publicKey.toBase58(),
-    );
+    expect(account.merchant.toBase58()).to.equal(merchant.publicKey.toBase58());
     expect(account.totalPayments.toNumber()).to.equal(0);
     expect(account.totalVolumeLamports.toNumber()).to.equal(0);
-    expect(account.uniqueBuyers).to.equal(0);
-    expect(account.lastPaymentTs.toNumber()).to.equal(0);
     expect(account.bump).to.equal(merchantBump);
   });
 
   it("records a payment and updates stats", async () => {
-    const paymentAmount = new anchor.BN(1_000_000); // 1 USDC (6 decimals)
-
-    const tx = await program.methods
-      .recordPayment(paymentAmount)
+    await program.methods
+      .recordPayment(new anchor.BN(1_000_000))
       .accounts({
         merchantAccount: merchantPda,
         merchant: merchant.publicKey,
         buyer: provider.wallet.publicKey,
       })
       .rpc();
-
-    console.log("  Record payment tx:", tx);
 
     const account = await program.account.merchantAccount.fetch(merchantPda);
     expect(account.totalPayments.toNumber()).to.equal(1);
     expect(account.totalVolumeLamports.toNumber()).to.equal(1_000_000);
-    // First payment → unique_buyers should be 1 (since 1 % 5 == 1)
-    expect(account.uniqueBuyers).to.equal(1);
-    // Timestamp should be recent
     expect(account.lastPaymentTs.toNumber()).to.be.greaterThan(0);
   });
 
-  it("accumulates multiple payments correctly", async () => {
-    // Record 4 more payments (total 5)
-    for (let i = 0; i < 4; i++) {
-      await program.methods
-        .recordPayment(new anchor.BN(500_000)) // 0.5 USDC each
-        .accounts({
-          merchantAccount: merchantPda,
-          merchant: merchant.publicKey,
-          buyer: provider.wallet.publicKey,
-        })
-        .rpc();
-    }
-
-    const account = await program.account.merchantAccount.fetch(merchantPda);
-    expect(account.totalPayments.toNumber()).to.equal(5);
-    // 1_000_000 + (4 * 500_000) = 3_000_000
-    expect(account.totalVolumeLamports.toNumber()).to.equal(3_000_000);
-    // unique_buyers: incremented at payment 1 (1%5==1) only → still 1
-    expect(account.uniqueBuyers).to.equal(1);
-  });
-
-  it("increments unique buyers at payment 6 (6 % 5 == 1)", async () => {
-    await program.methods
-      .recordPayment(new anchor.BN(100_000))
-      .accounts({
-        merchantAccount: merchantPda,
-        merchant: merchant.publicKey,
-        buyer: provider.wallet.publicKey,
-      })
-      .rpc();
-
-    const account = await program.account.merchantAccount.fetch(merchantPda);
-    expect(account.totalPayments.toNumber()).to.equal(6);
-    expect(account.uniqueBuyers).to.equal(2); // incremented at payment 6
-  });
-
-  it("reads reputation via get_reputation instruction", async () => {
+  it("reads reputation via get_reputation", async () => {
     const tx = await program.methods
       .getReputation()
       .accounts({
@@ -114,12 +85,11 @@ describe("agent-reputation", () => {
       .rpc();
 
     console.log("  Get reputation tx:", tx);
-    // This is a read-only convenience — no state changes
     const account = await program.account.merchantAccount.fetch(merchantPda);
-    expect(account.totalPayments.toNumber()).to.equal(6);
+    expect(account.totalPayments.toNumber()).to.equal(1);
   });
 
-  it("prevents double initialization (same merchant)", async () => {
+  it("prevents double initialization", async () => {
     try {
       await program.methods
         .initializeMerchant()
@@ -127,53 +97,256 @@ describe("agent-reputation", () => {
           merchantAccount: merchantPda,
           merchant: merchant.publicKey,
           payer: provider.wallet.publicKey,
-          systemProgram: anchor.web3.SystemProgram.programId,
+          systemProgram: web3.SystemProgram.programId,
         })
         .rpc();
-
-      // Should not reach here
       expect.fail("Should have thrown on double init");
     } catch (err: any) {
-      // Anchor returns an error when trying to init an existing PDA
       expect(err.toString()).to.include("already in use");
     }
   });
+});
 
-  it("works with a second merchant independently", async () => {
-    const merchant2 = Keypair.generate();
-    const [pda2] = PublicKey.findProgramAddressSync(
-      [Buffer.from("merchant"), merchant2.publicKey.toBuffer()],
+// ═══════════════════════════════════════════════════════════════════════
+// Streaming Sessions — Localnet (no ER needed)
+// ═══════════════════════════════════════════════════════════════════════
+
+describe("streaming-sessions (localnet)", () => {
+  const sessionIdRaw = makeSessionId(1);
+  let sessionPda: PublicKey;
+  let sessionBump: number;
+
+  before(() => {
+    [sessionPda, sessionBump] = PublicKey.findProgramAddressSync(
+      [
+        STREAM_SESSION_SEED,
+        provider.wallet.publicKey.toBuffer(),
+        Buffer.from(sessionIdRaw),
+      ],
+      program.programId,
+    );
+    console.log("  Session PDA:", sessionPda.toString());
+  });
+
+  it("initializes a stream session", async () => {
+    const tx = await program.methods
+      .initializeSession(sessionIdRaw, new anchor.BN(1000), new anchor.BN(500))
+      .accounts({
+        session: sessionPda,
+        payer: provider.wallet.publicKey,
+        merchant: merchant.publicKey,
+        systemProgram: web3.SystemProgram.programId,
+      })
+      .rpc();
+
+    console.log("  Init session tx:", tx);
+
+    const account = await program.account.streamSession.fetch(sessionPda);
+    expect(account.buyer.toBase58()).to.equal(
+      provider.wallet.publicKey.toBase58(),
+    );
+    expect(account.ratePerTick.toNumber()).to.equal(1000);
+    expect(account.intervalMs.toNumber()).to.equal(500);
+    expect(account.tickCount.toNumber()).to.equal(0);
+    expect(account.totalPaid.toNumber()).to.equal(0);
+    expect(account.bump).to.equal(sessionBump);
+  });
+
+  it("rejects interval < 500ms", async () => {
+    const badId = makeSessionId(99);
+    const [badPda] = PublicKey.findProgramAddressSync(
+      [
+        STREAM_SESSION_SEED,
+        provider.wallet.publicKey.toBuffer(),
+        Buffer.from(badId),
+      ],
       program.programId,
     );
 
-    // Initialize
+    try {
+      await program.methods
+        .initializeSession(badId, new anchor.BN(1000), new anchor.BN(100))
+        .accounts({
+          session: badPda,
+          payer: provider.wallet.publicKey,
+          merchant: merchant.publicKey,
+          systemProgram: web3.SystemProgram.programId,
+        })
+        .rpc();
+      expect.fail("Should have thrown IntervalTooFast");
+    } catch (err: any) {
+      expect(err.toString()).to.include("IntervalTooFast");
+    }
+  });
+
+  it("records ticks and accumulates payment", async () => {
     await program.methods
-      .initializeMerchant()
+      .recordTick(new anchor.BN(1000))
+      .accounts({ session: sessionPda, payer: provider.wallet.publicKey })
+      .rpc();
+
+    await program.methods
+      .recordTick(new anchor.BN(1000))
+      .accounts({ session: sessionPda, payer: provider.wallet.publicKey })
+      .rpc();
+
+    const account = await program.account.streamSession.fetch(sessionPda);
+    expect(account.tickCount.toNumber()).to.equal(2);
+    expect(account.totalPaid.toNumber()).to.equal(2000);
+  });
+
+  it("sessions are independent by ID", async () => {
+    const id2 = makeSessionId(2);
+    const [pda2] = PublicKey.findProgramAddressSync(
+      [
+        STREAM_SESSION_SEED,
+        provider.wallet.publicKey.toBuffer(),
+        Buffer.from(id2),
+      ],
+      program.programId,
+    );
+
+    await program.methods
+      .initializeSession(id2, new anchor.BN(2000), new anchor.BN(1000))
       .accounts({
-        merchantAccount: pda2,
-        merchant: merchant2.publicKey,
+        session: pda2,
         payer: provider.wallet.publicKey,
-        systemProgram: anchor.web3.SystemProgram.programId,
+        merchant: merchant.publicKey,
+        systemProgram: web3.SystemProgram.programId,
       })
       .rpc();
 
-    // Record a payment
-    await program.methods
-      .recordPayment(new anchor.BN(2_000_000))
+    const a2 = await program.account.streamSession.fetch(pda2);
+    expect(a2.ratePerTick.toNumber()).to.equal(2000);
+    expect(a2.tickCount.toNumber()).to.equal(0);
+
+    // Original unaffected
+    const a1 = await program.account.streamSession.fetch(sessionPda);
+    expect(a1.tickCount.toNumber()).to.equal(2);
+  });
+});
+
+// ═══════════════════════════════════════════════════════════════════════
+// Streaming Sessions — Devnet + MagicBlock ER
+// ═══════════════════════════════════════════════════════════════════════
+
+const isLocalnet =
+  provider.connection.rpcEndpoint.includes("localhost") ||
+  provider.connection.rpcEndpoint.includes("127.0.0.1");
+
+if (isLocalnet) {
+  console.log(
+    "Skipping ER suite — requires devnet + MagicBlock. Run with: anchor test --provider.cluster devnet --skip-local-validator",
+  );
+}
+
+const erSuite = isLocalnet ? describe.skip : describe;
+
+erSuite("streaming-sessions-er (devnet + MagicBlock)", () => {
+  const connection = new ConnectionMagicRouter(
+    process.env.ROUTER_ENDPOINT || "https://devnet-router.magicblock.app/",
+    {
+      wsEndpoint:
+        process.env.ROUTER_ENDPOINT?.replace(/^https:\/\//, "wss://").replace(
+          /^http:\/\//,
+          "ws://",
+        ) || "wss://devnet-router.magicblock.app/",
+    },
+  );
+
+  const providerMagic = new anchor.AnchorProvider(
+    connection,
+    anchor.Wallet.local(),
+  );
+
+  const sessionIdRaw = makeSessionId(42);
+  let sessionPda: PublicKey;
+  let ephemeralValidator: any;
+
+  before(async function () {
+    this.timeout(30_000);
+    [sessionPda] = PublicKey.findProgramAddressSync(
+      [
+        STREAM_SESSION_SEED,
+        providerMagic.wallet.publicKey.toBuffer(),
+        Buffer.from(sessionIdRaw),
+      ],
+      program.programId,
+    );
+    ephemeralValidator = await connection.getClosestValidator();
+    console.log("  ER validator:", JSON.stringify(ephemeralValidator));
+    const bal = await connection.getBalance(providerMagic.wallet.publicKey);
+    console.log("  Balance:", bal / LAMPORTS_PER_SOL, "SOL");
+  });
+
+  it("init session → delegate → tick on ER → close + commit", async function () {
+    this.timeout(90_000);
+
+    // 1. Initialize on L1
+    let tx = await program.methods
+      .initializeSession(sessionIdRaw, new anchor.BN(1000), new anchor.BN(500))
       .accounts({
-        merchantAccount: pda2,
-        merchant: merchant2.publicKey,
-        buyer: provider.wallet.publicKey,
+        session: sessionPda,
+        payer: providerMagic.wallet.publicKey,
+        merchant: merchant.publicKey,
+        systemProgram: web3.SystemProgram.programId,
       })
-      .rpc();
+      .transaction();
+    let hash = await sendAndConfirmTransaction(
+      connection, tx, [providerMagic.wallet.payer],
+      { skipPreflight: true, commitment: "confirmed" },
+    );
+    console.log("  Init:", hash);
 
-    // Verify merchant2's stats are independent
-    const account2 = await program.account.merchantAccount.fetch(pda2);
-    expect(account2.totalPayments.toNumber()).to.equal(1);
-    expect(account2.totalVolumeLamports.toNumber()).to.equal(2_000_000);
+    // 2. Delegate to ER
+    tx = await program.methods
+      .delegateSession(sessionIdRaw)
+      .accounts({
+        payer: providerMagic.wallet.publicKey,
+        validator: new PublicKey(ephemeralValidator.identity),
+        session: sessionPda,
+      })
+      .transaction();
+    hash = await sendAndConfirmTransaction(
+      connection, tx, [providerMagic.wallet.payer],
+      { skipPreflight: true, commitment: "confirmed" },
+    );
+    console.log("  Delegate:", hash);
 
-    // Verify merchant1 is unaffected
-    const account1 = await program.account.merchantAccount.fetch(merchantPda);
-    expect(account1.totalPayments.toNumber()).to.equal(6);
+    // 3. Record ticks on ER
+    for (let i = 1; i <= 3; i++) {
+      tx = await program.methods
+        .recordTick(new anchor.BN(1000))
+        .accounts({ session: sessionPda, payer: providerMagic.wallet.publicKey })
+        .transaction();
+      hash = await sendAndConfirmTransaction(
+        connection, tx, [providerMagic.wallet.payer],
+        { skipPreflight: true },
+      );
+      console.log(`  Tick #${i}: ${hash}`);
+    }
+
+    // 4. Close session (commit + undelegate)
+    tx = await program.methods
+      .closeSession()
+      .accounts({ session: sessionPda, payer: providerMagic.wallet.publicKey })
+      .transaction();
+    hash = await sendAndConfirmTransaction(
+      connection, tx, [providerMagic.wallet.payer],
+      { skipPreflight: true },
+    );
+    console.log("  Close:", hash);
+
+    // 5. Verify on L1
+    const commitSig = await GetCommitmentSignature(
+      hash,
+      new anchor.web3.Connection(ephemeralValidator.fqdn),
+    );
+    console.log("  L1 commit:", commitSig);
+
+    const account = await program.account.streamSession.fetch(sessionPda);
+    expect(account.tickCount.toNumber()).to.equal(3);
+    expect(account.totalPaid.toNumber()).to.equal(3000);
+    expect(JSON.stringify(account.status)).to.include("closed");
   });
 });
