@@ -18,7 +18,7 @@
 </p>
 
 <p align="center">
-  <a href="https://xavierscript.mintlify.app">Documentation</a> · <a href="https://yanga-wallet.vercel.app">Explorer</a> · <a href="https://youtu.be/_-IOTwfg-oA?si=dnJPUnbbCJ5mQaMV">Demo</a>
+  <a href="https://xavierscript.mintlify.app">Documentation</a> · <a href="https://yanga-wallet.vercel.app">Explorer</a> · <a href="https://youtu.be/_-IOTwfg-oA?si=dnJPUnbbCJ5mQaMV">Demo</a> · <a href="https://x.com/xavierScript/status/2039315867285016736?s=20">X Article</a>
 </p>
 
 ---
